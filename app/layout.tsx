@@ -1,21 +1,38 @@
 import type { Metadata } from "next";
-import { Nunito } from "next/font/google";
+import { Nunito_Sans, Rubik } from "next/font/google";
 import "./globals.css";
 
-const nunito = Nunito({
-  variable: "--font-nunito",
+const rubik = Rubik({
   subsets: ["latin", "cyrillic"],
+  display: "swap",
+  variable: "--font-display",
+});
+
+const montserrat = Nunito_Sans({
+  subsets: ["latin", "cyrillic"],
+  display: "swap",
+  variable: "--font-sans",
 });
 
 export const metadata: Metadata = {
-  title: "Habit Tracker",
-  description: "Improove yourself with us",
+  title: "HabitTrack — трекер вредных привычек",
+  description:
+    "Удобный трекер, который поможет контролировать прогресс, оставаться мотивированным и избавляться от вредных привычек.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" className={`${nunito.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html
+      lang="ru"
+      className={`${rubik.variable} ${montserrat.variable} scroll-smooth`}
+    >
+      <body className="font-sans bg-[#0B0F1A] text-white antialiased">
+        {children}
+      </body>
     </html>
   );
 }
