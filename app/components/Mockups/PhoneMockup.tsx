@@ -6,7 +6,7 @@ import {
   Menu,
   User,
 } from "lucide-react";
-import Logo from "./Logo";
+import Logo from "../Logo";
 import { habits } from "./data";
 
 const tabs = [

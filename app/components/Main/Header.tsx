@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import Logo from "@/app/components/Logo";
+import { useSession, signIn, signOut } from "next-auth/react";
 
 const navLinks = [
   { label: "Привычки", href: "#" },
@@ -14,6 +15,8 @@ const navLinks = [
 export default function Header() {
   const [open, setOpen] = useState(false);
 
+  const { data: session, status } = useSession();
+
   return (
     <header className="relative z-20 mx-auto max-w-7xl px-6 pt-5 sm:pt-8">
       <div className="flex items-center justify-between gap-4">
@@ -24,7 +27,7 @@ export default function Header() {
         >
           <Logo gradient />
           <span className="text-lg font-bold transition-colors group-hover:text-[#A78BFA]">
-            HabitTrack
+            Трекер
           </span>
         </a>
 
@@ -45,13 +48,17 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <a
-            href="#"
-            className="group relative overflow-hidden rounded-full border border-[#8B5CF6]/60 bg-[#8B5CF6]/10 px-5 py-2 text-sm font-semibold transition-all duration-300 hover:border-[#8B5CF6] hover:bg-[#8B5CF6]/25 hover:shadow-[0_0_25px_-5px_rgba(139,92,246,0.7)] sm:px-8 sm:py-2.5"
+          <button
+            type="button"
+            onClick={() => (session ? signOut() : signIn("github"))}
+            disabled={status === "loading"}
+            className="group relative overflow-hidden rounded-full border border-[#8B5CF6]/60 bg-[#8B5CF6]/10 px-5 py-2 text-sm font-semibold transition-all duration-300 hover:border-[#8B5CF6] hover:bg-[#8B5CF6]/25 hover:shadow-[0_0_25px_-5px_rgba(139,92,246,0.7)] disabled:opacity-60 sm:px-8 sm:py-2.5"
           >
-            <span className="relative z-10">Авторизоваться</span>
+            <span className="relative z-10">
+              {session ? "Выйти" : "Авторизоваться"}
+            </span>
             <span className="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/15 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-          </a>
+          </button>
           <button
             type="button"
             onClick={() => setOpen(!open)}

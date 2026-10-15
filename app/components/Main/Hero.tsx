@@ -4,10 +4,10 @@ import {
   Heart,
   LayoutDashboard,
 } from "lucide-react";
-import DevicesMockup from "./DevicesMockup";
-import GradientText from "./GradientText";
-import Header from "./Header";
-import HeroBackground from "./HeroBackground";
+import DevicesMockup from "../Mockups/DevicesMockup";
+import GradientText from "../GradientText";
+import Header from "../Main/Header";
+import HeroBackground from "../HeroBackground";
 
 const perks = [
   { label: "Простой и удобный интерфейс", Icon: LayoutDashboard },

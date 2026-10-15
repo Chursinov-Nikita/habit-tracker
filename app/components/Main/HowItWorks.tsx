@@ -1,5 +1,5 @@
 import { ChevronRight } from "lucide-react";
-import GradientText from "./GradientText";
+import GradientText from "../GradientText";
 
 const steps = [
   {

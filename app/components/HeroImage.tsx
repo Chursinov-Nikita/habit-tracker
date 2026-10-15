@@ -1,12 +1,12 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Image from 'next/image'
+import { useState } from "react";
+import Image from "next/image";
 
 export default function HeroImage() {
-  const [failed, setFailed] = useState(false)
+  const [failed, setFailed] = useState(false);
 
-  if (failed) return null
+  if (failed) return null;
 
   return (
     <Image
@@ -15,9 +15,9 @@ export default function HeroImage() {
       fill
       priority
       sizes="100vw"
-      quality={80}
+      quality={75}
       onError={() => setFailed(true)}
       className="-z-20 object-cover object-[65%_center]"
     />
-  )
+  );
 }

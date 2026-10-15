@@ -1,5 +1,5 @@
-import PhoneMockup from "@/app/components/PhoneMockup";
-import TabletMockup from "@/app/components/TabletMockup";
+import PhoneMockup from "@/app/components/Mockups/PhoneMockup";
+import TabletMockup from "@/app/components/Mockups/TabletMockup";
 
 export default function DevicesMockup() {
   return (
