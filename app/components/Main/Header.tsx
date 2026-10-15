@@ -39,7 +39,7 @@ export default function Header() {
             <a
               key={l.label}
               href={l.href}
-              className="group relative text-[14px] font-semibold text-white/80 transition-colors duration-300 hover:text-white"
+              className="group relative text-sm font-semibold text-white/80 transition-colors duration-300 hover:text-white"
             >
               {l.label}
               <span className="pointer-events-none absolute -bottom-2 left-1/2 h-px w-0 -translate-x-1/2 bg-linear-to-r from-transparent via-[#8B5CF6] to-transparent transition-all duration-300 group-hover:w-full" />
@@ -52,7 +52,7 @@ export default function Header() {
             type="button"
             onClick={() => (session ? signOut() : signIn("github"))}
             disabled={status === "loading"}
-            className="group relative overflow-hidden rounded-full border border-[#8B5CF6]/60 bg-[#8B5CF6]/10 px-5 py-2 text-sm font-semibold transition-all duration-300 hover:border-[#8B5CF6] hover:bg-[#8B5CF6]/25 hover:shadow-[0_0_25px_-5px_rgba(139,92,246,0.7)] disabled:opacity-60 sm:px-8 sm:py-2.5"
+            className="group relative overflow-hidden rounded-full border border-[#8B5CF6]/30 bg-[#8B5CF6]/10 px-5 py-2 text-sm font-semibold transition-all duration-300 hover:border-[#8B5CF6] hover:bg-[#8B5CF6]/25 hover:shadow-[0_0_25px_-5px_rgba(139,92,246,0.7)] disabled:opacity-60 sm:px-8 sm:py-2.5"
           >
             <span className="relative z-10">
               {session ? "Выйти" : "Авторизоваться"}

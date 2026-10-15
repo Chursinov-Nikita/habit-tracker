@@ -1,5 +1,4 @@
 import { Bell, ChartNoAxesColumn, Star, Target } from "lucide-react";
-import GradientText from "@/app/components/GradientText";
 
 const features = [
   {
@@ -32,14 +31,16 @@ export default function Features() {
   return (
     <section
       id="features"
-      className="mx-auto max-w-[1280px] scroll-mt-20 px-6 pb-8 pt-10 sm:pt-12"
+      className="mx-auto max-w-7xl scroll-mt-20 px-6 pb-8 pt-10 sm:pt-12"
     >
       <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#94A3B8] sm:text-[11px] sm:tracking-[0.25em]">
         Почему выбирают HabitTrack
       </p>
       <h2 className="mt-4 text-[28px] font-display font-bold leading-tight sm:text-4xl">
         Инструменты, которые
-        <GradientText className="block">работают на тебя</GradientText>
+        <span className="bg-[linear-gradient(90deg,#8B5CF6_0%,#3B82F6_100%)] bg-clip-text text-transparent block">
+          работают на тебя
+        </span>
       </h2>
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {features.map(({ title, text, Icon, tone }) => (

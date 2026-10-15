@@ -1,5 +1,4 @@
 import { ChevronRight } from "lucide-react";
-import GradientText from "../GradientText";
 
 const steps = [
   {
@@ -19,15 +18,18 @@ export default function HowItWorks() {
   return (
     <section
       id="how"
-      className="mx-auto max-w-[1280px] scroll-mt-20 px-6 pb-20 mb-25 pt-12 sm:pb-24 sm:pt-16"
+      className="mx-auto max-w-7xl scroll-mt-20 px-6 pb-20 mb-25 pt-12 sm:pb-24 sm:pt-16"
     >
       <div className="grid items-center gap-8 xl:grid-cols-[auto_1fr] xl:gap-16">
         <div>
           <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#94A3B8] sm:text-[11px] sm:tracking-[0.25em]">
             Как это работает
           </p>
-          <h2 className="mt-3 text-[28px] font-bold sm:whitespace-nowrap sm:text-4xl font-display font-display">
-            Всего <GradientText>3 простых шага</GradientText>
+          <h2 className="mt-3 text-[28px] font-bold sm:whitespace-nowrap sm:text-4xl font-display">
+            Всего{" "}
+            <span className="bg-[linear-gradient(90deg,#8B5CF6_0%,#3B82F6_100%)] bg-clip-text text-transparent">
+              3 простых шага
+            </span>
           </h2>
         </div>
         <ol className="grid gap-6 md:grid-cols-3 md:gap-10">
