@@ -23,7 +23,7 @@ export default function Hero() {
 
         <div className="mx-auto grid w-full max-w-7xl flex-1 items-center gap-12 px-6 pb-14 pt-10 sm:pt-14 lg:grid-cols-[1fr_448px] lg:gap-10 lg:pb-20 xl:grid-cols-[1fr_576px]">
           <div>
-            <p className="text-[10px] font-medium uppercase leading-5 tracking-[0.2em] text-[#94A3B8] sm:text-[11px] sm:tracking-[0.25em]">
+            <p className="text-xs font-extralight uppercase leading-5 tracking-[0.2em] text-[#94A3B8] sm:text-[10px] sm:tracking-[0.25em]">
               Лучшее будущее начинается
               <br />с правильных привычек
             </p>
