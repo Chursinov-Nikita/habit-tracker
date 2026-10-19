@@ -1,6 +1,6 @@
 import { Bell, Trophy } from "lucide-react";
-import PhoneMockup from "@/app/components/Mockups/PhoneMockup";
-import TabletMockup from "@/app/components/Mockups/TabletMockup";
+import PhoneMockup from "@/app/components/main/Mockups/PhoneMockup";
+import TabletMockup from "@/app/components/main/Mockups/TabletMockup";
 
 const glass =
   "rounded-2xl border border-white/15 bg-white/[0.07] shadow-[inset_0_1px_0_rgba(255,255,255,0.3),inset_0_0_20px_rgba(255,255,255,0.04),0_18px_40px_-12px_rgba(0,0,0,0.7)] backdrop-blur-xl backdrop-saturate-150";

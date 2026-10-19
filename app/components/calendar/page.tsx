@@ -1,0 +1,260 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
+
+type Habit = { id: string; name: string };
+type HabitLog = {
+  id: string;
+  habitId: string;
+  date: string;
+  completed: boolean;
+};
+
+const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+
+const toKey = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+export default function CalendarPage() {
+  const today = new Date();
+  const todayKey = toKey(today);
+  const [cursor, setCursor] = useState(
+    new Date(today.getFullYear(), today.getMonth(), 1),
+  );
+  const [selected, setSelected] = useState(todayKey);
+
+  const year = cursor.getFullYear();
+  const month = cursor.getMonth();
+  const monthKey = `${year}-${String(month + 1).padStart(2, "0")}`;
+
+  const [habits, setHabits] = useState<Habit[]>([]);
+  const [logs, setLogs] = useState<HabitLog[]>([]);
+
+  useEffect(() => {
+    fetch("/api/habits")
+      .then((r) => r.json())
+      .then(setHabits)
+      .catch(() => setHabits([]));
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/habit-logs?month=${monthKey}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (!cancelled) setLogs(data);
+      })
+      .catch(() => {
+        if (!cancelled) setLogs([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [monthKey]);
+
+  const logsByDay = useMemo(() => {
+    const map: Record<string, HabitLog[]> = {};
+    logs.forEach((l) => {
+      const k = l.date.slice(0, 10);
+      (map[k] ||= []).push(l);
+    });
+    return map;
+  }, [logs]);
+
+  const cells = useMemo(() => {
+    const offset = (new Date(year, month, 1).getDay() + 6) % 7;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const total = Math.ceil((offset + daysInMonth) / 7) * 7;
+    return Array.from({ length: total }, (_, i) => {
+      const date = new Date(year, month, i - offset + 1);
+      return {
+        key: toKey(date),
+        day: date.getDate(),
+        inMonth: date.getMonth() === month,
+      };
+    });
+  }, [year, month]);
+
+  const successCount = logs.filter((l) => l.completed).length;
+  const failCount = logs.length - successCount;
+
+  const [sy, sm, sd] = selected.split("-").map(Number);
+  const selectedDate = new Date(sy, sm - 1, sd);
+  const selectedLogs = logsByDay[selected] ?? [];
+
+  const monthTitle = new Intl.DateTimeFormat("ru-RU", {
+    month: "long",
+    year: "numeric",
+  }).format(cursor);
+  const selectedTitle = new Intl.DateTimeFormat("ru-RU", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  }).format(selectedDate);
+
+  return (
+    <main className="min-h-screen bg-[#0B0F1A] px-4 pb-16 pt-28 text-white">
+      <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1fr_360px]">
+        <section className="rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl sm:p-6">
+          <div className="mb-6 flex items-center justify-between gap-3">
+            <h1 className="font-[family-name:var(--font-space-grotesk)] text-2xl font-semibold capitalize sm:text-3xl">
+              {monthTitle}
+            </h1>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setCursor(new Date(today.getFullYear(), today.getMonth(), 1));
+                  setSelected(todayKey);
+                }}
+                className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-300 transition hover:bg-white/10"
+              >
+                Сегодня
+              </button>
+              <button
+                onClick={() => setCursor(new Date(year, month - 1, 1))}
+                className="rounded-xl bg-[#6366F1] p-2 text-white transition hover:bg-[#5558E8]"
+                aria-label="Предыдущий месяц"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => setCursor(new Date(year, month + 1, 1))}
+                className="rounded-xl bg-[#6366F1] p-2 text-white transition hover:bg-[#5558E8]"
+                aria-label="Следующий месяц"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+
+          <div className="mb-2 grid grid-cols-7 gap-1.5 sm:gap-2">
+            {weekDays.map((w) => (
+              <div
+                key={w}
+                className="py-1 text-center text-xs font-medium uppercase tracking-wide text-slate-500"
+              >
+                {w}
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
+            {cells.map((c) => {
+              const dayLogs = logsByDay[c.key] ?? [];
+              const ok = dayLogs.filter((l) => l.completed).length;
+              const fail = dayLogs.length - ok;
+              return (
+                <button
+                  key={c.key}
+                  onClick={() => setSelected(c.key)}
+                  className={`flex min-h-14 flex-col items-start justify-between rounded-xl border p-2 text-left transition sm:min-h-24 sm:p-3 ${
+                    c.inMonth ? "text-white" : "text-slate-600"
+                  } ${
+                    fail > 0
+                      ? "border-red-500/30 bg-red-500/10"
+                      : ok > 0
+                        ? "border-emerald-500/30 bg-emerald-500/10"
+                        : "border-white/5 bg-white/[0.03]"
+                  } ${c.key === selected ? "ring-2 ring-[#6366F1]" : "hover:bg-white/10"}`}
+                >
+                  <span
+                    className={`flex h-6 w-6 items-center justify-center rounded-full text-sm font-medium sm:h-7 sm:w-7 ${
+                      c.key === todayKey ? "bg-white/20 font-semibold" : ""
+                    }`}
+                  >
+                    {c.day}
+                  </span>
+                  <span className="flex items-center gap-2 text-[10px] font-medium sm:text-xs">
+                    {ok > 0 && (
+                      <span className="flex items-center gap-1 text-emerald-400">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                        {ok}
+                      </span>
+                    )}
+                    {fail > 0 && (
+                      <span className="flex items-center gap-1 text-red-400">
+                        <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
+                        {fail}
+                      </span>
+                    )}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        <aside className="flex flex-col gap-6">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
+              <p className="text-xs uppercase tracking-wide text-slate-500">
+                Без срывов
+              </p>
+              <p className="mt-2 font-[family-name:var(--font-space-grotesk)] text-3xl font-semibold text-emerald-400">
+                {successCount}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
+              <p className="text-xs uppercase tracking-wide text-slate-500">
+                Срывы
+              </p>
+              <p className="mt-2 font-[family-name:var(--font-space-grotesk)] text-3xl font-semibold text-red-400">
+                {failCount}
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
+            <h2 className="font-[family-name:var(--font-space-grotesk)] text-xl font-semibold capitalize">
+              {selectedTitle}
+            </h2>
+            <p className="mt-1 text-sm text-slate-400">
+              {selectedLogs.length > 0
+                ? `Отметок за день: ${selectedLogs.length}`
+                : "Отметок за этот день нет"}
+            </p>
+
+            <ul className="mt-4 flex flex-col gap-2">
+              {habits.length === 0 && (
+                <li className="rounded-xl border border-dashed border-white/10 p-4 text-center text-sm text-slate-500">
+                  Привычек пока нет
+                </li>
+              )}
+              {habits.map((h) => {
+                const log = selectedLogs.find((l) => l.habitId === h.id);
+                return (
+                  <li
+                    key={h.id}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3"
+                  >
+                    <span className="truncate text-sm font-medium">
+                      {h.name}
+                    </span>
+                    {log ? (
+                      log.completed ? (
+                        <span className="flex shrink-0 items-center gap-1.5 text-xs font-medium text-emerald-400">
+                          <Check className="h-4 w-4" />
+                          Без срыва
+                        </span>
+                      ) : (
+                        <span className="flex shrink-0 items-center gap-1.5 text-xs font-medium text-red-400">
+                          <X className="h-4 w-4" />
+                          Срыв
+                        </span>
+                      )
+                    ) : (
+                      <span className="shrink-0 text-xs text-slate-500">
+                        Нет отметки
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </main>
+  );
+}

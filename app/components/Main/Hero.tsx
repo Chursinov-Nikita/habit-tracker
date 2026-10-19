@@ -4,8 +4,8 @@ import {
   Heart,
   LayoutDashboard,
 } from "lucide-react";
-import DevicesMockup from "../Mockups/DevicesMockup";
-import Header from "../Main/Header";
+import DevicesMockup from "./Mockups/DevicesMockup";
+import Link from "next/link";
 
 const perks = [
   { label: "Простой и удобный интерфейс", Icon: LayoutDashboard },
@@ -17,13 +17,9 @@ export default function Hero() {
   return (
     <section className="relative isolate overflow-hidden">
       <div className="flex min-h-svh flex-col">
-        <div>
-          <Header />
-        </div>
-
-        <div className="mx-auto grid w-full max-w-7xl flex-1 items-center gap-12 px-6 pb-14 pt-10 sm:pt-14 lg:grid-cols-[1fr_448px] lg:gap-10 lg:pb-20 xl:grid-cols-[1fr_576px]">
+        <div className="mx-auto grid w-full max-w-7xl flex-1 items-center gap-12 px-6 pb-20 pt-10 sm:pt-14 lg:grid-cols-[1fr_448px] lg:gap-10 lg:pb-35 xl:grid-cols-[1fr_576px]">
           <div>
-            <p className="text-xs font-extralight uppercase leading-5 tracking-[0.2em] text-[#94A3B8] sm:text-[10px] sm:tracking-[0.25em]">
+            <p className="text-xs font-light uppercase leading-5 tracking-[0.2em] text-[#94A3B8] sm:text-[10px] sm:tracking-[0.25em]">
               Лучшее будущее начинается
               <br />с правильных привычек
             </p>
@@ -37,10 +33,13 @@ export default function Hero() {
               Удобный трекер, который поможет тебе контролировать прогресс,
               оставаться мотивированным и менять свою жизнь к лучшему.
             </p>
-            <button className="mt-8 inline-flex w-full items-center justify-center gap-3 rounded-full bg-[linear-gradient(90deg,#8B5CF6_0%,#6D4AFF_100%)] px-8 py-4 text-sm font-semibold shadow-[0_10px_40px_-8px_rgba(139,92,246,0.7)] transition hover:brightness-110 sm:mt-9 sm:w-auto hover:scale-101 duration-300">
+            <Link
+              href={"/components/habits"}
+              className="mt-8 inline-flex w-full items-center justify-center gap-3 rounded-full bg-[linear-gradient(90deg,#8B5CF6_0%,#6D4AFF_100%)] px-8 py-4 text-sm font-semibold shadow-[0_10px_40px_-8px_rgba(139,92,246,0.7)] transition hover:brightness-110 sm:mt-9 sm:w-auto hover:scale-101 duration-300"
+            >
               Начать бесплатно
               <ArrowRight className="h-4 w-4" strokeWidth={2} />
-            </button>
+            </Link>
             <ul className="mt-10 flex flex-col gap-4 sm:mt-12 sm:flex-row sm:flex-wrap sm:gap-x-6">
               {perks.map(({ label, Icon }) => (
                 <li key={label} className="flex items-center gap-3">
