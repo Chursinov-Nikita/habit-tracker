@@ -4,12 +4,16 @@ import { useEffect, useState, type MouseEvent } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useSession, signIn, signOut } from "next-auth/react";
-import LoginModal from "./LoginModal";
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
+
+const LoginModal = dynamic(() => import("./LoginModal"), {
+  ssr: false,
+});
 
 const navLinks = [
-  { label: "Привычки", href: "/components/habits" },
+  { label: "Привычки", href: "/components/habits/first" },
   { label: "Медитация", href: "/components/meditation" },
   { label: "Календарь", href: "/components/calendar" },
   { label: "О нас", href: "/#about" },
@@ -47,7 +51,7 @@ export default function Header() {
       document
         .getElementById("about")
         ?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 250);
+    }, 200);
     return () => window.clearTimeout(timer);
   }, [pathname]);
 
@@ -141,15 +145,16 @@ export default function Header() {
         </div>
       </div>
 
-      <LoginModal
-        open={loginWindow}
-        onClose={() => setLoginWindow(false)}
-        onGoogle={() => handleLogin("google")}
-        onGithub={() => handleLogin("github")}
-        loading={loading}
-      />
+      {loginWindow && (
+        <LoginModal
+          open={loginWindow}
+          onClose={() => setLoginWindow(false)}
+          onGoogle={() => handleLogin("google")}
+          onGithub={() => handleLogin("github")}
+          loading={loading}
+        />
+      )}
 
-      {/* Мобильное меню */}
       {openMobileMenu && (
         <nav
           id="mobile-menu"

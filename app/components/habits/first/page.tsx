@@ -3,148 +3,32 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Habit } from "../types";
+import {
+  catalog,
+  categories,
+  formCategories,
+  goalOptions,
+  pickerIcons,
+  icons,
+} from "../data";
 import {
   ArrowRight,
   Ban,
-  Candy,
   Check,
-  Cigarette,
-  Coffee,
-  Cookie,
   Flame,
-  Gamepad2,
-  Hand,
-  Hourglass,
-  Moon,
-  Pizza,
   Plus,
   Search,
-  ShoppingBag,
-  Smartphone,
-  Sofa,
   Sparkles,
   Target,
   Trash2,
-  Tv,
-  Utensils,
-  Wine,
   X,
-  Zap,
 } from "lucide-react";
 
-type Habit = {
-  id: string;
-  name: string;
-  category: string;
-  icon: string;
-  custom?: boolean;
-};
-
-const STORAGE_KEY = "habittrack:habits:v1";
-const TRACKED_KEY = "habittrack:tracked:v1";
-const PROGRESS_KEY = "habittrack:progress:v1";
-const TRACKER_PATH = "/components/tracker";
-
-const icons: Record<string, typeof Ban> = {
-  ban: Ban,
-  candy: Candy,
-  cigarette: Cigarette,
-  coffee: Coffee,
-  cookie: Cookie,
-  flame: Flame,
-  gamepad: Gamepad2,
-  hand: Hand,
-  hourglass: Hourglass,
-  moon: Moon,
-  pizza: Pizza,
-  bag: ShoppingBag,
-  phone: Smartphone,
-  sofa: Sofa,
-  tv: Tv,
-  utensils: Utensils,
-  wine: Wine,
-  zap: Zap,
-};
-
-const pickerIcons = [
-  "ban",
-  "flame",
-  "zap",
-  "moon",
-  "coffee",
-  "phone",
-  "gamepad",
-  "candy",
-  "wine",
-  "hourglass",
-  "bag",
-  "tv",
-  "cigarette",
-  "pizza",
-  "sofa",
-  "hand",
-  "utensils",
-  "cookie",
-];
-
-const categories = [
-  "Все",
-  "Здоровье",
-  "Питание",
-  "Цифровое",
-  "Финансы",
-  "Свои",
-];
-const formCategories = ["Здоровье", "Питание", "Цифровое", "Финансы"];
-const goalOptions = [7, 14, 30, 66, 90];
-
-const catalog: Habit[] = [
-  { id: "smoking", name: "Курение", category: "Здоровье", icon: "cigarette" },
-  { id: "alcohol", name: "Алкоголь", category: "Здоровье", icon: "wine" },
-  { id: "nails", name: "Грызть ногти", category: "Здоровье", icon: "hand" },
-  {
-    id: "sedentary",
-    name: "Сидячий образ жизни",
-    category: "Здоровье",
-    icon: "sofa",
-  },
-  {
-    id: "late-sleep",
-    name: "Поздний отход ко сну",
-    category: "Здоровье",
-    icon: "moon",
-  },
-  { id: "sweets", name: "Сладкое", category: "Питание", icon: "candy" },
-  { id: "fastfood", name: "Фастфуд", category: "Питание", icon: "pizza" },
-  { id: "energy", name: "Энергетики", category: "Питание", icon: "zap" },
-  { id: "coffee", name: "Лишний кофе", category: "Питание", icon: "coffee" },
-  {
-    id: "night-snacks",
-    name: "Ночные перекусы",
-    category: "Питание",
-    icon: "utensils",
-  },
-  {
-    id: "social",
-    name: "Бесцельный скроллинг",
-    category: "Цифровое",
-    icon: "phone",
-  },
-  { id: "games", name: "Игры допоздна", category: "Цифровое", icon: "gamepad" },
-  { id: "series", name: "Сериалы запоем", category: "Цифровое", icon: "tv" },
-  {
-    id: "procrastination",
-    name: "Прокрастинация",
-    category: "Цифровое",
-    icon: "hourglass",
-  },
-  {
-    id: "impulse",
-    name: "Импульсивные траты",
-    category: "Финансы",
-    icon: "bag",
-  },
-];
+export const STORAGE_KEY = "habittrack:habits:v1";
+export const TRACKED_KEY = "habittrack:tracked:v1";
+export const PROGRESS_KEY = "habittrack:progress:v1";
+export const TRACKER_PATH = "/components/habits/second";
 
 export default function Habits({
   onSave,
@@ -337,9 +221,9 @@ export default function Habits({
         hydrated ? "opacity-100" : "opacity-0"
       }`}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:56px_56px] [mask-image:radial-gradient(ellipse_at_top,black_20%,transparent_75%)]" />
-      <div className="pointer-events-none absolute -top-40 left-1/2 h-[480px] w-[900px] -translate-x-1/2 rounded-full bg-[#6366F1]/15 blur-[140px]" />
-      <div className="pointer-events-none absolute bottom-0 right-0 h-[360px] w-[360px] rounded-full bg-[#6366F1]/10 blur-[120px]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-size-[56px_56px] [mask-image:radial-gradient(ellipse_at_top,black_20%,transparent_75%)]" />
+      <div className="pointer-events-none absolute -top-40 left-1/2 h-120 w-225 -translate-x-1/2 rounded-full bg-[#6366F1]/15 blur-[140px]" />
+      <div className="pointer-events-none absolute bottom-0 right-0 h-90 w-90 rounded-full bg-[#6366F1]/10 blur-[120px]" />
       <svg
         className="pointer-events-none absolute inset-x-0 bottom-0 h-64 w-full text-[#6366F1]/[0.06]"
         viewBox="0 0 1440 320"
@@ -421,7 +305,7 @@ export default function Habits({
                 )}
               </div>
 
-              <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
+              <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
                 {categories.map((item) => (
                   <button
                     key={item}
@@ -461,7 +345,7 @@ export default function Habits({
             </div>
 
             {filtered.length === 0 ? (
-              <div className="flex flex-col items-center rounded-3xl border border-dashed border-white/10 bg-white/[0.03] px-6 py-16 text-center">
+              <div className="flex flex-col items-center rounded-3xl border border-dashed border-white/10 bg-white/3 px-6 py-16 text-center">
                 <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-slate-500">
                   <Search className="h-7 w-7" />
                 </span>
@@ -498,7 +382,7 @@ export default function Habits({
                       key={habit.id}
                       onClick={() => toggle(habit.id)}
                       aria-pressed={active}
-                      className={`group relative flex items-center gap-3.5 overflow-hidden rounded-2xl border p-4 text-left backdrop-blur transition duration-200 before:absolute before:inset-x-6 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/25 before:to-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 active:scale-[0.98] ${
+                      className={`group relative flex items-center gap-3.5 overflow-hidden rounded-2xl border p-4 text-left backdrop-blur transition duration-200 before:absolute before:inset-x-6 before:top-0 before:h-px before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 active:scale-[0.98] ${
                         active
                           ? "border-[#6366F1]/70 bg-[#6366F1]/10 shadow-[0_10px_30px_-12px_rgba(99,102,241,0.6)]"
                           : "border-white/10 bg-[#111827]/60 hover:-translate-y-0.5 hover:border-white/20 hover:bg-[#111827]"
@@ -578,18 +462,18 @@ export default function Habits({
                   <p className="text-sm text-slate-300">
                     Пока ничего не выбрано
                   </p>
-                  <p className="mt-1 max-w-[220px] text-xs leading-relaxed text-slate-500">
+                  <p className="mt-1 max-w-55 text-xs leading-relaxed text-slate-500">
                     Нажми на карточку слева, чтобы добавить привычку
                   </p>
                 </div>
               ) : (
-                <ul className="flex max-h-[590px] flex-col gap-2.5 overflow-y-auto pr-1">
+                <ul className="flex max-h-147.5 flex-col gap-2.5 overflow-y-auto pr-1">
                   {selectedHabits.map((habit) => {
                     const Icon = icons[habit.icon] ?? Ban;
                     return (
                       <li
                         key={habit.id}
-                        className="rounded-2xl border border-white/10 bg-white/[0.03] p-3"
+                        className="rounded-2xl border border-white/10 bg-white/3 p-3"
                       >
                         <div className="flex items-center gap-3">
                           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#6366F1]/15 text-[#6366F1]">

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { icons } from "../data";
+import { Tracked, Progress } from "../types";
 import {
   ArrowLeft,
   Ban,
@@ -30,44 +32,10 @@ import {
   Zap,
 } from "lucide-react";
 
-type Tracked = {
-  id: string;
-  name: string;
-  category: string;
-  icon: string;
-  goalDays: number;
-};
-
-type Progress = Record<
-  string,
-  { startedAt: number; best: number; relapses: number }
->;
-
 const TRACKED_KEY = "habittrack:tracked:v1";
 const PROGRESS_KEY = "habittrack:progress:v1";
-const HABITS_PATH = "/components/habits";
+const HABITS_PATH = "/components/habits/first";
 const DAY = 86400000;
-
-const icons: Record<string, typeof Ban> = {
-  ban: Ban,
-  candy: Candy,
-  cigarette: Cigarette,
-  coffee: Coffee,
-  cookie: Cookie,
-  flame: Flame,
-  gamepad: Gamepad2,
-  hand: Hand,
-  hourglass: Hourglass,
-  moon: Moon,
-  pizza: Pizza,
-  bag: ShoppingBag,
-  phone: Smartphone,
-  sofa: Sofa,
-  tv: Tv,
-  utensils: Utensils,
-  wine: Wine,
-  zap: Zap,
-};
 
 const plural = (n: number) => {
   const mod10 = n % 10;
@@ -197,11 +165,11 @@ export default function Tracker() {
         hydrated ? "opacity-100" : "opacity-0"
       }`}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:56px_56px] [mask-image:radial-gradient(ellipse_at_top,black_20%,transparent_75%)]" />
-      <div className="pointer-events-none absolute -top-40 left-1/2 h-[480px] w-[900px] -translate-x-1/2 rounded-full bg-[#6366F1]/15 blur-[140px]" />
-      <div className="pointer-events-none absolute bottom-0 right-0 h-[360px] w-[360px] rounded-full bg-[#6366F1]/10 blur-[120px]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-size-[56px_56px] [mask-image:radial-gradient(ellipse_at_top,black_20%,transparent_75%)]" />
+      <div className="pointer-events-none absolute -top-40 left-1/2 h-120 w-225 -translate-x-1/2 rounded-full bg-[#6366F1]/15 blur-[140px]" />
+      <div className="pointer-events-none absolute bottom-0 right-0 h-90 w-90 rounded-full bg-[#6366F1]/10 blur-[120px]" />
       <svg
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-64 w-full text-[#6366F1]/[0.06]"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-64 w-full text-[#6366F1]/6"
         viewBox="0 0 1440 320"
         preserveAspectRatio="none"
         aria-hidden="true"
@@ -245,7 +213,7 @@ export default function Tracker() {
         </div>
 
         {items.length === 0 ? (
-          <div className="flex flex-col items-center rounded-3xl border border-dashed border-white/10 bg-white/[0.03] px-6 py-20 text-center">
+          <div className="flex flex-col items-center rounded-3xl border border-dashed border-white/10 bg-white/3 px-6 py-20 text-center">
             <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-slate-500">
               <Flame className="h-7 w-7" />
             </span>
@@ -299,7 +267,7 @@ export default function Tracker() {
                     key={item.id}
                     className={`rounded-3xl border p-5 shadow-2xl shadow-black/30 backdrop-blur-xl transition ${
                       item.done
-                        ? "border-emerald-500/30 bg-emerald-500/[0.04]"
+                        ? "border-emerald-500/30 bg-emerald-500/4"
                         : "border-white/10 bg-[#111827]/70"
                     }`}
                   >

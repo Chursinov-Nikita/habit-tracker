@@ -132,8 +132,8 @@ export default function RelaxPage() {
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#0B0F1A] px-4 pb-16 pt-28 text-white sm:px-6">
-      <div className="pointer-events-none absolute -top-40 left-1/2 h-[32rem] w-[32rem] -translate-x-1/2 rounded-full bg-indigo-600/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 right-0 h-[28rem] w-[28rem] rounded-full bg-cyan-500/10 blur-3xl" />
+      <div className="pointer-events-none absolute -top-40 left-1/2 h-128 w-lg -translate-x-1/2 rounded-full bg-indigo-600/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-40 right-0 h-112 w-md rounded-full bg-cyan-500/10 blur-3xl" />
 
       <div className="relative mx-auto max-w-6xl">
         <div className="mb-10 text-center lg:text-left">
@@ -180,7 +180,7 @@ export default function RelaxPage() {
               </svg>
 
               <div
-                className={`h-64 w-64 rounded-full bg-gradient-to-br from-indigo-500 via-violet-500 to-cyan-400 shadow-[0_0_80px_rgba(99,102,241,0.45)] transition-transform ease-in-out ${orbClass}`}
+                className={`h-64 w-64 rounded-full bg-linear-to-br from-indigo-500 via-violet-500 to-cyan-400 shadow-[0_0_80px_rgba(99,102,241,0.45)] transition-transform ease-in-out ${orbClass}`}
               />
 
               <div className="absolute flex flex-col items-center text-center">
