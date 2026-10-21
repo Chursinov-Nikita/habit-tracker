@@ -259,14 +259,14 @@ export default function Habits({
 
   return (
     <div
-      className={`relative min-h-screen px-4 pb-28 pt-50 text-slate-100 transition-opacity duration-300 sm:px-6 sm:pt-36 lg:px-10 lg:pb-20 ${
+      className={`relative min-h-screen px-4 pb-28 pt-50 text-slate-100 transition-opacity duration-300 sm:px-6 sm:pt-36 lg:flex lg:h-dvh lg:min-h-150 lg:flex-col lg:overflow-hidden lg:px-10 lg:pb-6 lg:pt-24 ${
         hydrated ? "opacity-100" : "opacity-0"
       }`}
     >
-      <div className="relative mx-auto max-w-7xl">
-        <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+      <div className="relative mx-auto flex w-full max-w-7xl flex-col lg:min-h-0 lg:flex-1">
+        <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between lg:mb-5 lg:shrink-0 lg:gap-4">
           <div>
-            <div className="mb-4 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 py-1.5 pl-3 pr-4 text-sm text-slate-300 backdrop-blur">
+            <div className="mb-4 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 py-1.5 pl-3 pr-4 text-sm text-slate-300 backdrop-blur lg:mb-2">
               <span className="flex gap-1">
                 <span className="h-1.5 w-6 rounded-full bg-[#6366F1]" />
                 <span className="h-1.5 w-6 rounded-full bg-white/10" />
@@ -277,11 +277,11 @@ export default function Habits({
               </span>
             </div>
             <h1
-              className={` bg-linear-to-b from-white to-slate-300 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl`}
+              className={` bg-linear-to-b from-white to-slate-300 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl lg:text-4xl`}
             >
               Привычки
             </h1>
-            <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-400">
+            <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-400 lg:mt-1.5 lg:text-sm lg:[@media(max-height:820px)]:hidden">
               Выбери, с чем хочешь бороться: возьми готовую привычку из списка
               или создай свою и задай цель в днях.
             </p>
@@ -309,9 +309,9 @@ export default function Habits({
           </div>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_400px]">
-          <section>
-            <div className="mb-5 flex flex-col gap-4">
+        <div className="grid gap-8 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_400px] lg:grid-rows-[minmax(0,1fr)] lg:gap-6">
+          <section className="lg:flex lg:min-h-0 lg:flex-col">
+            <div className="mb-5 flex flex-col gap-4 lg:mb-3 lg:shrink-0 lg:gap-3">
               <div className="relative">
                 <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
                 <input
@@ -319,7 +319,7 @@ export default function Habits({
                   onChange={(e) => setQuery(e.target.value)}
                   aria-label="Поиск привычки"
                   placeholder="Поиск привычки"
-                  className="w-full rounded-2xl border border-white/10 bg-white/5 py-3.5 pl-11 pr-11 text-sm text-slate-100 placeholder:text-slate-500 outline-none backdrop-blur transition focus:border-[#6366F1]/60 focus:bg-white/[0.07] focus:ring-4 focus:ring-[#6366F1]/10"
+                  className="w-full rounded-2xl border border-white/10 bg-white/5 py-3.5 pl-11 pr-11 text-sm text-slate-100 placeholder:text-slate-500 outline-none backdrop-blur transition focus:border-[#6366F1]/60 focus:bg-white/[0.07] focus:ring-4 focus:ring-[#6366F1]/10 lg:py-3"
                 />
                 {query && (
                   <button
@@ -372,7 +372,7 @@ export default function Habits({
             </div>
 
             {filtered.length === 0 ? (
-              <div className="flex flex-col items-center rounded-3xl border border-dashed border-white/10 bg-white/3 px-6 py-16 text-center">
+              <div className="flex flex-col items-center rounded-3xl border border-dashed border-white/10 bg-white/3 px-6 py-16 text-center lg:min-h-0 lg:flex-1 lg:justify-center lg:py-8">
                 <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-slate-500">
                   <Search className="h-7 w-7" />
                 </span>
@@ -400,7 +400,7 @@ export default function Habits({
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 lg:min-h-0 lg:flex-1 lg:content-start lg:overflow-y-auto lg:py-1 lg:pr-1">
                 {filtered.map((habit) => {
                   const Icon = icons[habit.icon] ?? Ban;
                   const active = selected.includes(habit.id);
@@ -409,20 +409,20 @@ export default function Habits({
                       key={habit.id}
                       onClick={() => toggle(habit.id)}
                       aria-pressed={active}
-                      className={`group relative flex items-center gap-3.5 overflow-hidden rounded-2xl border p-4 text-left backdrop-blur transition duration-200 before:absolute before:inset-x-6 before:top-0 before:h-px before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 active:scale-[0.98] ${
+                      className={`group relative flex items-center gap-3.5 overflow-hidden rounded-2xl border p-4 text-left backdrop-blur transition duration-200 before:absolute before:inset-x-6 before:top-0 before:h-px before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 active:scale-[0.98] lg:p-3 ${
                         active
                           ? "border-[#6366F1]/70 bg-[#6366F1]/10 shadow-[0_10px_30px_-12px_rgba(99,102,241,0.6)]"
                           : "border-white/10 bg-[#111827]/60 hover:-translate-y-0.5 hover:border-white/20 hover:bg-[#111827]"
                       }`}
                     >
                       <span
-                        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition duration-200 ${
+                        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition duration-200 lg:h-10 lg:w-10 ${
                           active
                             ? "bg-[#6366F1] text-white shadow-lg shadow-[#6366F1]/30"
                             : "bg-white/5 text-[#6366F1] group-hover:bg-[#6366F1]/15"
                         }`}
                       >
-                        <Icon className="h-6 w-6" />
+                        <Icon className="h-6 w-6 lg:h-5 lg:w-5" />
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block truncate font-medium text-slate-100">
@@ -453,9 +453,9 @@ export default function Habits({
             )}
           </section>
 
-          <aside className="lg:sticky lg:top-28 lg:self-start">
-            <div className="rounded-3xl border border-white/10 bg-[#111827]/70 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl">
-              <div className="mb-5 flex items-center justify-between gap-3">
+          <aside className="lg:flex lg:min-h-0 lg:flex-col">
+            <div className="rounded-3xl border border-white/10 bg-[#111827]/70 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:p-4">
+              <div className="mb-5 flex items-center justify-between gap-3 lg:mb-3 lg:shrink-0">
                 <h2
                   className={` flex items-center gap-3 text-lg font-semibold`}
                 >
@@ -482,7 +482,7 @@ export default function Habits({
               </div>
 
               {selectedHabits.length === 0 ? (
-                <div className="flex flex-col items-center rounded-2xl border border-dashed border-white/10 px-4 py-12 text-center">
+                <div className="flex flex-col items-center rounded-2xl border border-dashed border-white/10 px-4 py-12 text-center lg:flex-1 lg:justify-center lg:py-6">
                   <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-slate-600">
                     <Flame className="h-6 w-6" />
                   </span>
@@ -494,13 +494,13 @@ export default function Habits({
                   </p>
                 </div>
               ) : (
-                <ul className="flex max-h-147.5 flex-col gap-2.5 overflow-y-auto pr-1">
+                <ul className="flex max-h-147.5 flex-col gap-2.5 overflow-y-auto pr-1 lg:max-h-none lg:min-h-0 lg:flex-1 lg:gap-2">
                   {selectedHabits.map((habit) => {
                     const Icon = icons[habit.icon] ?? Ban;
                     return (
                       <li
                         key={habit.id}
-                        className="rounded-2xl border border-white/10 bg-white/3 p-3"
+                        className="rounded-2xl border border-white/10 bg-white/3 p-3 lg:p-2.5"
                       >
                         <div className="flex items-center gap-3">
                           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#6366F1]/15 text-[#6366F1]">
@@ -533,8 +533,8 @@ export default function Habits({
                             </button>
                           </div>
                         </div>
-                        <div className="mt-3">
-                          <p className="mb-1.5 text-[11px] uppercase tracking-wider text-slate-500">
+                        <div className="mt-3 lg:mt-2">
+                          <p className="mb-1.5 text-[11px] uppercase tracking-wider text-slate-500 lg:mb-1">
                             Цель в днях
                           </p>
                           <div className="grid grid-cols-5 gap-1.5">
@@ -549,7 +549,7 @@ export default function Habits({
                                   }));
                                 }}
                                 aria-pressed={(goals[habit.id] ?? 30) === days}
-                                className={`rounded-lg border py-1.5 text-xs font-medium tabular-nums transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 ${
+                                className={`rounded-lg border py-1.5 text-xs font-medium tabular-nums transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 lg:py-1 ${
                                   (goals[habit.id] ?? 30) === days
                                     ? "border-[#6366F1] bg-[#6366F1] text-white"
                                     : "border-white/10 bg-white/5 text-slate-400 hover:border-white/20 hover:text-slate-200"
@@ -569,7 +569,7 @@ export default function Habits({
               <button
                 onClick={save}
                 disabled={selectedHabits.length === 0}
-                className={`mt-5 hidden w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/5 disabled:text-slate-600 disabled:shadow-none lg:flex ${
+                className={`mt-5 hidden w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/5 disabled:text-slate-600 disabled:shadow-none lg:mt-3 lg:flex lg:shrink-0 lg:py-3 ${
                   saved
                     ? "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30"
                     : "bg-[#6366F1] text-white shadow-lg shadow-[#6366F1]/25 hover:bg-[#5558E8]"
