@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Habit } from "../types";
+import { Habit, ServerHabit } from "../types";
 import {
   catalog,
   categories,
@@ -52,53 +53,90 @@ export default function Habits({
   const [trackedCount, setTrackedCount] = useState(0);
   const [clearOpen, setClearOpen] = useState(false);
   const router = useRouter();
+  const loaded = useRef(false);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const data = JSON.parse(raw);
-        const storedCustom: Habit[] = Array.isArray(data?.custom)
-          ? data.custom.filter(
-              (habit: Habit) =>
-                habit &&
-                typeof habit.id === "string" &&
-                typeof habit.name === "string" &&
-                typeof habit.category === "string" &&
-                typeof habit.icon === "string",
-            )
-          : [];
+    axios
+      .get("/api/habits")
+      .then(({ data }) => {
+        const rows: ServerHabit[] = Array.isArray(data) ? data : [];
+        const storedCustom: Habit[] = rows
+          .filter((row) => row.custom)
+          .map((row) => ({
+            id: row.key,
+            name: row.name,
+            category: row.category,
+            icon: row.icon,
+            custom: true,
+          }));
         const validIds = new Set([
           ...catalog.map((habit) => habit.id),
           ...storedCustom.map((habit) => habit.id),
         ]);
+        const selectedKeys = rows
+          .filter((row) => row.selected && validIds.has(row.key))
+          .map((row) => row.key);
+        const nextGoals: Record<string, number> = {};
+        rows.forEach((row) => {
+          nextGoals[row.key] = row.goalDays;
+        });
+        const trackedRows = rows.filter((row) => row.tracked);
         setCustom(storedCustom);
-        setSelected(
-          Array.isArray(data?.selected)
-            ? data.selected.filter((id: unknown) => validIds.has(id as string))
-            : [],
+        setSelected(selectedKeys);
+        setGoals(nextGoals);
+        setTrackedCount(trackedRows.length);
+        setSaved(
+          trackedRows.length > 0 &&
+            trackedRows.length === selectedKeys.length &&
+            trackedRows.every(
+              (row) => row.selected && row.trackedGoal === row.goalDays,
+            ),
         );
-        setGoals(
-          data?.goals && typeof data.goals === "object" ? data.goals : {},
-        );
-        setSaved(Boolean(data?.saved));
-      }
-      const rawTracked = localStorage.getItem(TRACKED_KEY);
-      const parsedTracked = rawTracked ? JSON.parse(rawTracked) : [];
-      setTrackedCount(Array.isArray(parsedTracked) ? parsedTracked.length : 0);
-    } catch {}
-    setHydrated(true);
-  }, []);
+        loaded.current = true;
+        setHydrated(true);
+      })
+      .catch((error) => {
+        if (error?.response?.status === 401) router.replace("/");
+        else setHydrated(true);
+      });
+  }, [router]);
+
+  const draft = JSON.stringify({
+    habits: [
+      ...custom.map((habit) => ({
+        key: habit.id,
+        name: habit.name,
+        category: habit.category,
+        icon: habit.icon,
+        custom: true,
+        selected: selected.includes(habit.id),
+        goalDays: goals[habit.id] ?? 30,
+      })),
+      ...catalog
+        .filter((habit) => selected.includes(habit.id))
+        .map((habit) => ({
+          key: habit.id,
+          name: habit.name,
+          category: habit.category,
+          icon: habit.icon,
+          custom: false,
+          selected: true,
+          goalDays: goals[habit.id] ?? 30,
+        })),
+    ],
+  });
 
   useEffect(() => {
-    if (!hydrated) return;
-    try {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ selected, custom, goals, saved }),
-      );
-    } catch {}
-  }, [hydrated, selected, custom, goals, saved]);
+    if (!hydrated || !loaded.current) return;
+    const timer = window.setTimeout(() => {
+      axios
+        .put("/api/habits", draft, {
+          headers: { "Content-Type": "application/json" },
+        })
+        .catch(() => {});
+    }, 400);
+    return () => window.clearTimeout(timer);
+  }, [hydrated, draft]);
 
   useEffect(() => {
     if (!modalOpen && !clearOpen) return;
@@ -157,14 +195,13 @@ export default function Habits({
     setGoals((prev) => (prev[id] ? prev : { ...prev, [id]: 30 }));
   };
 
-  const clearAll = () => {
+  const clearAll = async () => {
     setSaved(false);
     setSelected([]);
     setClearOpen(false);
     setTrackedCount(0);
     try {
-      localStorage.removeItem(TRACKED_KEY);
-      localStorage.removeItem(PROGRESS_KEY);
+      await axios.delete("/api/habits/track");
     } catch {}
   };
 
@@ -198,7 +235,7 @@ export default function Habits({
     setModalOpen(false);
   };
 
-  const save = () => {
+  const save = async () => {
     const payload = selectedHabits.map((habit) => ({
       id: habit.id,
       name: habit.name,
@@ -207,9 +244,14 @@ export default function Habits({
       goalDays: goals[habit.id] ?? 30,
     }));
     try {
-      localStorage.setItem(TRACKED_KEY, JSON.stringify(payload));
-      setTrackedCount(payload.length);
-    } catch {}
+      await axios.put("/api/habits", draft, {
+        headers: { "Content-Type": "application/json" },
+      });
+      await axios.post("/api/habits/track");
+    } catch {
+      return;
+    }
+    setTrackedCount(payload.length);
     onSave?.(payload);
     setSaved(true);
     router.push(TRACKER_PATH);
@@ -217,25 +259,10 @@ export default function Habits({
 
   return (
     <div
-      className={`relative min-h-screen overflow-hidden bg-[#0B0F1A] px-4 pb-28 pt-50 text-slate-100 transition-opacity duration-300 sm:px-6 sm:pt-36 lg:px-10 lg:pb-20 ${
+      className={`relative min-h-screen px-4 pb-28 pt-50 text-slate-100 transition-opacity duration-300 sm:px-6 sm:pt-36 lg:px-10 lg:pb-20 ${
         hydrated ? "opacity-100" : "opacity-0"
       }`}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-size-[56px_56px] [mask-image:radial-gradient(ellipse_at_top,black_20%,transparent_75%)]" />
-      <div className="pointer-events-none absolute -top-40 left-1/2 h-120 w-225 -translate-x-1/2 rounded-full bg-[#6366F1]/15 blur-[140px]" />
-      <div className="pointer-events-none absolute bottom-0 right-0 h-90 w-90 rounded-full bg-[#6366F1]/10 blur-[120px]" />
-      <svg
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-64 w-full text-[#6366F1]/[0.06]"
-        viewBox="0 0 1440 320"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <path
-          fill="currentColor"
-          d="M0,320 L0,220 L180,120 L260,180 L420,60 L560,200 L700,110 L860,230 L1020,90 L1180,190 L1300,140 L1440,210 L1440,320 Z"
-        />
-      </svg>
-
       <div className="relative mx-auto max-w-7xl">
         <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>

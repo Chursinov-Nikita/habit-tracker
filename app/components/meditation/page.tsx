@@ -94,14 +94,14 @@ export default function RelaxPage() {
   const progressOffset = ringLength * (1 - Math.min(elapsed / total, 1));
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("meditation-log");
-      if (!raw) return;
-      const data = JSON.parse(raw);
-      if (data.date === new Date().toLocaleDateString("sv-SE")) {
-        setToday({ sessions: data.sessions, minutes: data.minutes });
-      }
-    } catch {}
+    fetch(`/api/meditation?tz=${new Date().getTimezoneOffset()}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (typeof data?.sessions === "number") {
+          setToday({ sessions: data.sessions, minutes: data.minutes });
+        }
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -119,19 +119,18 @@ export default function RelaxPage() {
     setRunning(false);
     setFinished(true);
     setToday(next);
-    try {
-      localStorage.setItem(
-        "meditation-log",
-        JSON.stringify({
-          date: new Date().toLocaleDateString("sv-SE"),
-          ...next,
-        }),
-      );
-    } catch {}
+    fetch("/api/meditation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        minutes: durations[durationIndex],
+        tz: new Date().getTimezoneOffset(),
+      }),
+    }).catch(() => {});
   }, [elapsed, running, total, today, durationIndex]);
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#0B0F1A] px-4 pb-16 pt-28 text-white sm:px-6">
+    <main className="relative min-h-screen px-4 pb-16 pt-28 text-white sm:px-6">
       <div className="pointer-events-none absolute -top-40 left-1/2 h-128 w-lg -translate-x-1/2 rounded-full bg-indigo-600/20 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-40 right-0 h-112 w-md rounded-full bg-cyan-500/10 blur-3xl" />
 

@@ -1,39 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 import Link from "next/link";
 import { icons } from "../data";
-import { Tracked, Progress } from "../types";
+import { Tracked, Progress, ServerHabit } from "../types";
 import {
   ArrowLeft,
   Ban,
-  Candy,
   Check,
-  Cigarette,
-  Coffee,
-  Cookie,
   Flame,
-  Gamepad2,
-  Hand,
-  Hourglass,
-  Moon,
-  Pizza,
   Plus,
   RotateCcw,
-  ShoppingBag,
-  Smartphone,
-  Sofa,
   Sparkles,
   Target,
   Trophy,
-  Tv,
-  Utensils,
-  Wine,
-  Zap,
 } from "lucide-react";
 
-const TRACKED_KEY = "habittrack:tracked:v1";
-const PROGRESS_KEY = "habittrack:progress:v1";
 const HABITS_PATH = "/components/habits/first";
 const DAY = 86400000;
 
@@ -50,77 +34,65 @@ export default function Tracker() {
   const [progress, setProgress] = useState<Progress>({});
   const [now, setNow] = useState(0);
   const [hydrated, setHydrated] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    const current = Date.now();
-    let list: Tracked[] = [];
-    let stored: Progress = {};
-    try {
-      const rawList = localStorage.getItem(TRACKED_KEY);
-      const parsedList = rawList ? JSON.parse(rawList) : [];
-      if (Array.isArray(parsedList)) {
-        list = parsedList.filter(
-          (habit: Tracked) =>
-            habit &&
-            typeof habit.id === "string" &&
-            typeof habit.name === "string" &&
-            typeof habit.category === "string" &&
-            typeof habit.icon === "string" &&
-            typeof habit.goalDays === "number" &&
-            habit.goalDays > 0,
+    axios
+      .get("/api/habits")
+      .then(({ data }) => {
+        const rows: ServerHabit[] = Array.isArray(data) ? data : [];
+        const trackedRows = rows.filter((row) => row.tracked);
+        const next: Progress = {};
+        trackedRows.forEach((row) => {
+          next[row.key] = {
+            startedAt: row.startedAt
+              ? new Date(row.startedAt).getTime()
+              : Date.now(),
+            best: row.best,
+            relapses: row.relapses,
+          };
+        });
+        setTracked(
+          trackedRows.map((row) => ({
+            id: row.key,
+            name: row.name,
+            category: row.category,
+            icon: row.icon,
+            goalDays: row.trackedGoal,
+          })),
         );
-      }
-      const rawProgress = localStorage.getItem(PROGRESS_KEY);
-      const parsedProgress = rawProgress ? JSON.parse(rawProgress) : {};
-      if (parsedProgress && typeof parsedProgress === "object") {
-        stored = parsedProgress;
-      }
-    } catch {}
-    const next: Progress = {};
-    list.forEach((habit) => {
-      const item = stored[habit.id];
-      next[habit.id] = {
-        startedAt:
-          typeof item?.startedAt === "number" ? item.startedAt : current,
-        best: typeof item?.best === "number" ? item.best : 0,
-        relapses: typeof item?.relapses === "number" ? item.relapses : 0,
-      };
-    });
-    setTracked(list);
-    setProgress(next);
-    setNow(current);
-    setHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    try {
-      localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
-    } catch {}
-  }, [hydrated, progress]);
+        setProgress(next);
+        setNow(Date.now());
+        setHydrated(true);
+      })
+      .catch((error) => {
+        if (error?.response?.status === 401) router.replace("/");
+        else setHydrated(true);
+      });
+  }, [router]);
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(Date.now()), 60000);
     return () => window.clearInterval(id);
   }, []);
 
-  const relapse = (id: string) => {
+  const relapse = async (id: string) => {
     if (!window.confirm("Сбросить серию и начать заново?")) return;
-    const current = Date.now();
-    setNow(current);
-    setProgress((prev) => {
-      const item = prev[id];
-      if (!item) return prev;
-      const days = Math.floor((current - item.startedAt) / DAY);
-      return {
+    try {
+      const { data } = await axios.post(
+        `/api/habits/${encodeURIComponent(id)}/relapse`,
+        { tz: new Date().getTimezoneOffset() },
+      );
+      setNow(Date.now());
+      setProgress((prev) => ({
         ...prev,
         [id]: {
-          startedAt: current,
-          best: Math.max(item.best, days),
-          relapses: item.relapses + 1,
+          startedAt: new Date(data.startedAt).getTime(),
+          best: data.best,
+          relapses: data.relapses,
         },
-      };
-    });
+      }));
+    } catch {}
   };
 
   const items = tracked.map((habit) => {
@@ -161,25 +133,10 @@ export default function Tracker() {
 
   return (
     <div
-      className={`relative min-h-screen overflow-hidden bg-[#0B0F1A] px-4 pb-16 pt-50 text-slate-100 transition-opacity duration-300 sm:px-6 sm:pt-36 lg:px-10 lg:pb-20 ${
+      className={`relative min-h-screen px-4 pb-16 pt-50 text-slate-100 transition-opacity duration-300 sm:px-6 sm:pt-36 lg:px-10 lg:pb-20 ${
         hydrated ? "opacity-100" : "opacity-0"
       }`}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-size-[56px_56px] [mask-image:radial-gradient(ellipse_at_top,black_20%,transparent_75%)]" />
-      <div className="pointer-events-none absolute -top-40 left-1/2 h-120 w-225 -translate-x-1/2 rounded-full bg-[#6366F1]/15 blur-[140px]" />
-      <div className="pointer-events-none absolute bottom-0 right-0 h-90 w-90 rounded-full bg-[#6366F1]/10 blur-[120px]" />
-      <svg
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-64 w-full text-[#6366F1]/6"
-        viewBox="0 0 1440 320"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <path
-          fill="currentColor"
-          d="M0,320 L0,220 L180,120 L260,180 L420,60 L560,200 L700,110 L860,230 L1020,90 L1180,190 L1300,140 L1440,210 L1440,320 Z"
-        />
-      </svg>
-
       <div className="relative mx-auto max-w-7xl">
         <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>

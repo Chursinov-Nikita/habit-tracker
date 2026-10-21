@@ -107,6 +107,27 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
+          {session && (
+            <Link
+              href="/components/profile"
+              aria-label="Профиль"
+              className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-white/5 text-sm font-semibold transition-all duration-300 hover:border-[#8B5CF6]/60 hover:bg-[#8B5CF6]/15 active:scale-95"
+            >
+              {session.user?.image ? (
+                <img
+                  src={session.user.image}
+                  alt=""
+                  referrerPolicy="no-referrer"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                (session.user?.name ?? session.user?.email ?? "?")
+                  .charAt(0)
+                  .toUpperCase()
+              )}
+            </Link>
+          )}
+
           <button
             type="button"
             onClick={() => (session ? signOut() : setLoginWindow(true))}

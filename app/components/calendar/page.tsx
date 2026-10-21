@@ -34,16 +34,26 @@ export default function CalendarPage() {
   useEffect(() => {
     fetch("/api/habits")
       .then((r) => r.json())
-      .then(setHabits)
+      .then((rows) =>
+        setHabits(
+          Array.isArray(rows)
+            ? rows
+                .filter((row) => row.tracked)
+                .map((row) => ({ id: row.id, name: row.name }))
+            : [],
+        ),
+      )
       .catch(() => setHabits([]));
   }, []);
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/habit-logs?month=${monthKey}`)
+    fetch(
+      `/api/habit-logs?month=${monthKey}&tz=${new Date().getTimezoneOffset()}`,
+    )
       .then((r) => r.json())
       .then((data) => {
-        if (!cancelled) setLogs(data);
+        if (!cancelled) setLogs(Array.isArray(data) ? data : []);
       })
       .catch(() => {
         if (!cancelled) setLogs([]);
@@ -94,11 +104,11 @@ export default function CalendarPage() {
   }).format(selectedDate);
 
   return (
-    <main className="min-h-screen bg-[#0B0F1A] px-4 pb-16 pt-28 text-white">
+    <main className="min-h-screen px-4 pb-16 pt-28 text-white">
       <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1fr_360px]">
         <section className="rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl sm:p-6">
           <div className="mb-6 flex items-center justify-between gap-3">
-            <h1 className="font-[family-name:var(--font-space-grotesk)] text-2xl font-semibold capitalize sm:text-3xl">
+            <h1 className=" text-2xl font-semibold capitalize sm:text-3xl">
               {monthTitle}
             </h1>
             <div className="flex items-center gap-2">
@@ -155,7 +165,7 @@ export default function CalendarPage() {
                       ? "border-red-500/30 bg-red-500/10"
                       : ok > 0
                         ? "border-emerald-500/30 bg-emerald-500/10"
-                        : "border-white/5 bg-white/[0.03]"
+                        : "border-white/5 bg-white/3"
                   } ${c.key === selected ? "ring-2 ring-[#6366F1]" : "hover:bg-white/10"}`}
                 >
                   <span
@@ -191,7 +201,7 @@ export default function CalendarPage() {
               <p className="text-xs uppercase tracking-wide text-slate-500">
                 Без срывов
               </p>
-              <p className="mt-2 font-[family-name:var(--font-space-grotesk)] text-3xl font-semibold text-emerald-400">
+              <p className="mt-2  text-3xl font-semibold text-emerald-400">
                 {successCount}
               </p>
             </div>
@@ -199,14 +209,14 @@ export default function CalendarPage() {
               <p className="text-xs uppercase tracking-wide text-slate-500">
                 Срывы
               </p>
-              <p className="mt-2 font-[family-name:var(--font-space-grotesk)] text-3xl font-semibold text-red-400">
+              <p className="mt-2  text-3xl font-semibold text-red-400">
                 {failCount}
               </p>
             </div>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
-            <h2 className="font-[family-name:var(--font-space-grotesk)] text-xl font-semibold capitalize">
+            <h2 className=" text-xl font-semibold capitalize">
               {selectedTitle}
             </h2>
             <p className="mt-1 text-sm text-slate-400">
@@ -226,7 +236,7 @@ export default function CalendarPage() {
                 return (
                   <li
                     key={h.id}
-                    className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3"
+                    className="flex items-center justify-between gap-3 rounded-xl border border-white/5 bg-white/3 px-4 py-3"
                   >
                     <span className="truncate text-sm font-medium">
                       {h.name}
