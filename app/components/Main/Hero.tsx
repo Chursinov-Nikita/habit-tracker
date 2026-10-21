@@ -34,7 +34,7 @@ export default function Hero() {
               оставаться мотивированным и менять свою жизнь к лучшему.
             </p>
             <Link
-              href={"/components/habits"}
+              href="/components/habits/first"
               className="mt-8 inline-flex w-full items-center justify-center gap-3 rounded-full bg-[linear-gradient(90deg,#8B5CF6_0%,#6D4AFF_100%)] px-8 py-4 text-sm font-semibold shadow-[0_10px_40px_-8px_rgba(139,92,246,0.7)] transition hover:brightness-110 sm:mt-9 sm:w-auto hover:scale-101 duration-300"
             >
               Начать бесплатно

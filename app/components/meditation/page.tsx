@@ -131,9 +131,6 @@ export default function RelaxPage() {
 
   return (
     <main className="relative min-h-screen px-4 pb-16 pt-28 text-white sm:px-6">
-      <div className="pointer-events-none absolute -top-40 left-1/2 h-128 w-lg -translate-x-1/2 rounded-full bg-indigo-600/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 right-0 h-112 w-md rounded-full bg-cyan-500/10 blur-3xl" />
-
       <div className="relative mx-auto max-w-6xl">
         <div className="mb-10 text-center lg:text-left">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm text-slate-300 backdrop-blur-xl">

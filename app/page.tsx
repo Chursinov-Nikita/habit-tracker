@@ -7,7 +7,7 @@ const About = dynamic(() => import("@/app/components/main/About"), {
 
 export default function Home() {
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#0B0F1A] text-white">
+    <main>
       <Hero />
       <About />
     </main>

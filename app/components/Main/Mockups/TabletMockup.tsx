@@ -119,7 +119,7 @@ export default function TabletMockup() {
               ))}
             </ul>
 
-            <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/6 bg-linear-to-r from-[#8B5CF6]/10via-white/[0.03] to-transparent p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),inset_0_0_20px_rgba(59,130,246,0.05)]">
+            <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/6 bg-linear-to-r from-[#8B5CF6]/10 via-white/3 to-transparent p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06),inset_0_0_20px_rgba(59,130,246,0.05)]">
               <div>
                 <p className="bg-linear-to-r from-white to-slate-300 bg-clip-text text-[22px] font-extrabold leading-6 tracking-tight text-transparent">
                   7 дней
