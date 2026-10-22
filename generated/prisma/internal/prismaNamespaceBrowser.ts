@@ -56,7 +56,8 @@ export const ModelName = {
   VerificationToken: 'VerificationToken',
   Habit: 'Habit',
   HabitLog: 'HabitLog',
-  MeditationSession: 'MeditationSession'
+  MeditationSession: 'MeditationSession',
+  HabitInfo: 'HabitInfo'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -157,6 +158,16 @@ export const MeditationSessionScalarFieldEnum = {
 } as const
 
 export type MeditationSessionScalarFieldEnum = (typeof MeditationSessionScalarFieldEnum)[keyof typeof MeditationSessionScalarFieldEnum]
+
+
+export const HabitInfoScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  content: 'content',
+  createdAt: 'createdAt'
+} as const
+
+export type HabitInfoScalarFieldEnum = (typeof HabitInfoScalarFieldEnum)[keyof typeof HabitInfoScalarFieldEnum]
 
 
 export const SortOrder = {

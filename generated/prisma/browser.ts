@@ -47,3 +47,8 @@ export type HabitLog = Prisma.HabitLogModel
  * 
  */
 export type MeditationSession = Prisma.MeditationSessionModel
+/**
+ * Model HabitInfo
+ * 
+ */
+export type HabitInfo = Prisma.HabitInfoModel

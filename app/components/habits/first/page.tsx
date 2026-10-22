@@ -12,7 +12,6 @@ import {
   goalOptions,
   pickerIcons,
   icons,
-  TRACKER_PATH,
 } from "../data";
 import {
   ArrowRight,
@@ -26,6 +25,18 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+
+export const STORAGE_KEY = "habittrack:habits:v1";
+export const TRACKED_KEY = "habittrack:tracked:v1";
+export const PROGRESS_KEY = "habittrack:progress:v1";
+export const TRACKER_PATH = "/components/habits/second";
+
+type AiInfo = {
+  harm: string[];
+  benefits: { when: string; text: string }[];
+  motivation: string;
+  tip: string;
+};
 
 export default function Habits({
   onSave,
@@ -48,6 +59,9 @@ export default function Habits({
   const [hydrated, setHydrated] = useState(false);
   const [trackedCount, setTrackedCount] = useState(0);
   const [clearOpen, setClearOpen] = useState(false);
+  const [aiHabit, setAiHabit] = useState<Habit | null>(null);
+  const [aiInfo, setAiInfo] = useState<Record<string, AiInfo>>({});
+  const [aiFailed, setAiFailed] = useState<string | null>(null);
   const router = useRouter();
   const loaded = useRef(false);
 
@@ -135,11 +149,12 @@ export default function Habits({
   }, [hydrated, draft]);
 
   useEffect(() => {
-    if (!modalOpen && !clearOpen) return;
+    if (!modalOpen && !clearOpen && !aiHabit) return;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setModalOpen(false);
         setClearOpen(false);
+        setAiHabit(null);
       }
     };
     document.body.classList.add("overflow-hidden");
@@ -148,7 +163,7 @@ export default function Habits({
       document.body.classList.remove("overflow-hidden");
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [modalOpen, clearOpen]);
+  }, [modalOpen, clearOpen, aiHabit]);
 
   const all = [...catalog, ...custom];
 
@@ -182,6 +197,22 @@ export default function Habits({
   const duplicate =
     name.trim() !== "" &&
     all.some((habit) => habit.name.toLowerCase() === name.trim().toLowerCase());
+
+  const aiCurrent = aiHabit ? aiInfo[aiHabit.id] : undefined;
+  const aiError = aiHabit !== null && aiFailed === aiHabit.id;
+  const AiIcon = aiHabit ? (icons[aiHabit.icon] ?? Ban) : Ban;
+
+  const askAi = async (habit: Habit) => {
+    setAiHabit(habit);
+    setAiFailed(null);
+    if (aiInfo[habit.id]) return;
+    try {
+      const { data } = await axios.post("/api/habit-ai", { name: habit.name });
+      setAiInfo((prev) => ({ ...prev, [habit.id]: data }));
+    } catch {
+      setAiFailed(habit.id);
+    }
+  };
 
   const toggle = (id: string) => {
     setSaved(false);
@@ -511,6 +542,15 @@ export default function Habits({
                             </span>
                           </span>
                           <div className="flex items-center gap-0.5">
+                            <button
+                              onClick={() => askAi(habit)}
+                              aria-label="Узнать подробнее о вреде"
+                              title="Узнать подробнее о вреде"
+                              className="mr-1 inline-flex items-center gap-1 rounded-lg bg-linear-to-r from-[#6366F1]/25 to-[#8B5CF6]/25 px-2 py-1 text-[11px] font-semibold text-[#C4B5FD] ring-1 ring-[#8B5CF6]/30 transition hover:from-[#6366F1]/40 hover:to-[#8B5CF6]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8B5CF6]/70 active:scale-95"
+                            >
+                              <Sparkles className="h-3.5 w-3.5" />
+                              ИИ
+                            </button>
                             {habit.custom && (
                               <button
                                 onClick={() => removeCustom(habit.id)}
@@ -835,6 +875,146 @@ export default function Habits({
               >
                 Очистить
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {aiHabit && (
+        <div
+          onClick={() => setAiHabit(null)}
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-0 backdrop-blur-sm sm:items-center sm:p-6"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="ai-title"
+            className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-[#111827] shadow-2xl shadow-black/50 sm:rounded-3xl"
+          >
+            <div className="relative overflow-hidden px-6 pb-4 pt-5">
+              <div className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 rounded-full bg-[#8B5CF6]/25 blur-3xl" />
+              <div className="relative flex items-start justify-between gap-4">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-[#6366F1] to-[#8B5CF6] text-white shadow-lg shadow-[#6366F1]/30">
+                    <AiIcon className="h-6 w-6" />
+                  </span>
+                  <div className="min-w-0">
+                    <h2
+                      id="ai-title"
+                      className="truncate text-xl font-bold text-slate-100"
+                    >
+                      {aiHabit.name}
+                    </h2>
+                    <p className="mt-0.5 flex items-center gap-1.5 text-xs text-[#C4B5FD]">
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Разбор от GigaChat
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setAiHabit(null)}
+                  aria-label="Закрыть"
+                  className="rounded-lg p-2 text-slate-400 transition hover:bg-white/10 hover:text-slate-100"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-5 overflow-y-auto px-6 pb-5">
+              {aiError ? (
+                <div className="flex flex-col items-center rounded-2xl border border-dashed border-rose-500/30 bg-rose-500/5 px-4 py-8 text-center">
+                  <p className="text-sm text-rose-300">
+                    Не удалось получить ответ от ИИ
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Проверь подключение и попробуй ещё раз
+                  </p>
+                  <button
+                    onClick={() => askAi(aiHabit)}
+                    className="mt-4 rounded-xl bg-[#6366F1] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[#6366F1]/25 transition hover:bg-[#5558E8] active:scale-[0.98]"
+                  >
+                    Повторить
+                  </button>
+                </div>
+              ) : !aiCurrent ? (
+                <div className="flex flex-col gap-3" aria-live="polite">
+                  <p className="flex items-center gap-2 text-sm text-slate-400">
+                    <Sparkles className="h-4 w-4 animate-pulse text-[#8B5CF6]" />
+                    GigaChat готовит ответ…
+                  </p>
+                  <div className="h-16 animate-pulse rounded-2xl bg-white/5" />
+                  <div className="h-16 animate-pulse rounded-2xl bg-white/5" />
+                  <div className="h-20 animate-pulse rounded-2xl bg-white/5" />
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      Чем это вредно
+                    </p>
+                    <ul className="flex flex-col gap-2">
+                      {aiCurrent.harm.map((item) => (
+                        <li
+                          key={item}
+                          className="flex gap-2.5 text-sm leading-relaxed text-slate-300"
+                        >
+                          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-400" />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {aiCurrent.benefits.length > 0 && (
+                    <div>
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        Что изменится, если бросить
+                      </p>
+                      <ul className="flex flex-col gap-2">
+                        {aiCurrent.benefits.map((item) => (
+                          <li
+                            key={`${item.when}-${item.text}`}
+                            className="flex items-start gap-2.5 text-sm leading-relaxed text-slate-300"
+                          >
+                            <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 rounded-md bg-emerald-500/15 px-2 py-0.5 text-[11px] font-semibold text-emerald-300">
+                              <Check className="h-3 w-3" />
+                              {item.when}
+                            </span>
+                            {item.text}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <div className="flex gap-3 rounded-2xl border border-[#6366F1]/30 bg-linear-to-br from-[#6366F1]/20 to-[#8B5CF6]/10 p-4">
+                    <Flame className="mt-0.5 h-5 w-5 shrink-0 text-[#A78BFA]" />
+                    <p className="text-sm leading-relaxed text-slate-100">
+                      {aiCurrent.motivation}
+                    </p>
+                  </div>
+
+                  {aiCurrent.tip && (
+                    <p className="flex gap-2.5 text-sm leading-relaxed text-slate-400">
+                      <Target className="mt-0.5 h-4 w-4 shrink-0 text-[#6366F1]" />
+                      <span>
+                        <span className="font-medium text-slate-300">
+                          Совет:{" "}
+                        </span>
+                        {aiCurrent.tip}
+                      </span>
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
+
+            <div className="border-t border-white/10 px-6 py-3">
+              <p className="text-[11px] leading-snug text-slate-600">
+                Ответ сгенерирован нейросетью и не заменяет консультацию врача.
+              </p>
             </div>
           </div>
         </div>

@@ -402,7 +402,8 @@ export const ModelName = {
   VerificationToken: 'VerificationToken',
   Habit: 'Habit',
   HabitLog: 'HabitLog',
-  MeditationSession: 'MeditationSession'
+  MeditationSession: 'MeditationSession',
+  HabitInfo: 'HabitInfo'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -418,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "account" | "verificationToken" | "habit" | "habitLog" | "meditationSession"
+    modelProps: "user" | "account" | "verificationToken" | "habit" | "habitLog" | "meditationSession" | "habitInfo"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -866,6 +867,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    HabitInfo: {
+      payload: Prisma.$HabitInfoPayload<ExtArgs>
+      fields: Prisma.HabitInfoFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.HabitInfoFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HabitInfoPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.HabitInfoFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HabitInfoPayload>
+        }
+        findFirst: {
+          args: Prisma.HabitInfoFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HabitInfoPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.HabitInfoFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HabitInfoPayload>
+        }
+        findMany: {
+          args: Prisma.HabitInfoFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HabitInfoPayload>[]
+        }
+        create: {
+          args: Prisma.HabitInfoCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HabitInfoPayload>
+        }
+        createMany: {
+          args: Prisma.HabitInfoCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.HabitInfoCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HabitInfoPayload>[]
+        }
+        delete: {
+          args: Prisma.HabitInfoDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HabitInfoPayload>
+        }
+        update: {
+          args: Prisma.HabitInfoUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HabitInfoPayload>
+        }
+        deleteMany: {
+          args: Prisma.HabitInfoDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.HabitInfoUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.HabitInfoUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HabitInfoPayload>[]
+        }
+        upsert: {
+          args: Prisma.HabitInfoUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HabitInfoPayload>
+        }
+        aggregate: {
+          args: Prisma.HabitInfoAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateHabitInfo>
+        }
+        groupBy: {
+          args: Prisma.HabitInfoGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.HabitInfoGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.HabitInfoCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.HabitInfoCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -987,6 +1062,16 @@ export const MeditationSessionScalarFieldEnum = {
 } as const
 
 export type MeditationSessionScalarFieldEnum = (typeof MeditationSessionScalarFieldEnum)[keyof typeof MeditationSessionScalarFieldEnum]
+
+
+export const HabitInfoScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  content: 'content',
+  createdAt: 'createdAt'
+} as const
+
+export type HabitInfoScalarFieldEnum = (typeof HabitInfoScalarFieldEnum)[keyof typeof HabitInfoScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1238,6 +1323,7 @@ export type GlobalOmitConfig = {
   habit?: Prisma.HabitOmit
   habitLog?: Prisma.HabitLogOmit
   meditationSession?: Prisma.MeditationSessionOmit
+  habitInfo?: Prisma.HabitInfoOmit
 }
 
 /* Types for Logging */
