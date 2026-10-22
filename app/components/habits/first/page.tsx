@@ -12,6 +12,7 @@ import {
   goalOptions,
   pickerIcons,
   icons,
+  TRACKER_PATH,
 } from "../data";
 import {
   ArrowRight,
@@ -25,11 +26,6 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-
-export const STORAGE_KEY = "habittrack:habits:v1";
-export const TRACKED_KEY = "habittrack:tracked:v1";
-export const PROGRESS_KEY = "habittrack:progress:v1";
-export const TRACKER_PATH = "/components/habits/second";
 
 export default function Habits({
   onSave,

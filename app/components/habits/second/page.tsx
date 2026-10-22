@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
-import { icons } from "../data";
+import { icons, HABITS_PATH, DAY, RING, plural } from "../data";
 import { Tracked, Progress, ServerHabit } from "../types";
 import {
   ArrowLeft,
@@ -17,18 +17,6 @@ import {
   Target,
   Trophy,
 } from "lucide-react";
-
-const HABITS_PATH = "/components/habits/first";
-const DAY = 86400000;
-const RING = 2 * Math.PI * 26;
-
-const plural = (n: number) => {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return "день";
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "дня";
-  return "дней";
-};
 
 export default function Tracker() {
   const [tracked, setTracked] = useState<Tracked[]>([]);

@@ -8,6 +8,7 @@ import {
   ChevronRight,
   X,
 } from "lucide-react";
+import { weekDays, toKey } from "./data";
 
 type Habit = { id: string; name: string };
 type HabitLog = {
@@ -16,11 +17,6 @@ type HabitLog = {
   date: string;
   completed: boolean;
 };
-
-const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
-
-const toKey = (d: Date) =>
-  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
 export default function Calendar() {
   const today = new Date();

@@ -3,7 +3,7 @@ import { Nunito_Sans, Rubik } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import Header from "./elements/Header/Header";
-import Background from "./components/Background";
+import Background from "./elements/Background";
 
 const rubik = Rubik({
   subsets: ["latin", "cyrillic"],
