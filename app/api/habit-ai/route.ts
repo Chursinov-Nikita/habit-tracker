@@ -31,33 +31,62 @@ const clean = (value: unknown, max: number) =>
     ? value.replace(/\s+/g, " ").trim().slice(0, max)
     : "";
 
+const list = (value: unknown, max: number, size: number): string[] =>
+  Array.isArray(value)
+    ? value
+        .map((item: unknown) => clean(item, size))
+        .filter(Boolean)
+        .slice(0, max)
+    : [];
+
 const parse = (text: string) => {
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
   if (start === -1 || end <= start) return null;
   try {
     const raw = JSON.parse(text.slice(start, end + 1));
-    const harm: string[] = Array.isArray(raw.harm)
+
+    const harm: { title: string; text: string }[] = Array.isArray(raw.harm)
       ? raw.harm
-          .map((item: unknown) => clean(item, 160))
-          .filter(Boolean)
-          .slice(0, 4)
+          .map((item: unknown) => {
+            if (typeof item === "string")
+              return { title: "", text: clean(item, 200) };
+            const value = item as { title?: unknown; text?: unknown };
+            return {
+              title: clean(value?.title, 40),
+              text: clean(value?.text, 200),
+            };
+          })
+          .filter((item: { text: string }) => item.text)
+          .slice(0, 5)
       : [];
+
     const benefits: { when: string; text: string }[] = Array.isArray(
       raw.benefits,
     )
       ? raw.benefits
           .map((item: { when?: unknown; text?: unknown }) => ({
             when: clean(item?.when, 30),
-            text: clean(item?.text, 160),
+            text: clean(item?.text, 180),
           }))
-          .filter((item: { when: string; text: string }) => item.text)
-          .slice(0, 4)
+          .filter((item: { text: string }) => item.text)
+          .slice(0, 6)
       : [];
-    const motivation = clean(raw.motivation, 400);
-    const tip = clean(raw.tip, 200);
+
+    const motivation = clean(raw.motivation, 500);
     if (harm.length === 0 || !motivation) return null;
-    return { harm, benefits, motivation, tip };
+
+    return {
+      summary: clean(raw.summary, 400),
+      harm,
+      benefits,
+      facts: list(raw.facts, 4, 220),
+      triggers: list(raw.triggers, 5, 80),
+      alternatives: list(raw.alternatives, 5, 80),
+      steps: list(raw.steps, 5, 160),
+      motivation,
+      tip: clean(raw.tip, 240),
+    };
   } catch {
     return null;
   }
@@ -74,7 +103,7 @@ export async function POST(req: Request) {
   if (!name)
     return NextResponse.json({ error: "Name required" }, { status: 400 });
 
-  const key = name.toLowerCase();
+  const key = `v2:${name.toLowerCase()}`;
   const cached = await prisma.habitInfo.findUnique({ where: { key } });
   if (cached)
     return NextResponse.json({ ...JSON.parse(cached.content), cooldown: 0 });
@@ -89,24 +118,33 @@ export async function POST(req: Request) {
   calls.set(userId, [...(calls.get(userId) ?? []), Date.now()]);
 
   try {
-    const text = await askGigaChat([
-      {
-        role: "system",
-        content:
-          "Ты — доброжелательный коуч, который помогает отказаться от вредных привычек. Пиши по-русски, коротко и по делу, без морализаторства и запугивания, без медицинских диагнозов. Отвечай только JSON без markdown и пояснений.",
-      },
-      {
-        role: "user",
-        content: `Привычка: ${name}.
+    const text = await askGigaChat(
+      [
+        {
+          role: "system",
+          content:
+            "Ты — доброжелательный коуч, который помогает отказаться от вредных привычек. Пиши по-русски, коротко и по делу, без морализаторства и запугивания, без медицинских диагнозов. Отвечай только JSON без markdown и пояснений.",
+        },
+        {
+          role: "user",
+          content: `Привычка: ${name}.
 Верни JSON строго такого вида:
-{"harm":["...","...","..."],"benefits":[{"when":"через 1 день","text":"..."},{"when":"через неделю","text":"..."},{"when":"через месяц","text":"..."}],"motivation":"...","tip":"..."}
-harm: 3 коротких пункта о том, чем эта привычка вредна (до 120 символов каждый).
-benefits: 3 пункта о том, что улучшится после отказа, с примерными сроками.
-motivation: 2-3 тёплых вдохновляющих предложения.
+{"summary":"...","harm":[{"title":"...","text":"..."}],"benefits":[{"when":"через день","text":"..."}],"facts":["..."],"triggers":["..."],"alternatives":["..."],"steps":["..."],"motivation":"...","tip":"..."}
+Требования:
+summary: 2 предложения о том, что это за привычка и почему от неё так трудно отказаться.
+harm: 4 пункта, title до 4 слов (например, «Сердце и сосуды»), text до 140 символов.
+benefits: 5 пунктов по возрастанию срока (через день, через неделю, через месяц, через 3 месяца, через год), text до 120 символов.
+facts: 3 интересных факта общими словами, без точных цифр и статистики.
+triggers: 4 типичные ситуации, когда особенно тянет (до 60 символов каждая).
+alternatives: 4 полезные замены привычки (до 60 символов каждая).
+steps: 4 коротких шага плана на первую неделю.
+motivation: 3 тёплых вдохновляющих предложения.
 tip: один конкретный совет, как не сорваться.
-Если привычка вредна не для здоровья, а для продуктивности или денег, опиши именно этот вред.`,
-      },
-    ]);
+Если привычка вредна не для здоровья, а для продуктивности, денег или отношений, опиши именно этот вред.`,
+        },
+      ],
+      1500,
+    );
 
     const info = parse(text);
     if (!info) {
