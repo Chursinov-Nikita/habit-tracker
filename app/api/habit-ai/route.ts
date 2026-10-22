@@ -6,17 +6,24 @@ import { askGigaChat } from "@/app/lib/gigachat";
 
 export const runtime = "nodejs";
 
+const GAP = 5;
+const WINDOW = 600000;
+const LIMIT = 15;
+
 const calls = new Map<string, number[]>();
 
-const limited = (userId: string) => {
+const retryAfter = (userId: string) => {
   const now = Date.now();
-  const recent = (calls.get(userId) ?? []).filter((t) => now - t < 600000);
-  if (recent.length >= 15) {
-    calls.set(userId, recent);
-    return true;
+  const recent = (calls.get(userId) ?? []).filter((t) => now - t < WINDOW);
+  calls.set(userId, recent);
+  const last = recent[recent.length - 1];
+  if (last && now - last < GAP * 1000) {
+    return Math.ceil((GAP * 1000 - (now - last)) / 1000);
   }
-  calls.set(userId, [...recent, now]);
-  return false;
+  if (recent.length >= LIMIT) {
+    return Math.ceil((recent[0] + WINDOW - now) / 1000);
+  }
+  return 0;
 };
 
 const clean = (value: unknown, max: number) =>
@@ -61,6 +68,7 @@ export async function POST(req: Request) {
   if (!session?.user?.id)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const userId = session.user.id;
   const body = await req.json().catch(() => null);
   const name = clean(body?.name, 40).replace(/["«»“”<>{}]/g, "");
   if (!name)
@@ -68,11 +76,17 @@ export async function POST(req: Request) {
 
   const key = name.toLowerCase();
   const cached = await prisma.habitInfo.findUnique({ where: { key } });
-  if (cached) return NextResponse.json(JSON.parse(cached.content));
+  if (cached)
+    return NextResponse.json({ ...JSON.parse(cached.content), cooldown: 0 });
 
-  if (limited(session.user.id)) {
-    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  const wait = retryAfter(userId);
+  if (wait > 0) {
+    return NextResponse.json(
+      { error: "Too many requests", retryAfter: wait },
+      { status: 429, headers: { "Retry-After": String(wait) } },
+    );
   }
+  calls.set(userId, [...(calls.get(userId) ?? []), Date.now()]);
 
   try {
     const text = await askGigaChat([
@@ -95,8 +109,19 @@ tip: один конкретный совет, как не сорваться.
     ]);
 
     const info = parse(text);
-    if (!info)
-      return NextResponse.json({ error: "Bad answer" }, { status: 502 });
+    if (!info) {
+      console.error("GigaChat bad answer:", text);
+      return NextResponse.json(
+        {
+          error: "Bad answer",
+          detail:
+            process.env.NODE_ENV === "production"
+              ? undefined
+              : text.slice(0, 300),
+        },
+        { status: 502 },
+      );
+    }
 
     await prisma.habitInfo.upsert({
       where: { key },
@@ -104,9 +129,16 @@ tip: один конкретный совет, как не сорваться.
       create: { key, content: JSON.stringify(info) },
     });
 
-    return NextResponse.json(info);
+    return NextResponse.json({ ...info, cooldown: GAP });
   } catch (error) {
     console.error("GigaChat error:", error);
-    return NextResponse.json({ error: "AI unavailable" }, { status: 502 });
+    return NextResponse.json(
+      {
+        error: "AI unavailable",
+        detail:
+          process.env.NODE_ENV === "production" ? undefined : String(error),
+      },
+      { status: 502 },
+    );
   }
 }
