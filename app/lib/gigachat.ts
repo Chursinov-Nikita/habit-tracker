@@ -32,7 +32,7 @@ const send = (
         method: options.method,
         headers: options.headers,
         ca: loadCa(),
-        timeout: 30000,
+        timeout: 120000,
       },
       (res) => {
         const chunks: Buffer[] = [];

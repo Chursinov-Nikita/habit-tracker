@@ -31,6 +31,9 @@ export const TRACKED_KEY = "habittrack:tracked:v1";
 export const PROGRESS_KEY = "habittrack:progress:v1";
 export const TRACKER_PATH = "/components/habits/second";
 
+const scrollbar =
+  "overscroll-contain [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.18)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/15 hover:[&::-webkit-scrollbar-thumb]:bg-white/30";
+
 type AiInfo = {
   summary: string;
   harm: { title: string; text: string }[];
@@ -243,7 +246,11 @@ export default function Habits({
     setAiFailed(null);
     setAiBusy(true);
     try {
-      const { data } = await axios.post("/api/habit-ai", { name: habit.name });
+      const { data } = await axios.post(
+        "/api/habit-ai",
+        { name: habit.name },
+        { timeout: 120000 },
+      );
       const { cooldown, ...info } = data;
       setAiInfo((prev) => ({ ...prev, [habit.id]: info }));
       setAiCooldown(Number(cooldown) || 0);
@@ -493,63 +500,76 @@ export default function Habits({
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 lg:min-h-0 lg:flex-1 lg:content-start lg:overflow-y-auto lg:py-1 lg:pr-1">
+              <div
+                className={`grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 lg:min-h-0 lg:flex-1 lg:content-start lg:overflow-y-auto lg:py-1 lg:pr-1 ${scrollbar}`}
+              >
                 {filtered.map((habit) => {
                   const Icon = icons[habit.icon] ?? Ban;
                   const active = selected.includes(habit.id);
                   return (
-                    <div key={habit.id} className="flex items-stretch gap-1.5">
-                      <button
-                        onClick={() => toggle(habit.id)}
-                        aria-pressed={active}
-                        className={`group relative flex min-w-0 flex-1 items-center gap-3.5 overflow-hidden rounded-2xl border p-4 text-left backdrop-blur transition duration-200 before:absolute before:inset-x-6 before:top-0 before:h-px before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 active:scale-[0.98] lg:p-3 ${
+                    <div
+                      key={habit.id}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => toggle(habit.id)}
+                      onKeyDown={(e) => {
+                        if (e.target !== e.currentTarget) return;
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          toggle(habit.id);
+                        }
+                      }}
+                      aria-pressed={active}
+                      className={`group relative flex cursor-pointer select-none items-center gap-3.5 overflow-hidden rounded-2xl border p-4 text-left backdrop-blur transition duration-200 before:absolute before:inset-x-6 before:top-0 before:h-px before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 active:scale-[0.98] lg:p-3 ${
+                        active
+                          ? "border-[#6366F1]/70 bg-[#6366F1]/10 shadow-[0_10px_30px_-12px_rgba(99,102,241,0.6)]"
+                          : "border-white/10 bg-[#111827]/60 hover:-translate-y-0.5 hover:border-white/20 hover:bg-[#111827]"
+                      }`}
+                    >
+                      <span
+                        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition duration-200 lg:h-10 lg:w-10 ${
                           active
-                            ? "border-[#6366F1]/70 bg-[#6366F1]/10 shadow-[0_10px_30px_-12px_rgba(99,102,241,0.6)]"
-                            : "border-white/10 bg-[#111827]/60 hover:-translate-y-0.5 hover:border-white/20 hover:bg-[#111827]"
+                            ? "bg-[#6366F1] text-white shadow-lg shadow-[#6366F1]/30"
+                            : "bg-white/5 text-[#6366F1] group-hover:bg-[#6366F1]/15"
                         }`}
                       >
-                        <span
-                          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition duration-200 lg:h-10 lg:w-10 ${
-                            active
-                              ? "bg-[#6366F1] text-white shadow-lg shadow-[#6366F1]/30"
-                              : "bg-white/5 text-[#6366F1] group-hover:bg-[#6366F1]/15"
-                          }`}
-                        >
-                          <Icon className="h-6 w-6 lg:h-5 lg:w-5" />
+                        <Icon className="h-6 w-6 lg:h-5 lg:w-5" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate font-medium text-slate-100">
+                          {habit.name}
                         </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate font-medium text-slate-100">
-                            {habit.name}
-                          </span>
-                          <span className="mt-1 flex items-center gap-2 text-xs text-slate-500">
-                            {habit.custom && (
-                              <span className="rounded-md bg-[#6366F1]/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#A5B4FC]">
-                                Своя
-                              </span>
-                            )}
-                            {habit.category}
-                          </span>
+                        <span className="mt-1 flex items-center gap-2 text-xs text-slate-500">
+                          {habit.custom && (
+                            <span className="rounded-md bg-[#6366F1]/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#A5B4FC]">
+                              Своя
+                            </span>
+                          )}
+                          {habit.category}
                         </span>
-                        <span
-                          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition duration-200 ${
-                            active
-                              ? "border-[#6366F1] bg-[#6366F1] text-white"
-                              : "border-white/15 text-transparent group-hover:border-white/30"
-                          }`}
-                        >
-                          <Check className="h-3.5 w-3.5" />
-                        </span>
-                      </button>
+                      </span>
                       {habit.custom && (
                         <button
-                          onClick={() => setDeleteTarget(habit)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteTarget(habit);
+                          }}
                           aria-label={`Удалить привычку ${habit.name}`}
                           title="Удалить привычку"
-                          className="flex w-10 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-[#111827]/60 text-slate-500 transition hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/70 active:scale-95"
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-600 transition hover:bg-rose-500/15 hover:text-rose-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/70"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
                       )}
+                      <span
+                        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition duration-200 ${
+                          active
+                            ? "border-[#6366F1] bg-[#6366F1] text-white"
+                            : "border-white/15 text-transparent group-hover:border-white/30"
+                        }`}
+                      >
+                        <Check className="h-3.5 w-3.5" />
+                      </span>
                     </div>
                   );
                 })}
@@ -598,7 +618,9 @@ export default function Habits({
                   </p>
                 </div>
               ) : (
-                <ul className="flex max-h-147.5 flex-col gap-2.5 overflow-y-auto pr-1 lg:max-h-none lg:min-h-0 lg:flex-1 lg:gap-2">
+                <ul
+                  className={`flex max-h-147.5 flex-col gap-2.5 overflow-y-auto pr-1 lg:max-h-none lg:min-h-0 lg:flex-1 lg:gap-2 ${scrollbar}`}
+                >
                   {selectedHabits.map((habit) => {
                     const Icon = icons[habit.icon] ?? Ban;
                     return (
@@ -776,7 +798,9 @@ export default function Habits({
               </div>
             </div>
 
-            <div className="flex flex-col gap-6 overflow-y-auto px-6 pb-6">
+            <div
+              className={`flex flex-col gap-6 overflow-y-auto px-6 pb-6 ${scrollbar}`}
+            >
               <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-[#0B0F1A]/60 p-4">
                 <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#6366F1] text-white shadow-lg shadow-[#6366F1]/30">
                   <PreviewIcon className="h-7 w-7" />
@@ -1033,14 +1057,14 @@ export default function Habits({
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(139,92,246,0.22),transparent_65%)]" />
           <div
             onClick={(e) => e.stopPropagation()}
-            className={`relative w-full max-w-3xl motion-reduce:animate-none lg:max-w-4xl ${
+            className={`relative w-full max-w-3xl motion-reduce:animate-none lg:max-w-5xl ${
               aiClosing
                 ? "animate-[ai-pop-out_0.22s_ease-in_forwards]"
                 : "animate-[ai-pop_0.4s_cubic-bezier(0.16,1,0.3,1)]"
             }`}
           >
             <div className="pointer-events-none absolute -inset-6 hidden animate-[ai-glow_4s_ease-in-out_infinite] rounded-[3rem] bg-linear-to-br from-[#6366F1]/40 via-[#8B5CF6]/30 to-[#A78BFA]/20 blur-3xl motion-reduce:animate-none sm:block" />
-            <div className="relative flex max-h-[92vh] overflow-hidden rounded-t-3xl p-[1.5px] shadow-[0_0_60px_-12px_rgba(139,92,246,0.7)] sm:h-[min(88vh,50rem)] sm:rounded-3xl">
+            <div className="relative flex max-h-[92vh] overflow-hidden rounded-t-3xl p-[1.5px] shadow-[0_0_60px_-12px_rgba(139,92,246,0.7)] sm:rounded-3xl">
               <div className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[200%] animate-[ai-spin_7s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0%,transparent_55%,#6366F1_75%,#A78BFA_88%,transparent_100%)] motion-reduce:animate-none" />
               <div
                 role="dialog"
@@ -1048,21 +1072,21 @@ export default function Habits({
                 aria-labelledby="ai-title"
                 className="relative flex min-h-0 w-full flex-col overflow-hidden rounded-t-[22px] bg-[#111827] sm:rounded-[22px]"
               >
-                <div className="relative shrink-0 overflow-hidden px-6 pb-4 pt-5 sm:px-8 sm:pt-6">
+                <div className="relative shrink-0 overflow-hidden px-5 pb-3 pt-4 sm:px-6">
                   <div className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 animate-[ai-glow_5s_ease-in-out_infinite] rounded-full bg-[#8B5CF6]/25 blur-3xl motion-reduce:animate-none" />
-                  <div className="relative flex items-start justify-between gap-4">
-                    <div className="flex min-w-0 items-center gap-4">
-                      <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-[#6366F1] to-[#8B5CF6] text-white shadow-[0_0_24px_-2px_rgba(139,92,246,0.8)]">
-                        <AiIcon className="h-7 w-7" />
+                  <div className="relative flex items-center justify-between gap-4">
+                    <div className="flex min-w-0 items-center gap-3.5">
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-[#6366F1] to-[#8B5CF6] text-white shadow-[0_0_24px_-2px_rgba(139,92,246,0.8)]">
+                        <AiIcon className="h-6 w-6" />
                       </span>
                       <div className="min-w-0">
                         <h2
                           id="ai-title"
-                          className="truncate text-2xl font-bold text-slate-100"
+                          className="truncate text-xl font-bold leading-tight text-slate-100"
                         >
                           {aiHabit.name}
                         </h2>
-                        <p className="mt-0.5 flex items-center gap-1.5 text-xs text-[#C4B5FD]">
+                        <p className="flex items-center gap-1.5 text-xs text-[#C4B5FD]">
                           <Sparkles className="h-3.5 w-3.5 animate-[ai-twinkle_2.4s_ease-in-out_infinite] motion-reduce:animate-none" />
                           Разбор от GigaChat · {aiHabit.category}
                         </p>
@@ -1078,7 +1102,9 @@ export default function Habits({
                   </div>
                 </div>
 
-                <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-6 pb-6 sm:px-8">
+                <div
+                  className={`flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-5 pb-4 sm:px-6 ${scrollbar}`}
+                >
                   {aiError ? (
                     <div className="flex animate-[ai-rise_0.4s_ease-out_both] flex-col items-center rounded-2xl border border-dashed border-rose-500/30 bg-rose-500/5 px-4 py-10 text-center">
                       <p className="text-sm text-rose-300">
@@ -1100,188 +1126,187 @@ export default function Habits({
                       </button>
                     </div>
                   ) : !aiCurrent ? (
-                    <div className="flex flex-col gap-4" aria-live="polite">
+                    <div className="flex flex-col gap-3" aria-live="polite">
                       <p className="flex items-center gap-2 text-sm text-slate-400">
                         <Sparkles className="h-4 w-4 animate-[ai-twinkle_1.6s_ease-in-out_infinite] text-[#8B5CF6] motion-reduce:animate-none" />
-                        GigaChat готовит подробный разбор…
+                        GigaChat готовит подробный разбор, это может занять до
+                        30 секунд…
                       </p>
-                      <div className="relative h-16 overflow-hidden rounded-2xl bg-white/5">
-                        <div className="absolute inset-0 -translate-x-full animate-[ai-shimmer_1.6s_ease-in-out_infinite] bg-linear-to-r from-transparent via-white/10 to-transparent motion-reduce:animate-none" />
-                      </div>
-                      <div className="grid gap-4 md:grid-cols-2">
-                        {[0, 1].map((item) => (
+                      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                        {[
+                          "h-10 md:col-span-2 lg:col-span-3",
+                          "h-44",
+                          "h-44",
+                          "h-44",
+                          "h-28",
+                          "h-28",
+                          "h-28",
+                          "h-20 md:col-span-2 lg:col-span-3",
+                        ].map((size, index) => (
                           <div
-                            key={item}
-                            className="relative h-44 overflow-hidden rounded-2xl bg-white/5"
+                            key={index}
+                            className={`relative overflow-hidden rounded-2xl bg-white/5 ${size}`}
                           >
                             <div className="absolute inset-0 -translate-x-full animate-[ai-shimmer_1.6s_ease-in-out_infinite] bg-linear-to-r from-transparent via-white/10 to-transparent motion-reduce:animate-none" />
                           </div>
                         ))}
                       </div>
-                      <div className="relative h-24 overflow-hidden rounded-2xl bg-white/5">
-                        <div className="absolute inset-0 -translate-x-full animate-[ai-shimmer_1.6s_ease-in-out_infinite] bg-linear-to-r from-transparent via-white/10 to-transparent motion-reduce:animate-none" />
-                      </div>
                     </div>
                   ) : (
                     <>
                       {aiCurrent.summary && (
-                        <p className="animate-[ai-rise_0.5s_ease-out_both] text-base leading-relaxed text-slate-200 motion-reduce:animate-none overflow-hidden">
+                        <p className="animate-[ai-rise_0.5s_ease-out_both] text-sm leading-relaxed text-slate-200 motion-reduce:animate-none">
                           {aiCurrent.summary}
                         </p>
                       )}
 
-                      <div className="grid gap-6 md:grid-cols-2">
-                        <section className="animate-[ai-rise_0.5s_ease-out_both] [animation-delay:80ms] motion-reduce:animate-none">
-                          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                            Чем это вредно
+                      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                        <section className="animate-[ai-rise_0.5s_ease-out_both] rounded-2xl border border-rose-500/15 bg-rose-500/5 p-3.5 [animation-delay:60ms] motion-reduce:animate-none">
+                          <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-rose-300/80">
+                            Чем вредно
                           </p>
-                          <ul className="flex flex-col gap-2.5">
+                          <ul className="flex flex-col gap-2">
                             {aiCurrent.harm.map((item) => (
                               <li
                                 key={`${item.title}-${item.text}`}
-                                className="rounded-2xl border border-rose-500/15 bg-rose-500/5 p-3.5"
+                                className="text-[13px] leading-snug text-slate-300"
                               >
                                 {item.title && (
-                                  <p className="text-sm font-semibold text-rose-200">
-                                    {item.title}
-                                  </p>
+                                  <span className="font-semibold text-rose-200">
+                                    {item.title}.{" "}
+                                  </span>
                                 )}
-                                <p className="text-sm leading-relaxed text-slate-300">
-                                  {item.text}
-                                </p>
+                                {item.text}
                               </li>
                             ))}
                           </ul>
                         </section>
 
                         {aiCurrent.benefits.length > 0 && (
-                          <section className="animate-[ai-rise_0.5s_ease-out_both] [animation-delay:160ms] motion-reduce:animate-none">
-                            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                          <section className="animate-[ai-rise_0.5s_ease-out_both] rounded-2xl border border-emerald-500/15 bg-emerald-500/5 p-3.5 [animation-delay:120ms] motion-reduce:animate-none">
+                            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-emerald-300/80">
                               Что изменится, если бросить
                             </p>
-                            <ol className="relative ml-1.5 flex flex-col gap-4 border-l border-emerald-500/25 pl-5">
+                            <ol className="flex flex-col gap-2">
                               {aiCurrent.benefits.map((item) => (
                                 <li
                                   key={`${item.when}-${item.text}`}
-                                  className="relative"
+                                  className="grid grid-cols-[5.25rem_1fr] gap-2 text-[13px] leading-snug"
                                 >
-                                  <span className="absolute -left-6.5 top-1 h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.7)] ring-4 ring-[#111827]" />
-                                  <p className="text-xs font-semibold uppercase tracking-wide text-emerald-300">
+                                  <span className="font-semibold text-emerald-300">
                                     {item.when}
-                                  </p>
-                                  <p className="mt-0.5 text-sm leading-relaxed text-slate-300">
+                                  </span>
+                                  <span className="text-slate-300">
                                     {item.text}
-                                  </p>
+                                  </span>
                                 </li>
                               ))}
                             </ol>
                           </section>
                         )}
+
+                        {aiCurrent.steps.length > 0 && (
+                          <section className="animate-[ai-rise_0.5s_ease-out_both] rounded-2xl border border-[#6366F1]/20 bg-[#6366F1]/5 p-3.5 [animation-delay:180ms] motion-reduce:animate-none">
+                            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[#A5B4FC]/80">
+                              План на неделю
+                            </p>
+                            <ol className="flex flex-col gap-2">
+                              {aiCurrent.steps.map((item, index) => (
+                                <li
+                                  key={item}
+                                  className="flex items-start gap-2.5 text-[13px] leading-snug text-slate-300"
+                                >
+                                  <span className="mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#6366F1]/25 text-[11px] font-bold tabular-nums text-[#C7D2FE]">
+                                    {index + 1}
+                                  </span>
+                                  {item}
+                                </li>
+                              ))}
+                            </ol>
+                          </section>
+                        )}
+
+                        {aiCurrent.facts.length > 0 && (
+                          <section className="animate-[ai-rise_0.5s_ease-out_both] rounded-2xl border border-white/10 bg-white/3 p-3.5 [animation-delay:240ms] motion-reduce:animate-none">
+                            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                              Интересные факты
+                            </p>
+                            <ul className="flex flex-col gap-2">
+                              {aiCurrent.facts.map((item) => (
+                                <li
+                                  key={item}
+                                  className="flex gap-2 text-[13px] leading-snug text-slate-300"
+                                >
+                                  <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[#8B5CF6]" />
+                                  {item}
+                                </li>
+                              ))}
+                            </ul>
+                          </section>
+                        )}
+
+                        {aiCurrent.triggers.length > 0 && (
+                          <section className="animate-[ai-rise_0.5s_ease-out_both] rounded-2xl border border-white/10 bg-white/3 p-3.5 [animation-delay:300ms] motion-reduce:animate-none">
+                            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                              Когда тянет сильнее
+                            </p>
+                            <ul className="flex flex-wrap gap-1.5">
+                              {aiCurrent.triggers.map((item) => (
+                                <li
+                                  key={item}
+                                  className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-slate-300"
+                                >
+                                  {item}
+                                </li>
+                              ))}
+                            </ul>
+                          </section>
+                        )}
+
+                        {aiCurrent.alternatives.length > 0 && (
+                          <section className="animate-[ai-rise_0.5s_ease-out_both] rounded-2xl border border-white/10 bg-white/3 p-3.5 [animation-delay:360ms] motion-reduce:animate-none">
+                            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                              Чем заменить
+                            </p>
+                            <ul className="flex flex-col gap-1.5">
+                              {aiCurrent.alternatives.map((item) => (
+                                <li
+                                  key={item}
+                                  className="flex items-start gap-2 text-[13px] leading-snug text-slate-300"
+                                >
+                                  <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#6366F1]" />
+                                  {item}
+                                </li>
+                              ))}
+                            </ul>
+                          </section>
+                        )}
                       </div>
 
-                      {aiCurrent.facts.length > 0 && (
-                        <section className="animate-[ai-rise_0.5s_ease-out_both] [animation-delay:240ms] motion-reduce:animate-none">
-                          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                            Интересные факты
+                      <div className="animate-[ai-rise_0.5s_ease-out_both] rounded-2xl border border-[#6366F1]/30 bg-linear-to-br from-[#6366F1]/20 to-[#8B5CF6]/10 p-4 shadow-[0_0_30px_-10px_rgba(139,92,246,0.6)] [animation-delay:420ms] motion-reduce:animate-none">
+                        <div className="flex gap-3">
+                          <Flame className="mt-0.5 h-5 w-5 shrink-0 text-[#A78BFA]" />
+                          <p className="text-sm leading-relaxed text-slate-100">
+                            {aiCurrent.motivation}
                           </p>
-                          <ul className="grid gap-3 sm:grid-cols-3">
-                            {aiCurrent.facts.map((item) => (
-                              <li
-                                key={item}
-                                className="rounded-2xl border border-[#6366F1]/20 bg-[#6366F1]/5 p-3.5 text-sm leading-relaxed text-slate-300"
-                              >
-                                {item}
-                              </li>
-                            ))}
-                          </ul>
-                        </section>
-                      )}
-
-                      {(aiCurrent.triggers.length > 0 ||
-                        aiCurrent.alternatives.length > 0) && (
-                        <div className="grid gap-6 md:grid-cols-2">
-                          {aiCurrent.triggers.length > 0 && (
-                            <section className="animate-[ai-rise_0.5s_ease-out_both] [animation-delay:320ms] motion-reduce:animate-none">
-                              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                Когда тянет сильнее всего
-                              </p>
-                              <ul className="flex flex-wrap gap-2">
-                                {aiCurrent.triggers.map((item) => (
-                                  <li
-                                    key={item}
-                                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300"
-                                  >
-                                    {item}
-                                  </li>
-                                ))}
-                              </ul>
-                            </section>
-                          )}
-                          {aiCurrent.alternatives.length > 0 && (
-                            <section className="animate-[ai-rise_0.5s_ease-out_both] [animation-delay:380ms] motion-reduce:animate-none">
-                              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                Чем заменить
-                              </p>
-                              <ul className="flex flex-col gap-2">
-                                {aiCurrent.alternatives.map((item) => (
-                                  <li
-                                    key={item}
-                                    className="flex items-start gap-2.5 text-sm leading-relaxed text-slate-300"
-                                  >
-                                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#6366F1]" />
-                                    {item}
-                                  </li>
-                                ))}
-                              </ul>
-                            </section>
-                          )}
                         </div>
-                      )}
-
-                      {aiCurrent.steps.length > 0 && (
-                        <section className="animate-[ai-rise_0.5s_ease-out_both] [animation-delay:440ms] motion-reduce:animate-none">
-                          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                            План на первую неделю
-                          </p>
-                          <ol className="flex flex-col gap-2.5">
-                            {aiCurrent.steps.map((item, index) => (
-                              <li
-                                key={item}
-                                className="flex items-start gap-3 text-sm leading-relaxed text-slate-300"
-                              >
-                                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#6366F1]/20 text-xs font-bold tabular-nums text-[#A5B4FC]">
-                                  {index + 1}
-                                </span>
-                                <span className="pt-0.5">{item}</span>
-                              </li>
-                            ))}
-                          </ol>
-                        </section>
-                      )}
-
-                      <div className="flex animate-[ai-rise_0.5s_ease-out_both] gap-3 rounded-2xl border border-[#6366F1]/30 bg-linear-to-br from-[#6366F1]/20 to-[#8B5CF6]/10 p-5 shadow-[0_0_30px_-10px_rgba(139,92,246,0.6)] [animation-delay:500ms] motion-reduce:animate-none">
-                        <Flame className="mt-0.5 h-5 w-5 shrink-0 text-[#A78BFA]" />
-                        <p className="text-base leading-relaxed text-slate-100">
-                          {aiCurrent.motivation}
-                        </p>
-                      </div>
-
-                      {aiCurrent.tip && (
-                        <p className="flex animate-[ai-rise_0.5s_ease-out_both] gap-2.5 text-sm leading-relaxed text-slate-400 [animation-delay:560ms] motion-reduce:animate-none">
-                          <Target className="mt-0.5 h-4 w-4 shrink-0 text-[#6366F1]" />
-                          <span>
-                            <span className="font-medium text-slate-300">
-                              Совет:{" "}
+                        {aiCurrent.tip && (
+                          <p className="mt-3 flex gap-2.5 border-t border-white/10 pt-3 text-xs leading-relaxed text-slate-400">
+                            <Target className="mt-0.5 h-4 w-4 shrink-0 text-[#6366F1]" />
+                            <span>
+                              <span className="font-medium text-slate-300">
+                                Совет:{" "}
+                              </span>
+                              {aiCurrent.tip}
                             </span>
-                            {aiCurrent.tip}
-                          </span>
-                        </p>
-                      )}
+                          </p>
+                        )}
+                      </div>
                     </>
                   )}
                 </div>
 
-                <div className="flex shrink-0 items-center justify-between gap-3 border-t border-white/10 px-6 py-3 sm:px-8">
+                <div className="flex shrink-0 items-center justify-between gap-3 border-t border-white/10 px-5 py-2.5 sm:px-6">
                   <p className="text-[11px] leading-snug text-slate-600">
                     Ответ сгенерирован нейросетью и не заменяет консультацию
                     врача.

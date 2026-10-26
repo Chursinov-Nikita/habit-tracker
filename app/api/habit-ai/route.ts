@@ -5,6 +5,7 @@ import { prisma } from "@/app/lib/prisma";
 import { askGigaChat } from "@/app/lib/gigachat";
 
 export const runtime = "nodejs";
+export const maxDuration = 120;
 
 const GAP = 5;
 const WINDOW = 600000;
@@ -44,7 +45,9 @@ const parse = (text: string) => {
   const end = text.lastIndexOf("}");
   if (start === -1 || end <= start) return null;
   try {
-    const raw = JSON.parse(text.slice(start, end + 1));
+    const raw = JSON.parse(
+      text.slice(start, end + 1).replace(/,\s*([}\]])/g, "$1"),
+    );
 
     const harm: { title: string; text: string }[] = Array.isArray(raw.harm)
       ? raw.harm
@@ -69,7 +72,9 @@ const parse = (text: string) => {
             when: clean(item?.when, 30),
             text: clean(item?.text, 180),
           }))
-          .filter((item: { text: string }) => item.text)
+          .filter(
+            (item: { when: string; text: string }) => item.text && item.when,
+          )
           .slice(0, 6)
       : [];
 
@@ -92,6 +97,15 @@ const parse = (text: string) => {
   }
 };
 
+type Info = NonNullable<ReturnType<typeof parse>>;
+
+const complete = (value: Info | null): value is Info =>
+  value !== null &&
+  value.summary !== "" &&
+  value.benefits.length >= 3 &&
+  value.facts.length >= 2 &&
+  value.steps.length >= 2;
+
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id)
@@ -103,7 +117,7 @@ export async function POST(req: Request) {
   if (!name)
     return NextResponse.json({ error: "Name required" }, { status: 400 });
 
-  const key = `v2:${name.toLowerCase()}`;
+  const key = `v3:${name.toLowerCase()}`;
   const cached = await prisma.habitInfo.findUnique({ where: { key } });
   if (cached)
     return NextResponse.json({ ...JSON.parse(cached.content), cooldown: 0 });
@@ -117,66 +131,77 @@ export async function POST(req: Request) {
   }
   calls.set(userId, [...(calls.get(userId) ?? []), Date.now()]);
 
-  try {
-    const text = await askGigaChat(
-      [
-        {
-          role: "system",
-          content:
-            "Ты — доброжелательный коуч, который помогает отказаться от вредных привычек. Пиши по-русски, коротко и по делу, без морализаторства и запугивания, без медицинских диагнозов. Отвечай только JSON без markdown и пояснений.",
-        },
-        {
-          role: "user",
-          content: `Привычка: ${name}.
-Верни JSON строго такого вида:
+  const messages = [
+    {
+      role: "system" as const,
+      content:
+        "Ты — доброжелательный коуч, который помогает отказаться от вредных привычек. Пиши по-русски, коротко и по делу, без морализаторства и запугивания, без медицинских диагнозов. Отвечай только JSON без markdown и пояснений. Обязательно заполняй все поля, пустых полей и массивов быть не должно.",
+    },
+    {
+      role: "user" as const,
+      content: `Привычка: ${name}.
+Верни JSON строго такого вида, ключи не переименовывай:
 {"summary":"...","harm":[{"title":"...","text":"..."}],"benefits":[{"when":"через день","text":"..."}],"facts":["..."],"triggers":["..."],"alternatives":["..."],"steps":["..."],"motivation":"...","tip":"..."}
-Требования:
-summary: 2 предложения о том, что это за привычка и почему от неё так трудно отказаться.
-harm: 4 пункта, title до 4 слов (например, «Сердце и сосуды»), text до 140 символов.
-benefits: 5 пунктов по возрастанию срока (через день, через неделю, через месяц, через 3 месяца, через год), text до 120 символов.
-facts: 3 интересных факта общими словами, без точных цифр и статистики.
-triggers: 4 типичные ситуации, когда особенно тянет (до 60 символов каждая).
-alternatives: 4 полезные замены привычки (до 60 символов каждая).
-steps: 4 коротких шага плана на первую неделю.
-motivation: 3 тёплых вдохновляющих предложения.
-tip: один конкретный совет, как не сорваться.
+Требования, пиши максимально коротко:
+summary: 1-2 коротких предложения, до 200 символов. Поле обязательно.
+harm: 4 пункта, title до 3 слов (например, «Сердце и сосуды»), text до 90 символов.
+benefits: ровно 5 объектов с полями when и text по возрастанию срока (через день, через неделю, через месяц, через 3 месяца, через год), text до 80 символов. Поле обязательно.
+facts: 3 коротких факта общими словами, без точных цифр, до 110 символов каждый.
+triggers: 4 типичные ситуации, когда тянет, до 35 символов каждая.
+alternatives: 4 полезные замены, до 40 символов каждая.
+steps: 4 шага плана на первую неделю, до 70 символов каждый.
+motivation: 2 тёплых вдохновляющих предложения, до 220 символов.
+tip: один совет, как не сорваться, до 120 символов.
 Если привычка вредна не для здоровья, а для продуктивности, денег или отношений, опиши именно этот вред.`,
-        },
-      ],
-      1500,
-    );
+    },
+  ];
 
-    const info = parse(text);
-    if (!info) {
-      console.error("GigaChat bad answer:", text);
-      return NextResponse.json(
-        {
-          error: "Bad answer",
-          detail:
-            process.env.NODE_ENV === "production"
-              ? undefined
-              : text.slice(0, 300),
-        },
-        { status: 502 },
-      );
+  let info: Info | null = null;
+  let best: Info | null = null;
+  let lastError: unknown = null;
+
+  for (let attempt = 0; attempt < 3 && !info; attempt++) {
+    try {
+      const text = await askGigaChat(messages, 1100);
+      const result = parse(text);
+      if (complete(result)) {
+        info = result;
+      } else if (result) {
+        console.error("GigaChat incomplete answer:", text);
+        if (!best) best = result;
+      } else {
+        console.error("GigaChat bad answer:", text);
+      }
+    } catch (error) {
+      lastError = error;
+      console.error("GigaChat error:", error);
     }
+  }
 
-    await prisma.habitInfo.upsert({
-      where: { key },
-      update: {},
-      create: { key, content: JSON.stringify(info) },
-    });
+  if (!info && best) {
+    return NextResponse.json({ ...best, cooldown: GAP });
+  }
 
-    return NextResponse.json({ ...info, cooldown: GAP });
-  } catch (error) {
-    console.error("GigaChat error:", error);
+  if (!info) {
     return NextResponse.json(
       {
-        error: "AI unavailable",
+        error: lastError ? "AI unavailable" : "Bad answer",
         detail:
-          process.env.NODE_ENV === "production" ? undefined : String(error),
+          process.env.NODE_ENV === "production"
+            ? undefined
+            : lastError
+              ? String(lastError)
+              : "Unparsable answer",
       },
       { status: 502 },
     );
   }
+
+  await prisma.habitInfo.upsert({
+    where: { key },
+    update: {},
+    create: { key, content: JSON.stringify(info) },
+  });
+
+  return NextResponse.json({ ...info, cooldown: GAP });
 }
