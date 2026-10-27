@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Habit, ServerHabit } from "../types";
+import { Habit, ServerHabit } from "./types";
 import {
   catalog,
   categories,
@@ -12,7 +12,9 @@ import {
   goalOptions,
   pickerIcons,
   icons,
-} from "../data";
+  TRACKER_PATH,
+} from "./data";
+import LoginRequired from "@/app/elements/LoginRequired";
 import {
   ArrowRight,
   Ban,
@@ -25,11 +27,6 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-
-export const STORAGE_KEY = "habittrack:habits:v1";
-export const TRACKED_KEY = "habittrack:tracked:v1";
-export const PROGRESS_KEY = "habittrack:progress:v1";
-export const TRACKER_PATH = "/components/habits/second";
 
 const scrollbar =
   "overscroll-contain [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.18)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/15 hover:[&::-webkit-scrollbar-thumb]:bg-white/30";
@@ -46,13 +43,7 @@ type AiInfo = {
   tip: string;
 };
 
-export default function Habits({
-  onSave,
-}: {
-  onSave?: (
-    habits: { id: string; name: string; category: string; goalDays: number }[],
-  ) => void;
-}) {
+export default function Habits() {
   const [selected, setSelected] = useState<string[]>([]);
   const [custom, setCustom] = useState<Habit[]>([]);
   const [goals, setGoals] = useState<Record<string, number>>({});
@@ -74,8 +65,12 @@ export default function Habits({
   const [aiFailed, setAiFailed] = useState<string | null>(null);
   const [aiBusy, setAiBusy] = useState(false);
   const [aiCooldown, setAiCooldown] = useState(0);
+  const [needLogin, setNeedLogin] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(false);
   const router = useRouter();
   const loaded = useRef(false);
+  const savedDraft = useRef<string | null>(null);
 
   const closeAi = useCallback(() => {
     setAiClosing(true);
@@ -126,10 +121,10 @@ export default function Habits({
         setHydrated(true);
       })
       .catch((error) => {
-        if (error?.response?.status === 401) router.replace("/");
-        else setHydrated(true);
+        if (error?.response?.status === 401) setNeedLogin(true);
+        setHydrated(true);
       });
-  }, [router]);
+  }, []);
 
   const draft = JSON.stringify({
     habits: [
@@ -158,10 +153,16 @@ export default function Habits({
 
   useEffect(() => {
     if (!hydrated || !loaded.current) return;
+    // Первый черновик собран из ответа сервера — сохранять его незачем
+    if (savedDraft.current === null) savedDraft.current = draft;
+    if (draft === savedDraft.current) return;
     const timer = window.setTimeout(() => {
       axios
         .put("/api/habits", draft, {
           headers: { "Content-Type": "application/json" },
+        })
+        .then(() => {
+          savedDraft.current = draft;
         })
         .catch(() => {});
     }, 400);
@@ -324,26 +325,39 @@ export default function Habits({
   };
 
   const save = async () => {
-    const payload = selectedHabits.map((habit) => ({
-      id: habit.id,
-      name: habit.name,
-      category: habit.category,
-      icon: habit.icon,
-      goalDays: goals[habit.id] ?? 30,
-    }));
+    if (saving) return;
+    setSaving(true);
+    setSaveError(false);
     try {
-      await axios.put("/api/habits", draft, {
-        headers: { "Content-Type": "application/json" },
-      });
+      if (draft !== savedDraft.current) {
+        await axios.put("/api/habits", draft, {
+          headers: { "Content-Type": "application/json" },
+        });
+        savedDraft.current = draft;
+      }
       await axios.post("/api/habits/track");
     } catch {
+      setSaving(false);
+      setSaveError(true);
       return;
     }
-    setTrackedCount(payload.length);
-    onSave?.(payload);
+    setSaving(false);
+    setTrackedCount(selectedHabits.length);
     setSaved(true);
     router.push(TRACKER_PATH);
   };
+
+  const saveLabel = saving
+    ? "Сохраняем…"
+    : saved
+      ? "Сохранено"
+      : "Начать отслеживать";
+
+  if (needLogin) {
+    return (
+      <LoginRequired text="Войди, чтобы выбрать привычки и следить за прогрессом — данные сохранятся в твоём аккаунте." />
+    );
+  }
 
   return (
     <div
@@ -719,9 +733,17 @@ export default function Habits({
                 </ul>
               )}
 
+              {saveError && (
+                <p
+                  role="alert"
+                  className="mt-4 hidden rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-center text-xs text-rose-300 lg:mt-3 lg:block lg:shrink-0"
+                >
+                  Не удалось сохранить. Проверь подключение и попробуй ещё раз
+                </p>
+              )}
               <button
                 onClick={save}
-                disabled={selectedHabits.length === 0}
+                disabled={selectedHabits.length === 0 || saving}
                 className={`mt-5 hidden w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/5 disabled:text-slate-600 disabled:shadow-none lg:mt-3 lg:flex lg:shrink-0 lg:py-3 ${
                   saved
                     ? "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30"
@@ -731,9 +753,9 @@ export default function Habits({
                 {saved ? (
                   <Check className="h-4 w-4" />
                 ) : (
-                  <Flame className="h-4 w-4" />
+                  <Flame className={`h-4 w-4 ${saving ? "animate-pulse" : ""}`} />
                 )}
-                {saved ? "Сохранено" : "Начать отслеживать"}
+                {saveLabel}
               </button>
             </div>
           </aside>
@@ -745,11 +767,15 @@ export default function Habits({
           <p className={` text-xl font-semibold leading-none tabular-nums`}>
             {selectedHabits.length}
           </p>
-          <p className="mt-1 text-xs text-slate-500">выбрано</p>
+          <p
+            className={`mt-1 truncate text-xs ${saveError ? "text-rose-400" : "text-slate-500"}`}
+          >
+            {saveError ? "Не удалось сохранить" : "выбрано"}
+          </p>
         </div>
         <button
           onClick={save}
-          disabled={selectedHabits.length === 0}
+          disabled={selectedHabits.length === 0 || saving}
           className={`flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/5 disabled:text-slate-600 disabled:shadow-none ${
             saved
               ? "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30"
@@ -759,9 +785,9 @@ export default function Habits({
           {saved ? (
             <Check className="h-4 w-4" />
           ) : (
-            <Flame className="h-4 w-4" />
+            <Flame className={`h-4 w-4 ${saving ? "animate-pulse" : ""}`} />
           )}
-          {saved ? "Сохранено" : "Начать отслеживать"}
+          {saveLabel}
         </button>
       </div>
 
@@ -1015,7 +1041,7 @@ export default function Habits({
             <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/15 text-rose-400">
               <Trash2 className="h-6 w-6" />
             </span>
-            <h2 id="delete-title" className="break-words text-xl font-bold">
+            <h2 id="delete-title" className="wrap-break-word text-xl font-bold">
               Удалить «{deleteTarget.name}»?
             </h2>
             <p

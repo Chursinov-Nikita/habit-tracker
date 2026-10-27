@@ -1,4 +1,8 @@
-import { Phase } from "./page";
+export type Phase = {
+  type: "inhale" | "hold" | "exhale" | "rest";
+  label: string;
+  seconds: number;
+};
 
 export const techniques: { name: string; hint: string; phases: Phase[] }[] = [
   {

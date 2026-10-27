@@ -1,4 +1,4 @@
-import { Habit } from "../habits/types";
+import { Habit } from "./types";
 import {
   Ban,
   Candy,
@@ -102,7 +102,7 @@ export const pickerIcons = [
   "cookie",
 ];
 
-export const TRACKER_PATH = "/components/habits/second";
+export const TRACKER_PATH = "/progress";
 
 // TRACKER
 export const icons: Record<string, typeof Ban> = {
@@ -126,7 +126,7 @@ export const icons: Record<string, typeof Ban> = {
   zap: Zap,
 };
 
-export const HABITS_PATH = "/components/habits/first";
+export const HABITS_PATH = "/habits";
 export const DAY = 86400000;
 export const RING = 2 * Math.PI * 26;
 

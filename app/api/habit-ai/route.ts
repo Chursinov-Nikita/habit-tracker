@@ -156,8 +156,8 @@ tip: один совет, как не сорваться, до 120 символ�
     },
   ];
 
-  let info: Info | null = null;
-  let best: Info | null = null;
+  let info = null as Info | null;
+  let best = null as Info | null;
   let lastError: unknown = null;
 
   for (let attempt = 0; attempt < 3 && !info; attempt++) {
@@ -168,7 +168,7 @@ tip: один совет, как не сорваться, до 120 символ�
         info = result;
       } else if (result) {
         console.error("GigaChat incomplete answer:", text);
-        if (!best) best = result;
+        best ??= result;
       } else {
         console.error("GigaChat bad answer:", text);
       }

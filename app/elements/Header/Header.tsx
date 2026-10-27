@@ -13,10 +13,10 @@ const LoginModal = dynamic(() => import("./LoginModal"), {
 });
 
 const navLinks = [
-  { label: "Привычки", href: "/components/habits/first" },
-  { label: "Медитация", href: "/components/meditation" },
-  { label: "Календарь", href: "/components/calendar" },
-  { label: "О нас", href: "/#about" },
+  { label: "Привычки", href: "/habits", match: ["/habits", "/progress"] },
+  { label: "Медитация", href: "/meditation", match: ["/meditation"] },
+  { label: "Календарь", href: "/calendar", match: ["/calendar"] },
+  { label: "О нас", href: "/#about", match: [] },
 ];
 
 const ABOUT_HREF = "/#about";
@@ -26,6 +26,7 @@ export default function Header() {
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
   const [loginWindow, setLoginWindow] = useState(false);
   const [loading, setLoading] = useState<"google" | "github" | null>(null);
+  const [brokenAvatar, setBrokenAvatar] = useState<string | null>(null);
 
   async function handleLogin(provider: "google" | "github") {
     setLoading(provider);
@@ -54,6 +55,11 @@ export default function Header() {
     }, 200);
     return () => window.clearTimeout(timer);
   }, [pathname]);
+
+  function isActive(href: string) {
+    const link = navLinks.find((l) => l.href === href);
+    return Boolean(link?.match.some((path) => pathname.startsWith(path)));
+  }
 
   function handleNavClick(e: MouseEvent<HTMLAnchorElement>, href: string) {
     setOpenMobileMenu(false);
@@ -96,7 +102,10 @@ export default function Header() {
               key={l.label}
               href={l.href}
               onClick={(e) => handleNavClick(e, l.href)}
-              className="group flex items-baseline gap-2 text-sm font-semibold text-white/70 transition-colors duration-200 hover:text-white"
+              aria-current={isActive(l.href) ? "page" : undefined}
+              className={`group flex items-baseline gap-2 text-sm font-semibold transition-colors duration-200 hover:text-white ${
+                isActive(l.href) ? "text-white" : "text-white/70"
+              }`}
             >
               <span className="font-mono text-[10px] text-[#8B5CF6] transition-transform duration-200 group-hover:-translate-y-0.5">
                 {String(i + 1).padStart(2, "0")}
@@ -109,16 +118,19 @@ export default function Header() {
         <div className="flex items-center gap-2">
           {session && (
             <Link
-              href="/components/profile"
+              href="/profile"
               aria-label="Профиль"
               className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-white/5 text-sm font-semibold transition-all duration-300 hover:border-[#8B5CF6]/60 hover:bg-[#8B5CF6]/15 active:scale-95"
             >
-              {session.user?.image ? (
+              {session.user?.image && session.user.image !== brokenAvatar ? (
                 <img
                   src={session.user.image}
                   alt=""
                   referrerPolicy="no-referrer"
-                  className="h-full w-full object-cover"
+                  onError={() => setBrokenAvatar(session.user.image ?? null)}
+                  // Под прозрачными аватарками (например, Octocat у GitHub)
+                  // нужен светлый фон, иначе они сливаются с тёмной шапкой.
+                  className="h-full w-full bg-linear-to-br from-[#6366F1] via-[#8B5CF6] to-[#A78BFA] object-cover"
                 />
               ) : (
                 (session.user?.name ?? session.user?.email ?? "?")
@@ -187,7 +199,10 @@ export default function Header() {
               key={l.label}
               href={l.href}
               onClick={(e) => handleNavClick(e, l.href)}
-              className="group flex items-center justify-between border-b border-white/10 px-5 py-4 text-base font-semibold text-white/90 transition-colors last:border-b-0 hover:bg-[#8B5CF6] hover:text-white"
+              aria-current={isActive(l.href) ? "page" : undefined}
+              className={`group flex items-center justify-between border-b border-white/10 px-5 py-4 text-base font-semibold transition-colors last:border-b-0 hover:bg-[#8B5CF6] hover:text-white ${
+                isActive(l.href) ? "bg-[#8B5CF6]/15 text-white" : "text-white/90"
+              }`}
             >
               <span className="flex items-baseline gap-3">
                 <span className="font-mono text-xs text-[#8B5CF6] transition-colors group-hover:text-white/70">

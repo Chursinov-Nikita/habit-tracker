@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
-import { icons } from "@/app/components/habits/data";
-import { ServerHabit } from "@/app/components/habits/types";
+import { icons } from "@/app/habits/data";
+import { ServerHabit } from "@/app/habits/types";
+import LoginRequired from "@/app/elements/LoginRequired";
 import {
   Ban,
   Check,
@@ -27,34 +27,25 @@ import {
   levels,
   achievements,
   plural,
+  type Stats,
 } from "./data";
 
-export type Stats = {
-  habits: number;
-  bestStreak: number;
-  relapses: number;
-  goalsDone: number;
-  sessions: number;
-  minutes: number;
-};
-
-export type Profile = {
+type Profile = {
   id: string;
   name: string | null;
   email: string | null;
   image: string | null;
-  bio: string | null;
   createdAt: string;
   providers: string[];
   stats: Stats;
 };
 
 export default function Profile() {
-  const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [habits, setHabits] = useState<ServerHabit[]>([]);
   const [now, setNow] = useState(0);
   const [error, setError] = useState(false);
+  const [needLogin, setNeedLogin] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -65,14 +56,11 @@ export default function Profile() {
         setLoaded(true);
       })
       .catch((e) => {
-        if (e?.response?.status === 401) {
-          router.replace("/");
-          return;
-        }
-        setError(true);
+        if (e?.response?.status === 401) setNeedLogin(true);
+        else setError(true);
         setLoaded(true);
       });
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     axios
@@ -88,16 +76,30 @@ export default function Profile() {
       .catch(() => {});
   }, []);
 
-  const streak = profile?.stats.bestStreak ?? 0;
+  // Уровень держится на рекорде, а растёт только текущей серией:
+  // следующий откроется, когда самая длинная текущая серия дойдёт до порога.
+  const best = profile?.stats.bestStreak ?? 0;
+  const current = profile?.stats.currentStreak ?? 0;
   const levelIndex = levels.reduce(
-    (acc, item, i) => (streak >= item.min ? i : acc),
+    (acc, item, i) => (best >= item.min ? i : acc),
     0,
   );
   const level = levels[levelIndex];
   const nextLevel = levels[levelIndex + 1];
+  const daysToNext = nextLevel ? nextLevel.min - current : 0;
   const levelPercent = nextLevel
-    ? Math.round(((streak - level.min) / (nextLevel.min - level.min)) * 100)
+    ? Math.max(
+        0,
+        Math.round(
+          ((current - level.min) / (nextLevel.min - level.min)) * 100,
+        ),
+      )
     : 100;
+  const levelHint = !nextLevel
+    ? "Максимальный уровень достигнут"
+    : !profile?.stats.habits
+      ? `Начни отслеживать привычку, чтобы дойти до уровня «${nextLevel.name}»`
+      : `До уровня «${nextLevel.name}» ещё ${daysToNext} ${plural(daysToNext)} без срывов`;
   const unlocked = profile
     ? achievements.filter((item) => item.done(profile.stats)).length
     : 0;
@@ -151,6 +153,12 @@ export default function Profile() {
       ]
     : [];
 
+  if (needLogin) {
+    return (
+      <LoginRequired text="Войди, чтобы увидеть свой уровень, достижения и статистику." />
+    );
+  }
+
   return (
     <main
       className={`relative min-h-screen px-4 pb-16 pt-28 text-white transition-opacity duration-300 sm:px-6 sm:pt-36 lg:pb-6 lg:pt-24 ${
@@ -195,11 +203,6 @@ export default function Profile() {
                     <p className="truncate text-sm text-slate-400">
                       {profile.email ?? "Email не указан"}
                     </p>
-                    {profile.bio && (
-                      <p className="mt-1 line-clamp-2 text-sm text-slate-300 lg:line-clamp-1">
-                        {profile.bio}
-                      </p>
-                    )}
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       {profile.providers.map((provider) => (
                         <span
@@ -240,9 +243,7 @@ export default function Profile() {
                   className="mt-3 h-2 w-full appearance-none overflow-hidden rounded-full bg-white/10 [&::-webkit-progress-bar]:bg-transparent [&::-webkit-progress-value]:rounded-full [&::-webkit-progress-value]:bg-linear-to-r [&::-webkit-progress-value]:from-[#6366F1] [&::-webkit-progress-value]:to-[#A78BFA] [&::-webkit-progress-value]:transition-all [&::-webkit-progress-value]:duration-700 [&::-moz-progress-bar]:rounded-full [&::-moz-progress-bar]:bg-[#8B5CF6]"
                 />
                 <p className="mt-2 text-xs text-slate-400">
-                  {nextLevel
-                    ? `До «${nextLevel.name}» ещё ${nextLevel.min - streak} ${plural(nextLevel.min - streak)} без срывов`
-                    : "Максимальный уровень достигнут"}
+                  {levelHint}
                 </p>
               </section>
 

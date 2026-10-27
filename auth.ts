@@ -4,6 +4,10 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/app/lib/prisma";
 
+// По умолчанию next-auth ждёт ответа Google/GitHub 3.5 с — на медленной
+// сети (VPN) этого не хватает, и вход падает с OAuthCallback.
+const OAUTH_TIMEOUT = 15000;
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma as never),
   providers: [
@@ -11,11 +15,13 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GITHUB_ID!,
       clientSecret: process.env.GITHUB_SECRET!,
       allowDangerousEmailAccountLinking: true,
+      httpOptions: { timeout: OAUTH_TIMEOUT },
     }),
     GoogleProvider({
       clientId: process.env.GOOGLE_ID!,
       clientSecret: process.env.GOOGLE_SECRET!,
       allowDangerousEmailAccountLinking: true,
+      httpOptions: { timeout: OAUTH_TIMEOUT },
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
@@ -25,17 +31,55 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/",
+    error: "/",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    // Аккаунты связываются по email, поэтому пускаем только с подтверждённым
+    // адресом — иначе чужой неподтверждённый email открыл бы чужой профиль.
+    async signIn({ account, profile, user }) {
+      if (!user.email) return false;
+      if (account?.provider === "google") {
+        return (profile as { email_verified?: boolean })?.email_verified === true;
+      }
+      if (account?.provider === "github") {
+        const res = await fetch("https://api.github.com/user/emails", {
+          headers: {
+            Authorization: `Bearer ${account.access_token}`,
+            Accept: "application/vnd.github+json",
+          },
+          signal: AbortSignal.timeout(OAUTH_TIMEOUT),
+        });
+        // Сбой GitHub — не повод писать «email не подтверждён»
+        if (!res.ok) throw new Error(`GitHub emails ${res.status}`);
+        const emails: { email: string; verified: boolean }[] = await res.json();
+        return emails.some(
+          (e) => e.verified && e.email.toLowerCase() === user.email!.toLowerCase(),
+        );
+      }
+      return false;
+    },
+    async jwt({ token, user, account, profile }) {
       if (user) {
         token.id = user.id;
+      }
+      // Профиль общий для Google и GitHub, поэтому при каждом входе берём
+      // аватар того провайдера, через который вошли сейчас.
+      if (user && account && profile) {
+        const raw = profile as { picture?: string; avatar_url?: string };
+        const image =
+          account.provider === "github" ? raw.avatar_url : raw.picture;
+        if (image) {
+          token.picture = image;
+          if (image !== user.image) {
+            await prisma.user.update({ where: { id: user.id }, data: { image } });
+          }
+        }
       }
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
+      if (session.user && token.id) {
+        session.user.id = token.id;
       }
       return session;
     },

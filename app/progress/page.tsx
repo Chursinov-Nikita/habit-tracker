@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
-import { icons, HABITS_PATH, DAY, RING, plural } from "../data";
-import { Tracked, Progress, ServerHabit } from "../types";
+import { icons, HABITS_PATH, DAY, RING, plural } from "@/app/habits/data";
+import { Tracked, Progress, ServerHabit } from "@/app/habits/types";
+import LoginRequired from "@/app/elements/LoginRequired";
 import {
   ArrowLeft,
   Ban,
@@ -23,7 +23,10 @@ export default function Tracker() {
   const [progress, setProgress] = useState<Progress>({});
   const [now, setNow] = useState(0);
   const [hydrated, setHydrated] = useState(false);
-  const router = useRouter();
+  const [needLogin, setNeedLogin] = useState(false);
+  const [relapseTarget, setRelapseTarget] = useState<Tracked | null>(null);
+  const [relapsing, setRelapsing] = useState(false);
+  const [relapseError, setRelapseError] = useState(false);
 
   useEffect(() => {
     axios
@@ -55,33 +58,54 @@ export default function Tracker() {
         setHydrated(true);
       })
       .catch((error) => {
-        if (error?.response?.status === 401) router.replace("/");
-        else setHydrated(true);
+        if (error?.response?.status === 401) setNeedLogin(true);
+        setHydrated(true);
       });
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(Date.now()), 60000);
     return () => window.clearInterval(id);
   }, []);
 
+  useEffect(() => {
+    if (!relapseTarget) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setRelapseTarget(null);
+    };
+    document.body.classList.add("overflow-hidden");
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.classList.remove("overflow-hidden");
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [relapseTarget]);
+
+  const openRelapse = (habit: Tracked) => {
+    setRelapseError(false);
+    setRelapseTarget(habit);
+  };
+
   const relapse = async (id: string) => {
-    if (!window.confirm("Сбросить серию и начать заново?")) return;
+    if (relapsing) return;
+    setRelapsing(true);
+    setRelapseError(false);
     try {
       const { data } = await axios.post(
         `/api/habits/${encodeURIComponent(id)}/relapse`,
         { tz: new Date().getTimezoneOffset() },
       );
-      setNow(Date.now());
+      const startedAt = new Date(data.startedAt).getTime();
+      setNow(startedAt);
       setProgress((prev) => ({
         ...prev,
-        [id]: {
-          startedAt: new Date(data.startedAt).getTime(),
-          best: data.best,
-          relapses: data.relapses,
-        },
+        [id]: { startedAt, best: data.best, relapses: data.relapses },
       }));
-    } catch {}
+      setRelapseTarget(null);
+    } catch {
+      setRelapseError(true);
+    }
+    setRelapsing(false);
   };
 
   const items = tracked.map((habit) => {
@@ -101,16 +125,19 @@ export default function Tracker() {
     };
   });
 
-  const completed = items.filter((item) => item.done).length;
-  const longest = items.reduce((max, item) => Math.max(max, item.days), 0);
+  const completed = items.filter((item) => item.best >= item.goalDays).length;
+  const best = items.reduce((max, item) => Math.max(max, item.best), 0);
   const few = items.length <= 2;
   const many = items.length > 6;
+  const relapseItem = relapseTarget
+    ? items.find((item) => item.id === relapseTarget.id)
+    : undefined;
 
   const stats = [
     { label: "Привычек в работе", value: String(items.length), icon: Target },
     {
       label: "Лучшая серия",
-      value: `${longest} ${plural(longest)}`,
+      value: `${best} ${plural(best)}`,
       icon: Flame,
     },
     {
@@ -119,6 +146,12 @@ export default function Tracker() {
       icon: Trophy,
     },
   ];
+
+  if (needLogin) {
+    return (
+      <LoginRequired text="Войди, чтобы видеть свои серии, рекорды и прогресс по каждой привычке." />
+    );
+  }
 
   return (
     <div
@@ -329,7 +362,7 @@ export default function Tracker() {
                           </span>
                         </p>
                         <button
-                          onClick={() => relapse(item.id)}
+                          onClick={() => openRelapse(item)}
                           className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-slate-300 transition hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70"
                         >
                           <RotateCcw className="h-3.5 w-3.5" />
@@ -344,6 +377,63 @@ export default function Tracker() {
           </>
         )}
       </div>
+
+      {relapseTarget && (
+        <div
+          onClick={() => setRelapseTarget(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm sm:p-6"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="relapse-title"
+            aria-describedby="relapse-text"
+            className="w-full max-w-md rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-2xl shadow-black/50"
+          >
+            <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/15 text-rose-400">
+              <RotateCcw className="h-6 w-6" />
+            </span>
+            <h2 id="relapse-title" className="wrap-break-word text-xl font-bold">
+              Сорвался с «{relapseTarget.name}»?
+            </h2>
+            <p
+              id="relapse-text"
+              className="mt-2 text-sm leading-relaxed text-slate-400"
+            >
+              {relapseItem && relapseItem.days > 0
+                ? `Текущая серия — ${relapseItem.days} ${plural(relapseItem.days)}. `
+                : ""}
+              Серия начнётся заново, сегодняшний день отметится срывом в
+              календаре, а рекорд сохранится. Срыв — не провал, а часть пути.
+            </p>
+            {relapseError && (
+              <p
+                role="alert"
+                className="mt-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs text-rose-300"
+              >
+                Не удалось сбросить серию. Попробуй ещё раз
+              </p>
+            )}
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={() => setRelapseTarget(null)}
+                autoFocus
+                className="flex-1 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={() => relapse(relapseTarget.id)}
+                disabled={relapsing}
+                className="flex-1 rounded-xl bg-rose-500 py-3 text-sm font-semibold text-white shadow-lg shadow-rose-500/25 transition hover:bg-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/70 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {relapsing ? "Сбрасываем…" : "Начать заново"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -20,7 +20,6 @@ export async function GET() {
         name: true,
         email: true,
         image: true,
-        bio: true,
         createdAt: true,
         accounts: { select: { provider: true } },
       },
@@ -53,7 +52,6 @@ export async function GET() {
     name: user.name,
     email: user.email,
     image: user.image,
-    bio: user.bio,
     createdAt: user.createdAt,
     providers: user.accounts.map((a) => a.provider),
     stats: {
@@ -62,37 +60,14 @@ export async function GET() {
         (max, h, i) => Math.max(max, h.best, current[i]),
         0,
       ),
+      currentStreak: current.reduce((max, days) => Math.max(max, days), 0),
       relapses: habits.reduce((sum, h) => sum + h.relapses, 0),
-      goalsDone: habits.filter((h, i) => current[i] >= h.trackedGoal).length,
+      // Цель считается взятой, даже если после неё был срыв
+      goalsDone: habits.filter(
+        (h, i) => Math.max(h.best, current[i]) >= h.trackedGoal,
+      ).length,
       sessions: meditation._count,
       minutes: meditation._sum.minutes ?? 0,
     },
   });
-}
-
-export async function PATCH(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const body = await req.json().catch(() => null);
-  const name =
-    typeof body?.name === "string" ? body.name.trim().slice(0, 40) : undefined;
-  const bio =
-    typeof body?.bio === "string" ? body.bio.trim().slice(0, 160) : undefined;
-
-  if (name !== undefined && !name) {
-    return NextResponse.json({ error: "Name required" }, { status: 400 });
-  }
-
-  const user = await prisma.user.update({
-    where: { id: session.user.id },
-    data: {
-      ...(name !== undefined && { name }),
-      ...(bio !== undefined && { bio: bio || null }),
-    },
-    select: { id: true, name: true, email: true, image: true, bio: true },
-  });
-
-  return NextResponse.json(user);
 }

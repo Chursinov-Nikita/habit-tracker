@@ -1,7 +1,16 @@
 import { Target, Flame, Trophy, Wind, Medal, Crown } from "lucide-react";
-import { Stats } from "./page";
 
-export const HABITS_PATH = "/components/habits/first";
+export type Stats = {
+  habits: number;
+  bestStreak: number;
+  currentStreak: number;
+  relapses: number;
+  goalsDone: number;
+  sessions: number;
+  minutes: number;
+};
+
+export const HABITS_PATH = "/habits";
 export const DAY = 86400000;
 
 export const providerNames: Record<string, string> = {
@@ -56,7 +65,7 @@ export const achievements: {
     done: (s) => s.bestStreak >= 30,
   },
   {
-    title: "Легенда",
+    title: "Три месяца",
     hint: "90 дней без срывов",
     icon: Crown,
     done: (s) => s.bestStreak >= 90,

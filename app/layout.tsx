@@ -18,7 +18,7 @@ const montserrat = Nunito_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "HabitTrack — трекер вредных привычек",
+  title: "Трекер",
   description:
     "Удобный трекер, который поможет контролировать прогресс, оставаться мотивированным и избавляться от вредных привычек.",
 };
@@ -31,6 +31,7 @@ export default function RootLayout({
   return (
     <html
       lang="ru"
+      data-scroll-behavior="smooth"
       className={`${rubik.variable} ${montserrat.variable} scroll-smooth`}
     >
       <body className="font-sans bg-[#0B0F1A] text-white antialiased">

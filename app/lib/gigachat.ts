@@ -17,7 +17,11 @@ const loadCa = () => {
     .split(",")
     .map((file) => file.trim())
     .filter(Boolean)
-    .map((file) => readFileSync(path.resolve(process.cwd(), file)));
+    // Ищем только в certs/: путь из env без ограничения заставляет сборщик
+    // включить в серверную функцию весь проект.
+    .map((file) =>
+      readFileSync(path.join(process.cwd(), "certs", path.basename(file))),
+    );
   return ca;
 };
 

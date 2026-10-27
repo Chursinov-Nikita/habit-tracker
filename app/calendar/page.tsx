@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
   CalendarDays,
   Check,
   ChevronLeft,
   ChevronRight,
+  Plus,
   X,
 } from "lucide-react";
 import { weekDays, toKey } from "./data";
+import { HABITS_PATH } from "@/app/habits/data";
+import LoginRequired from "@/app/elements/LoginRequired";
 
 type Habit = { id: string; name: string };
 type HabitLog = {
@@ -32,10 +36,14 @@ export default function Calendar() {
 
   const [habits, setHabits] = useState<Habit[]>([]);
   const [logs, setLogs] = useState<HabitLog[]>([]);
+  const [needLogin, setNeedLogin] = useState(false);
 
   useEffect(() => {
     fetch("/api/habits")
-      .then((r) => r.json())
+      .then((r) => {
+        if (r.status === 401) setNeedLogin(true);
+        return r.json();
+      })
       .then((rows) =>
         setHabits(
           Array.isArray(rows)
@@ -105,6 +113,12 @@ export default function Calendar() {
     month: "long",
   }).format(selectedDate);
 
+  if (needLogin) {
+    return (
+      <LoginRequired text="Войди, чтобы видеть в календаре дни без срывов по каждой привычке." />
+    );
+  }
+
   return (
     <main className="relative min-h-screen px-4 pb-16 pt-28 text-white sm:px-6 lg:flex lg:h-dvh lg:min-h-150 lg:flex-col lg:overflow-hidden lg:pb-6 lg:pt-24">
       <div className="relative mx-auto flex w-full max-w-6xl flex-col lg:min-h-0 lg:flex-1">
@@ -117,8 +131,8 @@ export default function Calendar() {
             Твои дни
           </h1>
           <p className="mt-3 max-w-xl text-slate-400 lg:mt-1.5 lg:text-sm lg:[@media(max-height:820px)]:hidden">
-            Зелёные дни прошли без срывов, красные нет. Выбери день, чтобы
-            увидеть отметки по каждой привычке.
+            Успешные дни отмечены зелёным, сорванные — красным. <br /> Нажмите
+            на любой день, чтобы увидеть подробности.
           </p>
         </div>
 
@@ -238,16 +252,18 @@ export default function Calendar() {
               <h2 className="text-xl font-semibold capitalize lg:shrink-0 lg:text-lg">
                 {selectedTitle}
               </h2>
-              <p className="mt-1 text-sm text-slate-400 lg:shrink-0">
-                {selectedLogs.length > 0
-                  ? `Отметок за день: ${selectedLogs.length}`
-                  : "Отметок за этот день нет"}
-              </p>
 
               <ul className="mt-4 flex flex-col gap-2 lg:mt-3 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pr-1">
                 {habits.length === 0 && (
-                  <li className="rounded-xl border border-dashed border-white/10 p-4 text-center text-sm text-slate-500">
+                  <li className="flex flex-col items-center rounded-xl border border-dashed border-white/10 p-4 text-center text-sm text-slate-500">
                     Привычек пока нет
+                    <Link
+                      href={HABITS_PATH}
+                      className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-[#6366F1] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[#6366F1]/25 transition hover:bg-[#5558E8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 active:scale-[0.98]"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Выбрать привычки
+                    </Link>
                   </li>
                 )}
                 {habits.map((h) => {

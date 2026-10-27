@@ -10,25 +10,25 @@ import {
   Check,
   Sparkles,
 } from "lucide-react";
-import { techniques, durations, durationClasses, ringLength } from "./data";
-
-export type Phase = {
-  type: "inhale" | "hold" | "exhale" | "rest";
-  label: string;
-  seconds: number;
-};
+import {
+  techniques,
+  durations,
+  durationClasses,
+  ringLength,
+} from "./data";
 
 export default function Meditation() {
   const [techniqueIndex, setTechniqueIndex] = useState(0);
   const [durationIndex, setDurationIndex] = useState(1);
   const [elapsed, setElapsed] = useState(0);
   const [running, setRunning] = useState(false);
-  const [finished, setFinished] = useState(false);
   const [today, setToday] = useState({ sessions: 0, minutes: 0 });
 
   const phases = techniques[techniqueIndex].phases;
   const cycle = phases.reduce((sum, item) => sum + item.seconds, 0);
   const total = durations[durationIndex] * 60;
+  const finished = elapsed >= total;
+  const paused = !running && !finished && elapsed > 0;
   const left = Math.max(total - elapsed, 0);
   const position = elapsed % cycle;
 
@@ -65,29 +65,33 @@ export default function Meditation() {
   }, []);
 
   useEffect(() => {
-    if (!running) return;
-    const id = setInterval(() => setElapsed((value) => value + 1), 1000);
-    return () => clearInterval(id);
-  }, [running]);
+    if (!running || finished) return;
+    const id = setTimeout(() => {
+      const next = elapsed + 1;
+      setElapsed(next);
+      if (next < total) return;
+      const minutes = durations[durationIndex];
+      setRunning(false);
+      setToday((prev) => ({
+        sessions: prev.sessions + 1,
+        minutes: prev.minutes + minutes,
+      }));
+      fetch("/api/meditation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          minutes,
+          tz: new Date().getTimezoneOffset(),
+        }),
+      }).catch(() => {});
+    }, 1000);
+    return () => clearTimeout(id);
+  }, [running, finished, elapsed, total, durationIndex]);
 
-  useEffect(() => {
-    if (!running || elapsed < total) return;
-    const next = {
-      sessions: today.sessions + 1,
-      minutes: today.minutes + durations[durationIndex],
-    };
+  const reset = () => {
     setRunning(false);
-    setFinished(true);
-    setToday(next);
-    fetch("/api/meditation", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        minutes: durations[durationIndex],
-        tz: new Date().getTimezoneOffset(),
-      }),
-    }).catch(() => {});
-  }, [elapsed, running, total, today, durationIndex]);
+    setElapsed(0);
+  };
 
   return (
     <main className="relative min-h-screen px-4 pb-16 pt-28 text-white sm:px-6 lg:pb-6 lg:pt-24">
@@ -152,6 +156,11 @@ export default function Meditation() {
                       {phaseLeft}
                     </span>
                   </>
+                ) : paused ? (
+                  <>
+                    <Pause className="mb-1 h-8 w-8" />
+                    <span className="text-xl font-semibold">Пауза</span>
+                  </>
                 ) : (
                   <span className="text-xl font-semibold">Готовы?</span>
                 )}
@@ -170,7 +179,6 @@ export default function Meditation() {
                 onClick={() => {
                   if (finished) {
                     setElapsed(0);
-                    setFinished(false);
                     setRunning(true);
                     return;
                   }
@@ -192,11 +200,7 @@ export default function Meditation() {
                       : "Начать"}
               </button>
               <button
-                onClick={() => {
-                  setRunning(false);
-                  setElapsed(0);
-                  setFinished(false);
-                }}
+                onClick={reset}
                 aria-label="Сбросить"
                 className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 active:scale-95 lg:h-11 lg:w-11"
               >
@@ -216,10 +220,9 @@ export default function Meditation() {
                     key={item.name}
                     onClick={() => {
                       setTechniqueIndex(index);
-                      setElapsed(0);
-                      setRunning(false);
-                      setFinished(false);
+                      reset();
                     }}
+                    aria-pressed={index === techniqueIndex}
                     className={`rounded-2xl border px-4 py-3 text-left transition lg:py-2 ${
                       index === techniqueIndex
                         ? "border-indigo-400/60 bg-indigo-500/15"
@@ -245,10 +248,9 @@ export default function Meditation() {
                     key={value}
                     onClick={() => {
                       setDurationIndex(index);
-                      setElapsed(0);
-                      setRunning(false);
-                      setFinished(false);
+                      reset();
                     }}
+                    aria-pressed={index === durationIndex}
                     className={`rounded-2xl border py-3 text-sm font-medium transition lg:py-2 ${
                       index === durationIndex
                         ? "border-indigo-400/60 bg-indigo-500/15"

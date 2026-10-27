@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 import { prisma } from "@/app/lib/prisma";
-import { dayKey, daysBetween } from "@/app/lib/days";
+import { dayKey, daysBetween, parseTz } from "@/app/lib/days";
 
 const DAY = 86400000;
 
@@ -16,7 +16,10 @@ export async function POST(
 
   const { key } = await params;
   const body = await req.json().catch(() => null);
-  const tz = Number.isFinite(Number(body?.tz)) ? Number(body.tz) : 0;
+  const tz = parseTz(body?.tz);
+  if (tz === null) {
+    return NextResponse.json({ error: "Bad request" }, { status: 400 });
+  }
 
   const habit = await prisma.habit.findUnique({
     where: { userId_key: { userId: session.user.id, key } },
