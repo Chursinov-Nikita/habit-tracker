@@ -100,6 +100,20 @@ export const sound = {
       { freq: freq * 2, length: 0.8, volume: 0.012 },
     ]);
   },
+  celebrate: () =>
+    play(
+      [
+        { freq: 523, length: 0.18, volume: 0.06 },
+        { freq: 659, at: 0.12, length: 0.18, volume: 0.06 },
+        { freq: 784, at: 0.24, length: 0.18, volume: 0.06 },
+        { freq: 1047, at: 0.36, length: 0.7, volume: 0.06 },
+        { freq: 784, at: 0.36, length: 0.7, volume: 0.035 },
+        { freq: 1568, at: 0.55, length: 0.12, volume: 0.02, type: "triangle" },
+        { freq: 2093, at: 0.68, length: 0.12, volume: 0.02, type: "triangle" },
+        { freq: 2637, at: 0.8, length: 0.2, volume: 0.015, type: "triangle" },
+      ],
+      [30, 40, 30, 40, 90],
+    ),
   finish: () =>
     play(
       [

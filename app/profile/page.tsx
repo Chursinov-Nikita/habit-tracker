@@ -18,6 +18,8 @@ import {
   type LocalStats,
 } from "@/app/lib/local";
 import { isSoundOn, setSoundOn, sound, subscribeSound } from "@/app/lib/sound";
+import { markCelebrated, readCelebrated } from "@/app/lib/celebrated";
+import Celebration from "@/app/elements/Celebration";
 import {
   Ban,
   Check,
@@ -51,6 +53,7 @@ export default function Profile() {
   const [error, setError] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [importError, setImportError] = useState(false);
+  const [celebrated, setCelebrated] = useState<Set<string> | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const soundOn = useSyncExternalStore(subscribeSound, isSoundOn, () => true);
 
@@ -63,6 +66,7 @@ export default function Profile() {
     getProfile()
       .then((data) => {
         setProfile(data);
+        setCelebrated(readCelebrated());
         setLoaded(true);
       })
       .catch(() => {
@@ -128,6 +132,36 @@ export default function Profile() {
   const unlocked = profile
     ? achievements.filter((item) => item.done(profile.stats)).length
     : 0;
+  const newAchievement =
+    profile && celebrated
+      ? achievements.find(
+          (item) =>
+            item.done(profile.stats) && !celebrated.has(`achievement:${item.title}`),
+        )
+      : undefined;
+  const newLevel =
+    profile && celebrated && levelIndex > 0 && !celebrated.has(`level:${levelIndex}`)
+      ? level
+      : undefined;
+  const celebration = newAchievement
+    ? {
+        key: `achievement:${newAchievement.title}`,
+        icon: newAchievement.icon,
+        eyebrow: "Достижение открыто",
+        title: newAchievement.title,
+        text: `${newAchievement.hint}. Ты это сделал — так держать!`,
+      }
+    : newLevel
+      ? {
+          key: `level:${levelIndex}`,
+          icon: Crown,
+          eyebrow: `Уровень ${levelIndex + 1} из ${levels.length}`,
+          title: newLevel.name,
+          text: nextLevel
+            ? `Новый уровень! Следующая ступень — «${nextLevel.name}», серия от ${nextLevel.min} ${plural(nextLevel.min)}.`
+            : "Ты на вершине — максимальный уровень достигнут.",
+        }
+      : undefined;
 
   const habitItems = habits.map((habit) => {
     const startedAt = habit.startedAt
@@ -461,6 +495,17 @@ export default function Profile() {
           </div>
         )}
       </div>
+
+      {celebration && (
+        <Celebration
+          key={celebration.key}
+          icon={celebration.icon}
+          eyebrow={celebration.eyebrow}
+          title={celebration.title}
+          text={celebration.text}
+          onClose={() => setCelebrated(markCelebrated(celebration.key))}
+        />
+      )}
     </main>
   );
 }

@@ -6,6 +6,8 @@ import { icons, HABITS_PATH, DAY, RING, plural } from "@/app/habits/data";
 import { Tracked, Progress } from "@/app/habits/types";
 import { getHabits, relapse as saveRelapse } from "@/app/lib/local";
 import { sound } from "@/app/lib/sound";
+import { markCelebrated, readCelebrated } from "@/app/lib/celebrated";
+import Celebration from "@/app/elements/Celebration";
 import {
   ArrowLeft,
   Ban,
@@ -26,6 +28,7 @@ export default function Tracker() {
   const [relapseTarget, setRelapseTarget] = useState<Tracked | null>(null);
   const [relapsing, setRelapsing] = useState(false);
   const [relapseError, setRelapseError] = useState(false);
+  const [celebrated, setCelebrated] = useState<Set<string> | null>(null);
 
   useEffect(() => {
     getHabits()
@@ -51,6 +54,7 @@ export default function Tracker() {
           })),
         );
         setProgress(next);
+        setCelebrated(readCelebrated());
         setNow(Date.now());
         setHydrated(true);
       })
@@ -125,6 +129,12 @@ export default function Tracker() {
   const relapseItem = relapseTarget
     ? items.find((item) => item.id === relapseTarget.id)
     : undefined;
+  const goalKey = (item: (typeof items)[number]) =>
+    `goal:${item.id}:${item.startedAt}:${item.goalDays}`;
+  const goalReached = celebrated
+    ? items.find((item) => item.done && !celebrated.has(goalKey(item)))
+    : undefined;
+  const GoalIcon = goalReached ? (icons[goalReached.icon] ?? Trophy) : Trophy;
 
   const stats = [
     { label: "Привычек в работе", value: String(items.length), icon: Target },
@@ -364,6 +374,17 @@ export default function Tracker() {
           </>
         )}
       </div>
+
+      {goalReached && !relapseTarget && (
+        <Celebration
+          key={goalKey(goalReached)}
+          icon={GoalIcon}
+          eyebrow={goalReached.name}
+          title="Цель взята!"
+          text={`${goalReached.goalDays} ${plural(goalReached.goalDays)} без срывов. Это настоящая победа — продолжай в том же духе.`}
+          onClose={() => setCelebrated(markCelebrated(goalKey(goalReached)))}
+        />
+      )}
 
       {relapseTarget && (
         <div
