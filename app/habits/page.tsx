@@ -304,7 +304,7 @@ export default function Habits() {
 
   return (
     <div
-      className={`relative min-h-screen px-4 pb-28 pt-50 text-slate-100 transition-opacity duration-300 sm:px-6 sm:pt-36 lg:flex lg:h-dvh lg:min-h-150 lg:flex-col lg:overflow-hidden lg:px-10 lg:pb-6 lg:pt-24 ${
+      className={`relative min-h-screen px-4 pb-28 pt-24 text-slate-100 transition-opacity duration-300 sm:px-6 sm:pt-32 lg:flex lg:h-dvh lg:min-h-150 lg:flex-col lg:overflow-hidden lg:px-10 lg:pb-6 lg:pt-24 ${
         hydrated ? "opacity-100" : "opacity-0"
       }`}
     >
@@ -321,7 +321,7 @@ export default function Habits() {
       `}</style>
 
       <div className="relative mx-auto flex w-full max-w-7xl flex-col lg:min-h-0 lg:flex-1">
-        <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between lg:mb-5 lg:shrink-0 lg:gap-4">
+        <div className="mb-6 flex flex-col gap-5 sm:mb-10 sm:flex-row sm:items-end sm:gap-6 sm:justify-between lg:mb-5 lg:shrink-0 lg:gap-4">
           <div>
             <div className="mb-4 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 py-1.5 pl-3 pr-4 text-sm text-slate-300 backdrop-blur lg:mb-2">
               <span className="flex gap-1">
