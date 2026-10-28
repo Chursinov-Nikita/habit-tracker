@@ -5,6 +5,7 @@ import Link from "next/link";
 import { icons, HABITS_PATH, DAY, RING, plural } from "@/app/habits/data";
 import { Tracked, Progress } from "@/app/habits/types";
 import { getHabits, relapse as saveRelapse } from "@/app/lib/local";
+import { sound } from "@/app/lib/sound";
 import {
   ArrowLeft,
   Ban,
@@ -75,6 +76,7 @@ export default function Tracker() {
   }, [relapseTarget]);
 
   const openRelapse = (habit: Tracked) => {
+    sound.tap();
     setRelapseError(false);
     setRelapseTarget(habit);
   };
@@ -91,6 +93,7 @@ export default function Tracker() {
         ...prev,
         [id]: { startedAt, best: data.best, relapses: data.relapses },
       }));
+      sound.relapse();
       setRelapseTarget(null);
     } catch {
       setRelapseError(true);

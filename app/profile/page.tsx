@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ChangeEvent,
+} from "react";
 import Link from "next/link";
 import { icons } from "@/app/habits/data";
 import { ServerHabit } from "@/app/habits/types";
@@ -11,6 +17,7 @@ import {
   importData,
   type LocalStats,
 } from "@/app/lib/local";
+import { isSoundOn, setSoundOn, sound, subscribeSound } from "@/app/lib/sound";
 import {
   Ban,
   Check,
@@ -27,6 +34,8 @@ import {
   Trophy,
   Upload,
   User,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { DAY, HABITS_PATH, levels, achievements, plural } from "./data";
 
@@ -43,6 +52,12 @@ export default function Profile() {
   const [loaded, setLoaded] = useState(false);
   const [importError, setImportError] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+  const soundOn = useSyncExternalStore(subscribeSound, isSoundOn, () => true);
+
+  const toggleSound = () => {
+    setSoundOn(!soundOn);
+    if (!soundOn) sound.select();
+  };
 
   useEffect(() => {
     getProfile()
@@ -66,6 +81,7 @@ export default function Profile() {
   }, []);
 
   const downloadBackup = () => {
+    sound.tap();
     const blob = new Blob([exportData()], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -212,6 +228,23 @@ export default function Profile() {
                       >
                         <Upload className="h-3.5 w-3.5" />
                         Восстановить
+                      </button>
+                      <button
+                        type="button"
+                        onClick={toggleSound}
+                        aria-pressed={soundOn}
+                        className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold ring-1 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 ${
+                          soundOn
+                            ? "bg-emerald-400/10 text-emerald-300 ring-emerald-400/30 hover:bg-emerald-400/20"
+                            : "bg-white/5 text-slate-400 ring-white/10 hover:bg-white/10"
+                        }`}
+                      >
+                        {soundOn ? (
+                          <Volume2 className="h-3.5 w-3.5" />
+                        ) : (
+                          <VolumeX className="h-3.5 w-3.5" />
+                        )}
+                        {soundOn ? "Звук и вибрация" : "Без звука"}
                       </button>
                       <input
                         ref={fileInput}

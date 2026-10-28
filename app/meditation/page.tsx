@@ -17,6 +17,7 @@ import {
   ringLength,
 } from "./data";
 import { addMeditation, getMeditationToday } from "@/app/lib/local";
+import { sound } from "@/app/lib/sound";
 
 export default function Meditation() {
   const [techniqueIndex, setTechniqueIndex] = useState(0);
@@ -61,12 +62,17 @@ export default function Meditation() {
   }, []);
 
   useEffect(() => {
+    if (running) sound.breathe(phase.type);
+  }, [running, phaseIndex, phase.type]);
+
+  useEffect(() => {
     if (!running || finished) return;
     const id = setTimeout(() => {
       const next = elapsed + 1;
       setElapsed(next);
       if (next < total) return;
       const minutes = durations[durationIndex];
+      sound.finish();
       setRunning(false);
       setToday((prev) => ({
         sessions: prev.sessions + 1,

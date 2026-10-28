@@ -21,6 +21,7 @@ import {
   startTracking,
   stopTracking,
 } from "@/app/lib/local";
+import { sound } from "@/app/lib/sound";
 import {
   ArrowRight,
   Ban,
@@ -207,6 +208,7 @@ export default function Habits() {
   const AiIcon = aiHabit ? (icons[aiHabit.icon] ?? Ban) : Ban;
 
   const askAi = async (habit: Habit) => {
+    sound.tap();
     setAiFailed(null);
     setAiHabit(habit);
     if (aiInfo[habit.id]) return;
@@ -219,6 +221,8 @@ export default function Habits() {
   };
 
   const toggle = (id: string) => {
+    if (selected.includes(id)) sound.deselect();
+    else sound.select();
     setSaved(false);
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
@@ -227,6 +231,7 @@ export default function Habits() {
   };
 
   const clearAll = async () => {
+    sound.remove();
     setSaved(false);
     setSelected([]);
     setClearOpen(false);
@@ -237,6 +242,7 @@ export default function Habits() {
   };
 
   const removeCustom = async (habit: Habit) => {
+    sound.remove();
     setDeleteTarget(null);
     setSaved(false);
     setCustom((prev) => prev.filter((item) => item.id !== habit.id));
@@ -260,6 +266,7 @@ export default function Habits() {
   const createHabit = () => {
     const trimmed = name.trim();
     if (!trimmed || duplicate) return;
+    sound.create();
     const id = `custom-${Date.now()}`;
     setCustom((prev) => [
       { id, name: trimmed, category: newCategory, icon: newIcon, custom: true },
@@ -291,6 +298,7 @@ export default function Habits() {
       return;
     }
     setSaving(false);
+    sound.success();
     setTrackedCount(selectedHabits.length);
     setSaved(true);
     router.push(TRACKER_PATH);
@@ -370,7 +378,7 @@ export default function Habits() {
           <section className="min-w-0 lg:flex lg:min-h-0 lg:flex-col">
             <div className="mb-5 flex flex-col gap-4 lg:mb-3 lg:shrink-0 lg:gap-3">
               <div className="relative">
-                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                <Search className="pointer-events-none absolute left-4 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-slate-500" />
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
