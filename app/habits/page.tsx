@@ -445,13 +445,13 @@ export default function Habits() {
                 )}
               </div>
 
-              <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {categories.map((item) => (
                   <button
                     key={item}
                     onClick={() => setCategory(item)}
                     aria-pressed={category === item}
-                    className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 ${
+                    className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-[13px] transition sm:gap-2 sm:px-4 sm:py-2 sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 ${
                       category === item
                         ? "border-[#6366F1] bg-[#6366F1] font-medium text-white shadow-lg shadow-[#6366F1]/20"
                         : "border-white/10 bg-white/5 text-slate-400 hover:border-white/20 hover:text-slate-200"
