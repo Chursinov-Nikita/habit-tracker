@@ -105,9 +105,9 @@ export default function Meditation() {
           </p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_380px] lg:gap-4">
-          <section className="flex flex-col items-center rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl sm:p-10 lg:justify-center lg:p-6">
-            <div className="relative flex h-72 w-72 items-center justify-center lg:h-[min(18rem,34dvh)] lg:w-[min(18rem,34dvh)]">
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[1fr_380px] lg:gap-4">
+          <section className="flex min-w-0 flex-col items-center rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl min-[400px]:p-6 sm:p-10 lg:justify-center lg:p-6">
+            <div className="relative flex aspect-square w-full max-w-72 items-center justify-center lg:h-[min(18rem,34dvh)] lg:w-[min(18rem,34dvh)]">
               <svg
                 viewBox="0 0 288 288"
                 className="absolute inset-0 h-full w-full -rotate-90"
