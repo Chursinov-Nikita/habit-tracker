@@ -1,4 +1,4 @@
-const CACHE = "tracker-v1";
+const CACHE = "tracker-v2";
 const BASE = new URL(self.registration.scope).pathname;
 const ROUTES = ["", "habits/", "progress/", "calendar/", "meditation/", "profile/"];
 const FILES = [
@@ -22,7 +22,7 @@ const precache = async () => {
       const html = await response.clone().text();
       await cache.put(url, response);
       for (const match of html.matchAll(ASSET)) assets.add(match[1]);
-      const rsc = await fetch(url + "index.txt").catch(() => null);
+      const rsc = await fetch(url + "index.txt", { cache: "no-cache" }).catch(() => null);
       if (rsc && rsc.ok) await cache.put(url + "index.txt", rsc);
     }),
   );
@@ -57,7 +57,7 @@ const withTimeout = (promise, ms) =>
 const networkFirst = async (request) => {
   const cache = await caches.open(CACHE);
   try {
-    const response = await withTimeout(fetch(request), 4000);
+    const response = await withTimeout(fetch(request, { cache: "no-cache" }), 8000);
     if (response.ok) cache.put(request, response.clone());
     return response;
   } catch {
