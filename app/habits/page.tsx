@@ -426,7 +426,7 @@ export default function Habits() {
           <section className="min-w-0 lg:flex lg:min-h-0 lg:flex-col">
             <div className="mb-5 flex flex-col gap-4 lg:mb-3 lg:shrink-0 lg:gap-3">
               <div className="relative">
-                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                <Search className="pointer-events-none absolute left-4 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-slate-500" />
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
