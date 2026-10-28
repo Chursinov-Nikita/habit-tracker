@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Nunito_Sans, Rubik } from "next/font/google";
 import "./globals.css";
-import { Providers } from "./providers";
+import ServiceWorker from "./elements/ServiceWorker";
 import Header from "./elements/Header/Header";
 import Background from "./elements/Background";
 
@@ -40,11 +40,10 @@ export default function RootLayout({
       className={`${rubik.variable} ${montserrat.variable} scroll-smooth`}
     >
       <body className="font-sans bg-[#0B0F1A] text-white antialiased">
-        <Providers>
-          <Header />
-          <Background />
-          {children}
-        </Providers>
+        <ServiceWorker />
+        <Header />
+        <Background />
+        {children}
       </body>
     </html>
   );

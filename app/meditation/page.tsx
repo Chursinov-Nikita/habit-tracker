@@ -16,6 +16,7 @@ import {
   durationClasses,
   ringLength,
 } from "./data";
+import { addMeditation, getMeditationToday } from "@/app/lib/local";
 
 export default function Meditation() {
   const [techniqueIndex, setTechniqueIndex] = useState(0);
@@ -54,13 +55,8 @@ export default function Meditation() {
   const progressOffset = ringLength * (1 - Math.min(elapsed / total, 1));
 
   useEffect(() => {
-    fetch(`/api/meditation?tz=${new Date().getTimezoneOffset()}`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (typeof data?.sessions === "number") {
-          setToday({ sessions: data.sessions, minutes: data.minutes });
-        }
-      })
+    getMeditationToday()
+      .then(setToday)
       .catch(() => {});
   }, []);
 
@@ -76,14 +72,7 @@ export default function Meditation() {
         sessions: prev.sessions + 1,
         minutes: prev.minutes + minutes,
       }));
-      fetch("/api/meditation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          minutes,
-          tz: new Date().getTimezoneOffset(),
-        }),
-      }).catch(() => {});
+      addMeditation(minutes).catch(() => {});
     }, 1000);
     return () => clearTimeout(id);
   }, [running, finished, elapsed, total, durationIndex]);

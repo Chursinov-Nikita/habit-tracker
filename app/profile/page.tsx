@@ -1,43 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import Link from "next/link";
 import { icons } from "@/app/habits/data";
 import { ServerHabit } from "@/app/habits/types";
-import LoginRequired from "@/app/elements/LoginRequired";
+import {
+  exportData,
+  getHabits,
+  getProfile,
+  importData,
+  type LocalStats,
+} from "@/app/lib/local";
 import {
   Ban,
   Check,
   Clock,
   Crown,
+  Download,
   Flame,
   Lock,
   Plus,
   RotateCcw,
+  Smartphone,
   Sparkles,
   Target,
   Trophy,
+  Upload,
   User,
 } from "lucide-react";
-import {
-  DAY,
-  HABITS_PATH,
-  providerNames,
-  levels,
-  achievements,
-  plural,
-  type Stats,
-} from "./data";
+import { DAY, HABITS_PATH, levels, achievements, plural } from "./data";
 
 type Profile = {
-  id: string;
-  name: string | null;
-  email: string | null;
-  image: string | null;
   createdAt: string;
-  providers: string[];
-  stats: Stats;
+  stats: LocalStats;
 };
 
 export default function Profile() {
@@ -45,36 +40,52 @@ export default function Profile() {
   const [habits, setHabits] = useState<ServerHabit[]>([]);
   const [now, setNow] = useState(0);
   const [error, setError] = useState(false);
-  const [needLogin, setNeedLogin] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [importError, setImportError] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    axios
-      .get("/api/profile")
-      .then(({ data }) => {
+    getProfile()
+      .then((data) => {
         setProfile(data);
         setLoaded(true);
       })
-      .catch((e) => {
-        if (e?.response?.status === 401) setNeedLogin(true);
-        else setError(true);
+      .catch(() => {
+        setError(true);
         setLoaded(true);
       });
   }, []);
 
   useEffect(() => {
-    axios
-      .get("/api/habits")
-      .then(({ data }) => {
-        setHabits(
-          Array.isArray(data)
-            ? data.filter((row: ServerHabit) => row.tracked)
-            : [],
-        );
+    getHabits()
+      .then((rows) => {
+        setHabits(rows.filter((row) => row.tracked));
         setNow(Date.now());
       })
       .catch(() => {});
   }, []);
+
+  const downloadBackup = () => {
+    const blob = new Blob([exportData()], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `tracker-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const restoreBackup = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      importData(await file.text());
+      window.location.reload();
+    } catch {
+      setImportError(true);
+    }
+  };
 
   const best = profile?.stats.bestStreak ?? 0;
   const current = profile?.stats.currentStreak ?? 0;
@@ -151,12 +162,6 @@ export default function Profile() {
       ]
     : [];
 
-  if (needLogin) {
-    return (
-      <LoginRequired text="Войди, чтобы увидеть свой уровень, достижения и статистику." />
-    );
-  }
-
   return (
     <main
       className={`relative min-h-screen px-4 pb-16 pt-28 text-white transition-opacity duration-300 sm:px-6 sm:pt-36 lg:pb-6 lg:pt-24 ${
@@ -179,37 +184,49 @@ export default function Profile() {
                 <div className="pointer-events-none absolute -bottom-24 left-1/4 h-56 w-56 rounded-full bg-[#6366F1]/15 blur-3xl" />
                 <div className="relative flex items-center gap-4">
                   <div className="shrink-0 rounded-full bg-linear-to-br from-[#6366F1] via-[#8B5CF6] to-[#A78BFA] p-0.5 shadow-[0_0_30px_-4px_rgba(139,92,246,0.7)]">
-                    {profile.image ? (
-                      <img
-                        src={profile.image}
-                        alt=""
-                        referrerPolicy="no-referrer"
-                        className="h-20 w-20 rounded-full border-2 border-[#0B0F1A] object-cover"
-                      />
-                    ) : (
-                      <span className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-[#0B0F1A] bg-[#1E1B4B] text-3xl font-bold text-white">
-                        {(profile.name ?? profile.email ?? "?")
-                          .charAt(0)
-                          .toUpperCase()}
-                      </span>
-                    )}
+                    <span className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-[#0B0F1A] bg-[#1E1B4B] text-white">
+                      <User className="h-9 w-9" />
+                    </span>
                   </div>
                   <div className="min-w-0 flex-1">
                     <h1 className="truncate font-display text-2xl font-bold sm:text-3xl">
-                      {profile.name ?? "Без имени"}
+                      Мой профиль
                     </h1>
-                    <p className="truncate text-sm text-slate-400">
-                      {profile.email ?? "Email не указан"}
+                    <p className="flex items-center gap-1.5 text-sm text-slate-400">
+                      <Smartphone className="h-4 w-4 shrink-0" />
+                      Данные хранятся на этом устройстве
                     </p>
-                    <div className="mt-2 flex flex-wrap items-center gap-2">
-                      {profile.providers.map((provider) => (
-                        <span
-                          key={provider}
-                          className="rounded-md bg-[#6366F1]/15 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[#A5B4FC]"
-                        >
-                          {providerNames[provider] ?? provider}
-                        </span>
-                      ))}
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={downloadBackup}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-[#6366F1]/15 px-3 py-1.5 text-xs font-semibold text-[#C7D2FE] ring-1 ring-[#6366F1]/30 transition hover:bg-[#6366F1]/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70"
+                      >
+                        <Download className="h-3.5 w-3.5" />
+                        Сохранить копию
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => fileInput.current?.click()}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300 ring-1 ring-white/10 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70"
+                      >
+                        <Upload className="h-3.5 w-3.5" />
+                        Восстановить
+                      </button>
+                      <input
+                        ref={fileInput}
+                        type="file"
+                        accept="application/json,.json"
+                        onChange={restoreBackup}
+                        className="hidden"
+                      />
+                    </div>
+                    {importError && (
+                      <p role="alert" className="mt-2 text-xs text-rose-400">
+                        Этот файл не похож на копию трекера
+                      </p>
+                    )}
+                    <div className="mt-2">
                       <span className="text-xs text-slate-500">
                         С нами с{" "}
                         {new Date(profile.createdAt).toLocaleDateString(

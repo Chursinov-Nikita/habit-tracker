@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { weekDays, toKey } from "./data";
 import { HABITS_PATH } from "@/app/habits/data";
-import LoginRequired from "@/app/elements/LoginRequired";
+import { getHabits, getLogs } from "@/app/lib/local";
 
 type Habit = { id: string; name: string };
 type HabitLog = {
@@ -36,21 +36,14 @@ export default function Calendar() {
 
   const [habits, setHabits] = useState<Habit[]>([]);
   const [logs, setLogs] = useState<HabitLog[]>([]);
-  const [needLogin, setNeedLogin] = useState(false);
 
   useEffect(() => {
-    fetch("/api/habits")
-      .then((r) => {
-        if (r.status === 401) setNeedLogin(true);
-        return r.json();
-      })
+    getHabits()
       .then((rows) =>
         setHabits(
-          Array.isArray(rows)
-            ? rows
-                .filter((row) => row.tracked)
-                .map((row) => ({ id: row.id, name: row.name }))
-            : [],
+          rows
+            .filter((row) => row.tracked)
+            .map((row) => ({ id: row.id, name: row.name })),
         ),
       )
       .catch(() => setHabits([]));
@@ -58,12 +51,9 @@ export default function Calendar() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch(
-      `/api/habit-logs?month=${monthKey}&tz=${new Date().getTimezoneOffset()}`,
-    )
-      .then((r) => r.json())
+    getLogs(monthKey)
       .then((data) => {
-        if (!cancelled) setLogs(Array.isArray(data) ? data : []);
+        if (!cancelled) setLogs(data);
       })
       .catch(() => {
         if (!cancelled) setLogs([]);
@@ -112,12 +102,6 @@ export default function Calendar() {
     day: "numeric",
     month: "long",
   }).format(selectedDate);
-
-  if (needLogin) {
-    return (
-      <LoginRequired text="Войди, чтобы видеть в календаре дни без срывов по каждой привычке." />
-    );
-  }
 
   return (
     <main className="relative min-h-screen px-4 pb-16 pt-28 text-white sm:px-6 lg:flex lg:h-dvh lg:min-h-150 lg:flex-col lg:overflow-hidden lg:pb-6 lg:pt-24">

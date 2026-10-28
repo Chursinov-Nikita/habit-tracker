@@ -2,15 +2,10 @@
 
 import { useEffect, useState, type MouseEvent } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, X } from "lucide-react";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { Menu, User, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import dynamic from "next/dynamic";
-
-const LoginModal = dynamic(() => import("./LoginModal"), {
-  ssr: false,
-});
+import { asset } from "@/app/lib/asset";
 
 const navLinks = [
   { label: "Привычки", href: "/habits", match: ["/habits", "/progress"] },
@@ -24,17 +19,6 @@ const SCROLL_KEY = "habittrack:scroll-to";
 
 export default function Header() {
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
-  const [loginWindow, setLoginWindow] = useState(false);
-  const [loading, setLoading] = useState<"google" | "github" | null>(null);
-  const [brokenAvatar, setBrokenAvatar] = useState<string | null>(null);
-
-  async function handleLogin(provider: "google" | "github") {
-    setLoading(provider);
-    await signIn(provider);
-    setLoading(null);
-  }
-
-  const { data: session, status } = useSession();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -87,7 +71,7 @@ export default function Header() {
           className="group flex items-center gap-2 transition-opacity hover:opacity-90"
           aria-label="HabitTrack"
         >
-          <Image src="/logo.svg" alt="" width={32} height={32} />
+          <Image src={asset("/logo.svg")} alt="" width={32} height={32} />
           <span className="text-xl font-bold transition-colors group-hover:text-[#A78BFA]">
             Трекер
           </span>
@@ -116,38 +100,18 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
-          {session && (
-            <Link
-              href="/profile"
-              aria-label="Профиль"
-              className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-white/5 text-sm font-semibold transition-all duration-300 hover:border-[#8B5CF6]/60 hover:bg-[#8B5CF6]/15 active:scale-95"
-            >
-              {session.user?.image && session.user.image !== brokenAvatar ? (
-                <img
-                  src={session.user.image}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  onError={() => setBrokenAvatar(session.user.image ?? null)}
-                  className="h-full w-full bg-linear-to-br from-[#6366F1] via-[#8B5CF6] to-[#A78BFA] object-cover"
-                />
-              ) : (
-                (session.user?.name ?? session.user?.email ?? "?")
-                  .charAt(0)
-                  .toUpperCase()
-              )}
-            </Link>
-          )}
-
-          <button
-            type="button"
-            onClick={() => (session ? signOut() : setLoginWindow(true))}
-            disabled={status === "loading"}
-            className="group relative overflow-hidden rounded-full border border-[#8B5CF6]/30 bg-[#8B5CF6]/10 px-5 py-2 text-sm font-semibold transition-all duration-300 hover:border-[#6f39ed] hover:bg-[#8B5CF6]/25 hover:shadow-[0_0_25px_-5px_rgba(139,92,246,0.7)] disabled:opacity-60 sm:px-8 sm:py-2.5"
+          <Link
+            href="/profile"
+            aria-label="Профиль"
+            aria-current={pathname.startsWith("/profile") ? "page" : undefined}
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-all duration-300 hover:border-[#8B5CF6]/60 hover:bg-[#8B5CF6]/15 hover:text-[#A78BFA] active:scale-95 ${
+              pathname.startsWith("/profile")
+                ? "border-[#8B5CF6]/60 bg-[#8B5CF6]/20 text-[#C4B5FD]"
+                : "border-white/15 bg-white/5"
+            }`}
           >
-            <span className="relative z-10">{session ? "Выйти" : "Войти"}</span>
-
-            <span className="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/15 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-          </button>
+            <User className="h-5 w-5" />
+          </Link>
           <button
             type="button"
             onClick={() => setOpenMobileMenu(!openMobileMenu)}
@@ -175,16 +139,6 @@ export default function Header() {
           </button>
         </div>
       </div>
-
-      {loginWindow && (
-        <LoginModal
-          open={loginWindow}
-          onClose={() => setLoginWindow(false)}
-          onGoogle={() => handleLogin("google")}
-          onGithub={() => handleLogin("github")}
-          loading={loading}
-        />
-      )}
 
       {openMobileMenu && (
         <nav

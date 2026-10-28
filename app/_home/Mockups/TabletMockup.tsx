@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Check } from "lucide-react";
+import { asset } from "@/app/lib/asset";
 import { icons } from "@/app/habits/data";
 import { calendar, tracked, weekDays, type DayState } from "./data";
 
@@ -21,7 +22,7 @@ export default function TabletMockup() {
 
         <div className="flex items-center justify-between border-b border-white/6 px-5 py-3">
           <div className="flex items-center gap-1.5">
-            <Image src="/logo.svg" alt="" width={16} height={16} />
+            <Image src={asset("/logo.svg")} alt="" width={16} height={16} />
             <span className="text-[11px] font-semibold">Трекер</span>
           </div>
           <div className="flex items-center gap-3.5 text-[9.5px] font-semibold text-white/45">

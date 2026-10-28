@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
 import Link from "next/link";
 import { icons, HABITS_PATH, DAY, RING, plural } from "@/app/habits/data";
-import { Tracked, Progress, ServerHabit } from "@/app/habits/types";
-import LoginRequired from "@/app/elements/LoginRequired";
+import { Tracked, Progress } from "@/app/habits/types";
+import { getHabits, relapse as saveRelapse } from "@/app/lib/local";
 import {
   ArrowLeft,
   Ban,
@@ -23,16 +22,13 @@ export default function Tracker() {
   const [progress, setProgress] = useState<Progress>({});
   const [now, setNow] = useState(0);
   const [hydrated, setHydrated] = useState(false);
-  const [needLogin, setNeedLogin] = useState(false);
   const [relapseTarget, setRelapseTarget] = useState<Tracked | null>(null);
   const [relapsing, setRelapsing] = useState(false);
   const [relapseError, setRelapseError] = useState(false);
 
   useEffect(() => {
-    axios
-      .get("/api/habits")
-      .then(({ data }) => {
-        const rows: ServerHabit[] = Array.isArray(data) ? data : [];
+    getHabits()
+      .then((rows) => {
         const trackedRows = rows.filter((row) => row.tracked);
         const next: Progress = {};
         trackedRows.forEach((row) => {
@@ -57,10 +53,7 @@ export default function Tracker() {
         setNow(Date.now());
         setHydrated(true);
       })
-      .catch((error) => {
-        if (error?.response?.status === 401) setNeedLogin(true);
-        setHydrated(true);
-      });
+      .catch(() => setHydrated(true));
   }, []);
 
   useEffect(() => {
@@ -91,10 +84,7 @@ export default function Tracker() {
     setRelapsing(true);
     setRelapseError(false);
     try {
-      const { data } = await axios.post(
-        `/api/habits/${encodeURIComponent(id)}/relapse`,
-        { tz: new Date().getTimezoneOffset() },
-      );
+      const data = await saveRelapse(id);
       const startedAt = new Date(data.startedAt).getTime();
       setNow(startedAt);
       setProgress((prev) => ({
@@ -146,12 +136,6 @@ export default function Tracker() {
       icon: Trophy,
     },
   ];
-
-  if (needLogin) {
-    return (
-      <LoginRequired text="Войди, чтобы видеть свои серии, рекорды и прогресс по каждой привычке." />
-    );
-  }
 
   return (
     <div

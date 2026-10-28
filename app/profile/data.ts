@@ -13,11 +13,6 @@ export type Stats = {
 export const HABITS_PATH = "/habits";
 export const DAY = 86400000;
 
-export const providerNames: Record<string, string> = {
-  google: "Google",
-  github: "GitHub",
-};
-
 export const levels = [
   { min: 0, name: "Новичок" },
   { min: 3, name: "Первые шаги" },

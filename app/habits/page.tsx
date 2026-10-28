@@ -1,10 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Habit, ServerHabit } from "./types";
+import { Habit } from "./types";
 import {
   catalog,
   categories,
@@ -14,7 +13,14 @@ import {
   icons,
   TRACKER_PATH,
 } from "./data";
-import LoginRequired from "@/app/elements/LoginRequired";
+import { type AiInfo, getAi, hasAi } from "./ai";
+import {
+  deleteHabit,
+  getHabits,
+  saveHabits,
+  startTracking,
+  stopTracking,
+} from "@/app/lib/local";
 import {
   ArrowRight,
   Ban,
@@ -30,18 +36,6 @@ import {
 
 const scrollbar =
   "overscroll-contain [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.18)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/15 hover:[&::-webkit-scrollbar-thumb]:bg-white/30";
-
-type AiInfo = {
-  summary: string;
-  harm: { title: string; text: string }[];
-  benefits: { when: string; text: string }[];
-  facts: string[];
-  triggers: string[];
-  alternatives: string[];
-  steps: string[];
-  motivation: string;
-  tip: string;
-};
 
 export default function Habits() {
   const [selected, setSelected] = useState<string[]>([]);
@@ -63,9 +57,6 @@ export default function Habits() {
   const [aiClosing, setAiClosing] = useState(false);
   const [aiInfo, setAiInfo] = useState<Record<string, AiInfo>>({});
   const [aiFailed, setAiFailed] = useState<string | null>(null);
-  const [aiBusy, setAiBusy] = useState(false);
-  const [aiCooldown, setAiCooldown] = useState(0);
-  const [needLogin, setNeedLogin] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const router = useRouter();
@@ -81,10 +72,8 @@ export default function Habits() {
   }, []);
 
   useEffect(() => {
-    axios
-      .get("/api/habits")
-      .then(({ data }) => {
-        const rows: ServerHabit[] = Array.isArray(data) ? data : [];
+    getHabits()
+      .then((rows) => {
         const storedCustom: Habit[] = rows
           .filter((row) => row.custom)
           .map((row) => ({
@@ -120,10 +109,7 @@ export default function Habits() {
         loaded.current = true;
         setHydrated(true);
       })
-      .catch((error) => {
-        if (error?.response?.status === 401) setNeedLogin(true);
-        setHydrated(true);
-      });
+      .catch(() => setHydrated(true));
   }, []);
 
   const draft = JSON.stringify({
@@ -156,10 +142,7 @@ export default function Habits() {
     if (savedDraft.current === null) savedDraft.current = draft;
     if (draft === savedDraft.current) return;
     const timer = window.setTimeout(() => {
-      axios
-        .put("/api/habits", draft, {
-          headers: { "Content-Type": "application/json" },
-        })
+      saveHabits(draft)
         .then(() => {
           savedDraft.current = draft;
         })
@@ -185,15 +168,6 @@ export default function Habits() {
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [modalOpen, clearOpen, aiHabit, deleteTarget, closeAi]);
-
-  useEffect(() => {
-    if (aiCooldown <= 0) return;
-    const timer = window.setTimeout(
-      () => setAiCooldown((value) => value - 1),
-      1000,
-    );
-    return () => window.clearTimeout(timer);
-  }, [aiCooldown]);
 
   const all = [...catalog, ...custom];
 
@@ -231,37 +205,17 @@ export default function Habits() {
   const aiCurrent = aiHabit ? aiInfo[aiHabit.id] : undefined;
   const aiError = aiHabit !== null && aiFailed === aiHabit.id;
   const AiIcon = aiHabit ? (icons[aiHabit.icon] ?? Ban) : Ban;
-  const aiLocked = aiBusy || aiCooldown > 0;
-  const aiWait =
-    aiCooldown > 99 ? `${Math.ceil(aiCooldown / 60)} мин` : `${aiCooldown} с`;
 
   const askAi = async (habit: Habit) => {
-    if (aiInfo[habit.id]) {
-      setAiFailed(null);
-      setAiHabit(habit);
-      return;
-    }
-    if (aiBusy || aiCooldown > 0) return;
-    setAiHabit(habit);
     setAiFailed(null);
-    setAiBusy(true);
+    setAiHabit(habit);
+    if (aiInfo[habit.id]) return;
     try {
-      const { data } = await axios.post(
-        "/api/habit-ai",
-        { name: habit.name },
-        { timeout: 120000 },
-      );
-      const { cooldown, ...info } = data;
+      const info = await getAi(habit.id);
       setAiInfo((prev) => ({ ...prev, [habit.id]: info }));
-      setAiCooldown(Number(cooldown) || 0);
-    } catch (error) {
+    } catch {
       setAiFailed(habit.id);
-      const wait = axios.isAxiosError(error)
-        ? Number(error.response?.data?.retryAfter)
-        : 0;
-      setAiCooldown(wait > 0 ? wait : 3);
     }
-    setAiBusy(false);
   };
 
   const toggle = (id: string) => {
@@ -278,7 +232,7 @@ export default function Habits() {
     setClearOpen(false);
     setTrackedCount(0);
     try {
-      await axios.delete("/api/habits/track");
+      await stopTracking();
     } catch {}
   };
 
@@ -298,10 +252,8 @@ export default function Habits() {
       return next;
     });
     try {
-      const { data } = await axios.delete(
-        `/api/habits/${encodeURIComponent(habit.id)}`,
-      );
-      if (data?.wasTracked) setTrackedCount((count) => Math.max(0, count - 1));
+      const data = await deleteHabit(habit.id);
+      if (data.wasTracked) setTrackedCount((count) => Math.max(0, count - 1));
     } catch {}
   };
 
@@ -329,12 +281,10 @@ export default function Habits() {
     setSaveError(false);
     try {
       if (draft !== savedDraft.current) {
-        await axios.put("/api/habits", draft, {
-          headers: { "Content-Type": "application/json" },
-        });
+        await saveHabits(draft);
         savedDraft.current = draft;
       }
-      await axios.post("/api/habits/track");
+      await startTracking();
     } catch {
       setSaving(false);
       setSaveError(true);
@@ -351,12 +301,6 @@ export default function Habits() {
     : saved
       ? "Сохранено"
       : "Начать отслеживать";
-
-  if (needLogin) {
-    return (
-      <LoginRequired text="Войди, чтобы выбрать привычки и следить за прогрессом — данные сохранятся в твоём аккаунте." />
-    );
-  }
 
   return (
     <div
@@ -654,32 +598,17 @@ export default function Habits() {
                             </span>
                           </span>
                           <div className="flex items-center gap-0.5">
-                            <button
-                              onClick={() => askAi(habit)}
-                              disabled={aiLocked && !aiInfo[habit.id]}
-                              aria-label="Узнать подробнее о вреде"
-                              title={
-                                aiLocked && !aiInfo[habit.id]
-                                  ? "ИИ отдыхает, подожди немного"
-                                  : "Узнать подробнее о вреде"
-                              }
-                              className="mr-1 inline-flex min-w-14 items-center justify-center gap-1 rounded-lg bg-linear-to-r from-[#6366F1]/25 to-[#8B5CF6]/25 px-2 py-1 text-[11px] font-semibold tabular-nums text-[#C4B5FD] shadow-[0_0_14px_-4px_rgba(139,92,246,0.8)] ring-1 ring-[#8B5CF6]/30 transition hover:from-[#6366F1]/40 hover:to-[#8B5CF6]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8B5CF6]/70 active:scale-95 disabled:cursor-not-allowed disabled:from-white/5 disabled:to-white/5 disabled:text-slate-500 disabled:shadow-none disabled:ring-white/10 disabled:active:scale-100"
-                            >
-                              <Sparkles
-                                className={`h-3.5 w-3.5 ${
-                                  aiBusy && !aiInfo[habit.id]
-                                    ? "animate-pulse"
-                                    : ""
-                                }`}
-                              />
-                              {aiInfo[habit.id]
-                                ? "ИИ"
-                                : aiBusy
-                                  ? "…"
-                                  : aiCooldown > 0
-                                    ? aiWait
-                                    : "ИИ"}
-                            </button>
+                            {hasAi(habit.id) && (
+                              <button
+                                onClick={() => askAi(habit)}
+                                aria-label="Узнать подробнее о вреде"
+                                title="Узнать подробнее о вреде"
+                                className="mr-1 inline-flex min-w-14 items-center justify-center gap-1 rounded-lg bg-linear-to-r from-[#6366F1]/25 to-[#8B5CF6]/25 px-2 py-1 text-[11px] font-semibold text-[#C4B5FD] shadow-[0_0_14px_-4px_rgba(139,92,246,0.8)] ring-1 ring-[#8B5CF6]/30 transition hover:from-[#6366F1]/40 hover:to-[#8B5CF6]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8B5CF6]/70 active:scale-95"
+                              >
+                                <Sparkles className="h-3.5 w-3.5" />
+                                ИИ
+                              </button>
+                            )}
                             {habit.custom && (
                               <button
                                 onClick={() => setDeleteTarget(habit)}
@@ -1133,29 +1062,17 @@ export default function Habits() {
                   {aiError ? (
                     <div className="flex animate-[ai-rise_0.4s_ease-out_both] flex-col items-center rounded-2xl border border-dashed border-rose-500/30 bg-rose-500/5 px-4 py-10 text-center">
                       <p className="text-sm text-rose-300">
-                        Не удалось получить ответ от ИИ
+                        Для этой привычки разбора пока нет
                       </p>
                       <p className="mt-1 text-xs text-slate-500">
-                        Проверь подключение и попробуй ещё раз
+                        Готовые разборы есть для привычек из каталога
                       </p>
-                      <button
-                        onClick={() => askAi(aiHabit)}
-                        disabled={aiLocked}
-                        className="mt-4 rounded-xl bg-[#6366F1] px-4 py-2 text-sm font-semibold tabular-nums text-white shadow-lg shadow-[#6366F1]/25 transition hover:bg-[#5558E8] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/5 disabled:text-slate-500 disabled:shadow-none disabled:active:scale-100"
-                      >
-                        {aiBusy
-                          ? "Запрашиваем…"
-                          : aiCooldown > 0
-                            ? `Повторить через ${aiWait}`
-                            : "Повторить"}
-                      </button>
                     </div>
                   ) : !aiCurrent ? (
                     <div className="flex flex-col gap-3" aria-live="polite">
                       <p className="flex items-center gap-2 text-sm text-slate-400">
                         <Sparkles className="h-4 w-4 animate-[ai-twinkle_1.6s_ease-in-out_infinite] text-[#8B5CF6] motion-reduce:animate-none" />
-                        GigaChat готовит подробный разбор, это может занять до
-                        30 секунд…
+                        Открываем разбор…
                       </p>
                       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                         {[
@@ -1336,11 +1253,6 @@ export default function Habits() {
                     Ответ сгенерирован нейросетью и не заменяет консультацию
                     врача.
                   </p>
-                  {aiCooldown > 0 && (
-                    <span className="shrink-0 rounded-md bg-white/5 px-2 py-1 text-[11px] tabular-nums text-slate-400">
-                      Новый запрос через {aiWait}
-                    </span>
-                  )}
                 </div>
               </div>
             </div>
