@@ -2,8 +2,6 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 
-// Единственная клиентская часть мокапов: пишет положение курсора в --mx/--my,
-// а слои сдвигаются через CSS. Сами мокапы остаются серверными.
 export default function Parallax({
   className,
   children,

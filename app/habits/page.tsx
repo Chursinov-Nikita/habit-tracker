@@ -153,7 +153,6 @@ export default function Habits() {
 
   useEffect(() => {
     if (!hydrated || !loaded.current) return;
-    // Первый черновик собран из ответа сервера — сохранять его незачем
     if (savedDraft.current === null) savedDraft.current = draft;
     if (draft === savedDraft.current) return;
     const timer = window.setTimeout(() => {

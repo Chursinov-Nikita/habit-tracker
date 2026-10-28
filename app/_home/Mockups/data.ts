@@ -1,7 +1,5 @@
 export type DayState = "empty" | "clean" | "relapse" | "today" | "future";
 
-// Месяц, начинающийся с четверга: три пустые клетки, срыв на 6-е,
-// дальше чистая серия до сегодняшнего 27-го — ровно 21 день.
 const OFFSET = 3;
 const DAYS_IN_MONTH = 31;
 const RELAPSE_DAY = 6;

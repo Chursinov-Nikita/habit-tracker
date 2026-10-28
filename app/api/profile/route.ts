@@ -62,7 +62,6 @@ export async function GET() {
       ),
       currentStreak: current.reduce((max, days) => Math.max(max, days), 0),
       relapses: habits.reduce((sum, h) => sum + h.relapses, 0),
-      // Цель считается взятой, даже если после неё был срыв
       goalsDone: habits.filter(
         (h, i) => Math.max(h.best, current[i]) >= h.trackedGoal,
       ).length,

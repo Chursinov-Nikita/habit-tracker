@@ -1,6 +1,5 @@
 const DAY = 86400000;
 
-// getTimezoneOffset() в минутах: реальные пояса лежат в пределах ±14 часов
 export const parseTz = (value: unknown) => {
   const tz = Number(value ?? 0);
   return Number.isInteger(tz) && Math.abs(tz) <= 840 ? tz : null;

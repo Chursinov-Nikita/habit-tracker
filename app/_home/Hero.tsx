@@ -3,9 +3,6 @@ import DevicesMockup from "./Mockups/DevicesMockup";
 import Link from "next/link";
 import { catalog, HABITS_PATH, icons } from "@/app/habits/data";
 
-// Кнопка в духе liquid glass: полупрозрачное стекло с размытием фона,
-// светлая кромка (через маску — только ободок, без заливки под стеклом)
-// и луч, который раз в 5 с пробегает круг по кромке.
 const buttonStyles = `
 .ht-glass {
   background: radial-gradient(120% 160% at 50% 0%, rgba(167,139,250,.22), rgba(30,22,60,.35) 60%);
@@ -72,17 +69,14 @@ export default function Hero() {
               href={HABITS_PATH}
               className="ht-glass group relative isolate mt-9 flex w-full items-center justify-center overflow-hidden rounded-full px-8 py-4 text-base font-semibold text-slate-100 transition duration-300 ease-out hover:-translate-y-0.5 hover:text-white active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#A78BFA] sm:mt-10 sm:inline-flex sm:w-auto"
             >
-              {/* При наведении стекло заливается фиолетовым слева направо */}
               <span
                 aria-hidden="true"
                 className="absolute inset-0 -z-10 origin-left scale-x-0 rounded-full bg-[linear-gradient(100deg,rgba(139,92,246,0.85)_0%,rgba(99,102,241,0.85)_100%)] transition-transform duration-500 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-x-100"
               />
-              {/* Блик выпуклого стекла сверху */}
               <span
                 aria-hidden="true"
                 className="absolute inset-x-5 top-px -z-10 h-1/2 rounded-full bg-linear-to-b from-white/25 to-transparent"
               />
-              {/* Кромка стекла и луч, периодически пробегающий по ней */}
               <span aria-hidden="true" className="ht-ring absolute inset-0 -z-10 rounded-full">
                 <span className="ht-beam absolute left-1/2 top-1/2 aspect-square w-[160%] motion-reduce:hidden" />
               </span>

@@ -104,7 +104,6 @@ export const pickerIcons = [
 
 export const TRACKER_PATH = "/progress";
 
-// TRACKER
 export const icons: Record<string, typeof Ban> = {
   ban: Ban,
   candy: Candy,

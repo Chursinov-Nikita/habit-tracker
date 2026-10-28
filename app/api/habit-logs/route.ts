@@ -26,8 +26,6 @@ export async function GET(req: Request) {
     select: { id: true, startedAt: true },
   });
 
-  // Дописываем дни текущей серии только в пределах показываемого месяца:
-  // дни до последнего срыва уже записал маршрут relapse.
   const missing = habits.flatMap((habit) => {
     const start = dayKey(habit.startedAt!, tz);
     const from = start > monthStart ? start : monthStart;

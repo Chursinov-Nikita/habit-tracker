@@ -128,8 +128,6 @@ export default function Header() {
                   alt=""
                   referrerPolicy="no-referrer"
                   onError={() => setBrokenAvatar(session.user.image ?? null)}
-                  // Под прозрачными аватарками (например, Octocat у GitHub)
-                  // нужен светлый фон, иначе они сливаются с тёмной шапкой.
                   className="h-full w-full bg-linear-to-br from-[#6366F1] via-[#8B5CF6] to-[#A78BFA] object-cover"
                 />
               ) : (

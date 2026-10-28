@@ -7,8 +7,6 @@ import { streak } from "./data";
 const glass =
   "rounded-2xl border border-white/12 bg-[#151129]/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_20px_40px_-14px_rgba(0,0,0,0.8)] backdrop-blur-xl";
 
-// Одна сцена загрузки: планшет → волна дней в календаре → телефон, кольцо
-// и счётчик серии → карточки. Потом только тихий дрейф и параллакс.
 const styles = `
 @property --mk-days { syntax: "<integer>"; inherits: false; initial-value: 0; }
 @keyframes mk-tablet-in { from { opacity: 0; transform: translate3d(-36px, 28px, 0) scale(.94); filter: blur(8px); } }

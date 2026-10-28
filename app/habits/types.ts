@@ -6,7 +6,6 @@ export type Habit = {
   custom?: boolean;
 };
 
-// TRACKER
 
 export type Tracked = {
   id: string;

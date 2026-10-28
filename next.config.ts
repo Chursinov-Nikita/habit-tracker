@@ -19,8 +19,6 @@ const csp = [
 const nextConfig: NextConfig = {
   reactCompiler: true,
   poweredByHeader: false,
-  // Сертификат НУЦ Минцифры читается в рантайме по пути из GIGACHAT_CA_PATH,
-  // поэтому трассировка сама его не найдёт — без этого на Vercel файла не будет.
   outputFileTracingIncludes: {
     "/api/habit-ai": ["./certs/**/*"],
   },

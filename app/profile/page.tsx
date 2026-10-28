@@ -76,8 +76,6 @@ export default function Profile() {
       .catch(() => {});
   }, []);
 
-  // Уровень держится на рекорде, а растёт только текущей серией:
-  // следующий откроется, когда самая длинная текущая серия дойдёт до порога.
   const best = profile?.stats.bestStreak ?? 0;
   const current = profile?.stats.currentStreak ?? 0;
   const levelIndex = levels.reduce(

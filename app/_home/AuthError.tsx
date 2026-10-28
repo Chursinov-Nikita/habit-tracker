@@ -15,7 +15,6 @@ const authErrors: Record<string, string> = {
     "Этот email уже привязан к другому способу входа. Войди тем способом, которым пользовался раньше.",
 };
 
-// Читает ?error= на клиенте, чтобы главная оставалась статической страницей
 export default function AuthError() {
   const error = useSearchParams().get("error");
   if (!error) return null;

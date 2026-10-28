@@ -9,8 +9,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    // Neon на Vercel отдаёт пул соединений в DATABASE_URL и прямое
-    // подключение в DATABASE_URL_UNPOOLED — миграциям нужно прямое.
     url: process.env.DATABASE_URL_UNPOOLED ?? env("DATABASE_URL"),
   },
 });

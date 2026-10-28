@@ -4,8 +4,6 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/app/lib/prisma";
 
-// По умолчанию next-auth ждёт ответа Google/GitHub 3.5 с — на медленной
-// сети (VPN) этого не хватает, и вход падает с OAuthCallback.
 const OAUTH_TIMEOUT = 15000;
 
 export const authOptions: NextAuthOptions = {
@@ -34,8 +32,6 @@ export const authOptions: NextAuthOptions = {
     error: "/",
   },
   callbacks: {
-    // Аккаунты связываются по email, поэтому пускаем только с подтверждённым
-    // адресом — иначе чужой неподтверждённый email открыл бы чужой профиль.
     async signIn({ account, profile, user }) {
       if (!user.email) return false;
       if (account?.provider === "google") {
@@ -49,7 +45,6 @@ export const authOptions: NextAuthOptions = {
           },
           signal: AbortSignal.timeout(OAUTH_TIMEOUT),
         });
-        // Сбой GitHub — не повод писать «email не подтверждён»
         if (!res.ok) throw new Error(`GitHub emails ${res.status}`);
         const emails: { email: string; verified: boolean }[] = await res.json();
         return emails.some(
@@ -62,8 +57,6 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
       }
-      // Профиль общий для Google и GitHub, поэтому при каждом входе берём
-      // аватар того провайдера, через который вошли сейчас.
       if (user && account && profile) {
         const raw = profile as { picture?: string; avatar_url?: string };
         const image =

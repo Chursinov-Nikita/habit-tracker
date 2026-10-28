@@ -24,7 +24,6 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, title: "Трекер", statusBarStyle: "black-translucent" },
 };
 
-// Цвет системной панели Android и окна установленного приложения
 export const viewport: Viewport = {
   themeColor: "#0B0F1A",
 };

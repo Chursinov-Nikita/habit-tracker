@@ -7,7 +7,6 @@ export default function manifest(): MetadataRoute.Manifest {
     description:
       "Следи за сериями без срывов и избавляйся от вредных привычек.",
     lang: "ru",
-    // Установленное приложение открывается сразу на прогрессе
     start_url: "/progress",
     scope: "/",
     display: "standalone",
