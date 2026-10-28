@@ -423,7 +423,7 @@ export default function Habits() {
         </div>
 
         <div className="grid gap-8 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_400px] lg:grid-rows-[minmax(0,1fr)] lg:gap-6">
-          <section className="lg:flex lg:min-h-0 lg:flex-col">
+          <section className="min-w-0 lg:flex lg:min-h-0 lg:flex-col">
             <div className="mb-5 flex flex-col gap-4 lg:mb-3 lg:shrink-0 lg:gap-3">
               <div className="relative">
                 <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
@@ -590,7 +590,7 @@ export default function Habits() {
             )}
           </section>
 
-          <aside className="lg:flex lg:min-h-0 lg:flex-col">
+          <aside className="min-w-0 lg:flex lg:min-h-0 lg:flex-col">
             <div className="rounded-3xl border border-white/10 bg-[#111827]/70 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:p-4">
               <div className="mb-5 flex items-center justify-between gap-3 lg:mb-3 lg:shrink-0">
                 <h2
