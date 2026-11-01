@@ -27,7 +27,7 @@ export default function Hero() {
 
             <Link
               href={HABITS_PATH}
-              className="group mt-9 flex w-full items-center justify-center gap-2.5 rounded-xl bg-[#6366F1] px-7 py-4 text-base font-semibold text-white shadow-lg shadow-[#6366F1]/30 transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#5558E8] hover:shadow-xl hover:shadow-[#6366F1]/40 active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0F1A] sm:mt-10 sm:inline-flex sm:w-auto"
+              className="group mt-9 flex w-full items-center justify-center gap-2.5 rounded-full bg-[#6366F1] px-8 py-4 text-base font-semibold text-white shadow-lg shadow-[#6366F1]/30 transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#5558E8] hover:shadow-xl hover:shadow-[#6366F1]/40 active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0F1A] sm:mt-10 sm:inline-flex sm:w-auto"
             >
               Сделать первый шаг
               <ArrowRight
