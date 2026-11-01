@@ -96,14 +96,14 @@ export default function LoginModal({
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-[#8B5CF6]/30 bg-[#0B0F1A] p-6 shadow-[0_0_60px_-15px_rgba(139,92,246,0.6)] sm:p-8">
-        <div className="pointer-events-none absolute -top-24 left-1/2 h-48 w-48 -translate-x-1/2 rounded-full bg-[#8B5CF6]/30 blur-3xl" />
+      <div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-accent/30 bg-ink p-6 shadow-[0_0_60px_-15px_rgba(139,92,246,0.6)] sm:p-8">
+        <div className="pointer-events-none absolute -top-24 left-1/2 h-48 w-48 -translate-x-1/2 rounded-full bg-accent/30 blur-3xl" />
 
         <button
           type="button"
           onClick={onClose}
           aria-label="Закрыть"
-          className="group absolute right-3 top-3 z-20 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/70 transition-all duration-300 hover:border-[#8B5CF6]/60 hover:bg-[#8B5CF6]/15 hover:text-[#A78BFA] active:scale-95"
+          className="group absolute right-3 top-3 z-20 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/70 transition-all duration-300 hover:border-accent/60 hover:bg-accent/15 hover:text-accent-soft active:scale-95"
         >
           <X className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />
         </button>
@@ -122,7 +122,7 @@ export default function LoginModal({
             type="button"
             onClick={onGoogle}
             disabled={loading !== null}
-            className="group relative flex w-full cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-full border border-[#8B5CF6]/30 bg-[#8B5CF6]/10 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-[#8B5CF6] hover:bg-[#8B5CF6]/25 hover:shadow-[0_8px_30px_-8px_rgba(139,92,246,0.8)] active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+            className="group relative flex w-full cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-full border border-accent/30 bg-accent/10 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-accent hover:bg-accent/25 hover:shadow-[0_8px_30px_-8px_rgba(139,92,246,0.8)] active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
           >
             <span className="relative z-10 flex items-center gap-3">
               <GoogleIcon />
@@ -135,7 +135,7 @@ export default function LoginModal({
             type="button"
             onClick={onGithub}
             disabled={loading !== null}
-            className="group relative flex w-full cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-full border border-[#8B5CF6]/30 bg-[#8B5CF6]/10 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-[#8B5CF6] hover:bg-[#8B5CF6]/25 hover:shadow-[0_8px_30px_-8px_rgba(139,92,246,0.8)] active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+            className="group relative flex w-full cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-full border border-accent/30 bg-accent/10 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-accent hover:bg-accent/25 hover:shadow-[0_8px_30px_-8px_rgba(139,92,246,0.8)] active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
           >
             <span className="relative z-10 flex items-center gap-3">
               <GithubIcon />

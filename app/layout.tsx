@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import Header from "./elements/Header/Header";
 import Background from "./elements/Background";
+import TabBar from "./elements/TabBar";
 
 const rubik = Rubik({
   subsets: ["latin", "cyrillic"],
@@ -26,6 +27,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#0B0F1A",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -39,11 +41,12 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${rubik.variable} ${montserrat.variable} scroll-smooth`}
     >
-      <body className="font-sans bg-[#0B0F1A] text-white antialiased">
+      <body className="font-sans bg-ink text-white antialiased">
         <Providers>
           <Header />
           <Background />
           {children}
+          <TabBar />
         </Providers>
       </body>
     </html>

@@ -15,8 +15,8 @@ const cellStyles: Record<DayState, string> = {
 export default function TabletMockup() {
   return (
     <div className="h-[350px] w-[460px] rounded-[30px] bg-[linear-gradient(160deg,#2a2342_0%,#141022_55%,#0c0916_100%)] p-[6px] shadow-[0_40px_80px_-30px_rgba(0,0,0,0.9),0_30px_70px_-25px_rgba(139,92,246,0.45),inset_0_1px_0_rgba(255,255,255,0.18)] [transform:perspective(1600px)_rotateY(-11deg)_rotateX(5deg)]">
-      <div className="relative isolate flex h-full w-full flex-col overflow-hidden rounded-[24px] bg-[#0B0F1A] text-white">
-        <div className="pointer-events-none absolute -left-16 -top-24 -z-10 h-64 w-64 rounded-full bg-[#8B5CF6]/22 blur-3xl" />
+      <div className="relative isolate flex h-full w-full flex-col overflow-hidden rounded-[24px] bg-ink text-white">
+        <div className="pointer-events-none absolute -left-16 -top-24 -z-10 h-64 w-64 rounded-full bg-accent/22 blur-3xl" />
         <div className="pointer-events-none absolute inset-0 z-20 bg-[linear-gradient(118deg,rgba(255,255,255,0.07)_0%,rgba(255,255,255,0.015)_32%,transparent_50%)]" />
 
         <div className="flex items-center justify-between border-b border-white/6 px-5 py-3">
@@ -68,14 +68,14 @@ export default function TabletMockup() {
                 return (
                   <li
                     key={h.name}
-                    className="rounded-xl border border-white/6 bg-[#111827]/80 p-2"
+                    className="rounded-xl border border-white/6 bg-surface/80 p-2"
                   >
                     <div className="flex items-center gap-1.5">
                       <span
                         className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md ${
                           done
                             ? "bg-emerald-400/15 text-emerald-300"
-                            : "bg-[#6366F1]/18 text-[#A5B4FC]"
+                            : "bg-primary/18 text-primary-soft"
                         }`}
                       >
                         <Icon className="h-3 w-3" strokeWidth={2.4} />

@@ -46,8 +46,8 @@ export default function DevicesMockup() {
       <style>{styles}</style>
 
       <div className="absolute left-0 top-0 h-[520px] w-[640px] origin-top-left scale-[0.52] max-[359px]:scale-[0.42] min-[480px]:max-[639px]:scale-[0.65] sm:scale-[0.8] lg:scale-[0.7] xl:scale-90">
-        <div className="pointer-events-none absolute left-[60px] top-[90px] h-[340px] w-[340px] rounded-full bg-[#8B5CF6]/25 blur-[100px]" />
-        <div className="pointer-events-none absolute left-[380px] top-[200px] h-[260px] w-[260px] rounded-full bg-[#6366F1]/22 blur-[100px]" />
+        <div className="pointer-events-none absolute left-[60px] top-[90px] h-[340px] w-[340px] rounded-full bg-accent/25 blur-[100px]" />
+        <div className="pointer-events-none absolute left-[380px] top-[200px] h-[260px] w-[260px] rounded-full bg-primary/22 blur-[100px]" />
 
         <div
           className="mk-layer absolute left-0 top-[40px]"
