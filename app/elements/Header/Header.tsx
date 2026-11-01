@@ -84,9 +84,9 @@ export default function Header() {
     <header className="absolute inset-x-0 top-0 z-20 mx-auto max-w-7xl px-6 pt-5 sm:pt-8">
       <div className="flex items-center justify-between gap-4">
         <Link
-          href="/"
+          href={isHome ? "/" : "/progress"}
           className="group flex items-center gap-2 transition-opacity hover:opacity-90"
-          aria-label="HabitTrack"
+          aria-label="Трекер"
         >
           <Image src="/logo.svg" alt="" width={32} height={32} />
           <span className="text-xl font-bold transition-colors group-hover:text-accent-soft">
