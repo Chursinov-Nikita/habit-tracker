@@ -24,7 +24,7 @@ export const formatMoney = (value: number) =>
 export const formatTime = (minutes: number) => {
   if (minutes < 60) return `${Math.round(minutes)} мин`;
   const hours = minutes / 60;
-  return hours < 100 ? `${hours.toFixed(hours < 10 ? 1 : 0).replace(".0", "")} ч` : `${Math.round(hours)} ч`;
+  return `${hours.toLocaleString("ru-RU", { maximumFractionDigits: hours < 10 ? 1 : 0 })} ч`;
 };
 
 export const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
