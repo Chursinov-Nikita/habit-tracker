@@ -20,6 +20,7 @@ const SCROLL_KEY = "habittrack:scroll-to";
 export default function Header() {
   const [openMobileMenu, setOpenMobileMenu] = useState(false);
   const pathname = usePathname();
+  const isHome = pathname === "/";
   const router = useRouter();
 
   useEffect(() => {
@@ -104,7 +105,7 @@ export default function Header() {
             href="/profile"
             aria-label="Профиль"
             aria-current={pathname.startsWith("/profile") ? "page" : undefined}
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-all duration-300 hover:border-accent/60 hover:bg-accent/15 hover:text-accent-soft active:scale-95 ${
+            className={`${isHome ? "flex" : "hidden md:flex"} h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-all duration-300 hover:border-accent/60 hover:bg-accent/15 hover:text-accent-soft active:scale-95 ${
               pathname.startsWith("/profile")
                 ? "border-accent/60 bg-accent/20 text-accent-pale"
                 : "border-white/15 bg-white/5"
@@ -118,7 +119,7 @@ export default function Header() {
             aria-expanded={openMobileMenu}
             aria-controls="mobile-menu"
             aria-label={openMobileMenu ? "Закрыть меню" : "Открыть меню"}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 transition-all duration-300 hover:border-accent/60 hover:bg-accent/15 hover:text-accent-soft active:scale-95 md:hidden"
+            className={`${isHome ? "flex" : "hidden"} h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 transition-all duration-300 hover:border-accent/60 hover:bg-accent/15 hover:text-accent-soft active:scale-95 md:hidden`}
           >
             <span className="relative flex h-5 w-5 items-center justify-center">
               <Menu
@@ -140,7 +141,7 @@ export default function Header() {
         </div>
       </div>
 
-      {openMobileMenu && (
+      {openMobileMenu && isHome && (
         <nav
           id="mobile-menu"
           aria-label="Мобильная навигация"

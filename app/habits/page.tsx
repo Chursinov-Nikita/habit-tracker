@@ -312,9 +312,7 @@ export default function Habits() {
 
   return (
     <div
-      className={`relative min-h-screen px-4 pb-28 pt-24 text-slate-100 transition-opacity duration-300 sm:px-6 sm:pt-32 lg:flex lg:h-dvh lg:min-h-150 lg:flex-col lg:overflow-hidden lg:px-10 lg:pb-6 lg:pt-24 ${
-        hydrated ? "opacity-100" : "opacity-0"
-      }`}
+      className={`relative min-h-screen px-4 pb-28 pt-24 text-slate-100 sm:px-6 sm:pt-32 lg:flex lg:h-dvh lg:min-h-150 lg:flex-col lg:overflow-hidden lg:px-10 lg:pb-6 lg:pt-24`}
     >
       <style>{`
         @keyframes ai-fade{from{opacity:0}to{opacity:1}}
@@ -331,16 +329,6 @@ export default function Habits() {
       <div className="relative mx-auto flex w-full max-w-7xl flex-col lg:min-h-0 lg:flex-1">
         <div className="mb-6 flex flex-col gap-5 sm:mb-10 sm:flex-row sm:items-end sm:gap-6 sm:justify-between lg:mb-5 lg:shrink-0 lg:gap-4">
           <div>
-            <div className="mb-4 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 py-1.5 pl-3 pr-4 text-sm text-slate-300 backdrop-blur lg:mb-2">
-              <span className="flex gap-1">
-                <span className="h-1.5 w-6 rounded-full bg-primary" />
-                <span className="h-1.5 w-6 rounded-full bg-white/10" />
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
-                Шаг 1 из 2
-              </span>
-            </div>
             <h1
               className={` bg-linear-to-b from-white to-slate-300 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl lg:text-4xl`}
             >
@@ -355,7 +343,7 @@ export default function Habits() {
             {trackedCount > 0 && (
               <Link
                 href={TRACKER_PATH}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink active:scale-[0.98]"
+                className="hidden items-center justify-center gap-2 rounded-xl border border-white/10 sm:inline-flex bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink active:scale-[0.98]"
               >
                 Мой прогресс
                 <span className="rounded-md bg-primary/20 px-1.5 text-xs tabular-nums text-primary-soft">
@@ -570,7 +558,13 @@ export default function Habits() {
                 </div>
               </div>
 
-              {selectedHabits.length === 0 ? (
+              {!hydrated ? (
+                <div aria-hidden="true" className="flex flex-col gap-2.5 lg:gap-2">
+                  {[0, 1, 2].map((row) => (
+                    <div key={row} className="h-24 animate-pulse rounded-2xl bg-white/5 lg:h-20" />
+                  ))}
+                </div>
+              ) : selectedHabits.length === 0 ? (
                 <div className="flex flex-col items-center rounded-2xl border border-dashed border-white/10 px-4 py-12 text-center lg:flex-1 lg:justify-center lg:py-6">
                   <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-slate-600">
                     <Flame className="h-6 w-6" />
@@ -698,7 +692,7 @@ export default function Habits() {
         </div>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-4 border-t border-white/10 bg-ink/85 px-4 py-3 backdrop-blur-xl sm:px-6 lg:hidden">
+      <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 flex items-center gap-4 border-t border-white/10 bg-ink/85 px-4 py-3 backdrop-blur-xl sm:px-6 md:bottom-0 lg:hidden">
         <div className="min-w-0 flex-1">
           <p className={` text-xl font-semibold leading-none tabular-nums`}>
             {selectedHabits.length}

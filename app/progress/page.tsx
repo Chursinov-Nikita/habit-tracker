@@ -19,7 +19,6 @@ import {
   Flame,
   Plus,
   RotateCcw,
-  Sparkles,
   Target,
   Trash2,
   Trophy,
@@ -179,41 +178,44 @@ export default function Tracker() {
 
   return (
     <div
-      className={`relative min-h-screen px-4 pb-16 pt-24 text-slate-100 transition-opacity duration-300 sm:px-6 sm:pt-32 lg:flex lg:h-dvh lg:min-h-150 lg:flex-col lg:overflow-hidden lg:px-10 lg:pb-6 lg:pt-24 ${
-        hydrated ? "opacity-100" : "opacity-0"
-      }`}
+      className={`relative min-h-screen px-4 pb-16 pt-24 text-slate-100 sm:px-6 sm:pt-32 lg:flex lg:h-dvh lg:min-h-150 lg:flex-col lg:overflow-hidden lg:px-10 lg:pb-6 lg:pt-24`}
     >
       <div className="relative mx-auto flex w-full max-w-7xl flex-col lg:min-h-0 lg:flex-1">
         <div className="mb-6 flex flex-col gap-5 sm:mb-10 sm:flex-row sm:items-end sm:gap-6 sm:justify-between lg:mb-4 lg:shrink-0 lg:gap-4">
           <div>
-            <div className="mb-4 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 py-1.5 pl-3 pr-4 text-sm text-slate-300 backdrop-blur lg:mb-2">
-              <span className="flex gap-1">
-                <span className="h-1.5 w-6 rounded-full bg-primary" />
-                <span className="h-1.5 w-6 rounded-full bg-primary" />
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
-                Шаг 2 из 2
-              </span>
-            </div>
             <h1 className="bg-linear-to-b from-white to-slate-300 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl lg:text-4xl">
               Мой прогресс
             </h1>
-            <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-400 lg:mt-1.5 lg:text-sm lg:[@media(max-height:820px)]:hidden">
-              Каждый день без привычки заполняет шкалу. Сорвался — сбрось серию
-              и начни заново, рекорд сохранится.
-            </p>
+            {hydrated && items.length === 0 && (
+              <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-400 lg:mt-1.5 lg:text-sm lg:[@media(max-height:820px)]:hidden">
+                Каждый день без привычки заполняет шкалу. Сорвался — сбрось
+                серию и начни заново, рекорд сохранится.
+              </p>
+            )}
           </div>
           <Link
             href={HABITS_PATH}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink active:scale-[0.98]"
+            className="hidden items-center justify-center gap-2 rounded-xl border border-white/10 sm:inline-flex bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink active:scale-[0.98]"
           >
             <ArrowLeft className="h-4 w-4" />
             Изменить привычки
           </Link>
         </div>
 
-        {items.length === 0 ? (
+        {!hydrated ? (
+          <div aria-hidden="true">
+            <div className="mb-5 grid grid-cols-3 gap-2 sm:mb-8 sm:gap-3 lg:mb-4">
+              {[0, 1, 2].map((tile) => (
+                <div key={tile} className="h-16 animate-pulse rounded-2xl bg-white/5 sm:h-20" />
+              ))}
+            </div>
+            <div className="grid gap-4 lg:grid-cols-2 lg:gap-3">
+              {[0, 1].map((card) => (
+                <div key={card} className="h-32 animate-pulse rounded-3xl bg-white/5" />
+              ))}
+            </div>
+          </div>
+        ) : items.length === 0 ? (
           <div className="flex flex-col items-center rounded-3xl border border-dashed border-white/10 bg-white/3 px-6 py-20 text-center lg:flex-1 lg:justify-center lg:py-8">
             <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-slate-500">
               <Flame className="h-7 w-7" />
@@ -234,22 +236,22 @@ export default function Tracker() {
           </div>
         ) : (
           <>
-            <div className="mb-8 grid gap-3 sm:grid-cols-3 lg:mb-4 lg:shrink-0">
+            <div className="mb-5 grid grid-cols-3 gap-2 sm:mb-8 sm:gap-3 lg:mb-4 lg:shrink-0">
               {stats.map((stat) => {
                 const Icon = stat.icon;
                 return (
                   <div
                     key={stat.label}
-                    className="flex items-center gap-4 rounded-2xl border border-white/10 bg-surface/60 p-4 backdrop-blur lg:p-3"
+                    className="flex min-w-0 flex-col gap-1 rounded-2xl border border-white/10 bg-surface/60 p-3 backdrop-blur sm:flex-row sm:items-center sm:gap-4 sm:p-4 lg:p-3"
                   >
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-primary/25 to-accent/10 text-primary-soft ring-1 ring-primary/20 lg:h-10 lg:w-10">
+                    <span className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-primary/25 sm:flex to-accent/10 text-primary-soft ring-1 ring-primary/20 lg:h-10 lg:w-10">
                       <Icon className="h-5 w-5" />
                     </span>
                     <span className="min-w-0">
-                      <span className="block truncate text-xl font-semibold leading-none tabular-nums">
+                      <span className="block truncate text-lg font-semibold leading-none tabular-nums sm:text-xl">
                         {stat.value}
                       </span>
-                      <span className="mt-1.5 block text-xs text-slate-500">
+                      <span className="mt-1 block text-[11px] leading-tight text-slate-500 sm:mt-1.5 sm:text-xs">
                         {stat.label}
                       </span>
                     </span>

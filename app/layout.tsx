@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Nunito_Sans, Rubik } from "next/font/google";
 import "./globals.css";
 import ServiceWorker from "./elements/ServiceWorker";
+import TabBar from "./elements/TabBar";
 import Header from "./elements/Header/Header";
 import Background from "./elements/Background";
 
@@ -26,6 +27,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#0B0F1A",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -44,6 +46,7 @@ export default function RootLayout({
         <Header />
         <Background />
         {children}
+        <TabBar />
       </body>
     </html>
   );

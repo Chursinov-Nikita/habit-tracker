@@ -51,7 +51,6 @@ export default function Profile() {
   const [habits, setHabits] = useState<ServerHabit[]>([]);
   const [now, setNow] = useState(0);
   const [error, setError] = useState(false);
-  const [loaded, setLoaded] = useState(false);
   const [importError, setImportError] = useState(false);
   const [celebrated, setCelebrated] = useState<Set<string> | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -67,12 +66,8 @@ export default function Profile() {
       .then((data) => {
         setProfile(data);
         setCelebrated(readCelebrated());
-        setLoaded(true);
       })
-      .catch(() => {
-        setError(true);
-        setLoaded(true);
-      });
+      .catch(() => setError(true));
   }, []);
 
   useEffect(() => {
@@ -214,9 +209,7 @@ export default function Profile() {
 
   return (
     <main
-      className={`relative min-h-screen px-4 pb-16 pt-28 text-white transition-opacity duration-300 sm:px-6 sm:pt-36 lg:pb-6 lg:pt-24 ${
-        loaded ? "opacity-100" : "opacity-0"
-      }`}
+      className="relative min-h-screen px-4 pb-16 pt-24 text-white sm:px-6 sm:pt-32 lg:pb-6 lg:pt-24"
     >
       <div className="relative mx-auto max-w-6xl">
         {profile ? (
@@ -488,11 +481,23 @@ export default function Profile() {
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center rounded-3xl border border-dashed border-white/10 bg-white/3 px-6 py-20 text-center">
-            <p className="text-lg font-semibold">
-              {error ? "Не удалось загрузить профиль" : "Загружаем профиль"}
-            </p>
-          </div>
+          error ? (
+            <div className="flex flex-col items-center rounded-3xl border border-dashed border-white/10 bg-white/3 px-6 py-20 text-center">
+              <p className="text-lg font-semibold">Не удалось загрузить профиль</p>
+            </div>
+          ) : (
+            <div aria-hidden="true" className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+              <div className="h-36 animate-pulse rounded-3xl bg-white/5" />
+              <div className="h-36 animate-pulse rounded-3xl bg-white/5" />
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:gap-2.5">
+                {[0, 1, 2, 3, 4, 5].map((tile) => (
+                  <div key={tile} className="h-16 animate-pulse rounded-2xl bg-white/5" />
+                ))}
+              </div>
+              <div className="h-48 animate-pulse rounded-3xl bg-white/5 lg:row-span-2" />
+              <div className="h-40 animate-pulse rounded-3xl bg-white/5" />
+            </div>
+          )
         )}
       </div>
 
