@@ -18,3 +18,9 @@
 html {
   font-family: var(--font-sans);
 }
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+  }
+}

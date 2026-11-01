@@ -214,30 +214,23 @@ export default function Profile() {
       <div className="relative mx-auto max-w-6xl">
         {profile ? (
           <>
-            <div className="mb-6 text-center lg:mb-3 lg:text-left">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm text-slate-300 backdrop-blur-xl">
-                <User className="h-4 w-4 text-primary-soft" />
-                Профиль
-              </div>
-            </div>
-
             <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-              <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-surface/70 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl lg:col-start-1 lg:row-start-1">
+              <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-surface/70 p-4 shadow-2xl sm:p-5 shadow-black/30 backdrop-blur-xl lg:col-start-1 lg:row-start-1">
                 <div className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-accent/25 blur-3xl" />
                 <div className="pointer-events-none absolute -bottom-24 left-1/4 h-56 w-56 rounded-full bg-primary/15 blur-3xl" />
                 <div className="relative flex items-center gap-4">
                   <div className="shrink-0 rounded-full bg-linear-to-br from-primary via-accent to-accent-soft p-0.5 shadow-[0_0_30px_-4px_rgba(139,92,246,0.7)]">
-                    <span className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-ink bg-[#1E1B4B] text-white">
-                      <User className="h-9 w-9" />
+                    <span className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-ink bg-[#1E1B4B] text-white sm:h-20 sm:w-20">
+                      <User className="h-7 w-7 sm:h-9 sm:w-9" />
                     </span>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h1 className="truncate font-display text-2xl font-bold sm:text-3xl">
+                    <h1 className="truncate font-display text-xl font-bold sm:text-3xl">
                       Мой профиль
                     </h1>
                     <p className="flex items-center gap-1.5 text-sm text-slate-400">
                       <Smartphone className="h-4 w-4 shrink-0" />
-                      Данные хранятся на этом устройстве
+                      Данные на этом устройстве
                     </p>
                     <div className="mt-3 flex flex-wrap items-center gap-2">
                       <button
@@ -246,7 +239,7 @@ export default function Profile() {
                         className="inline-flex items-center gap-1.5 rounded-lg bg-primary/15 px-3 py-1.5 text-xs font-semibold text-primary-pale ring-1 ring-primary/30 transition hover:bg-primary/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
                       >
                         <Download className="h-3.5 w-3.5" />
-                        Сохранить копию
+                        Копия
                       </button>
                       <button
                         type="button"
@@ -260,6 +253,7 @@ export default function Profile() {
                         type="button"
                         onClick={toggleSound}
                         aria-pressed={soundOn}
+                        aria-label={soundOn ? "Звук включён" : "Звук выключен"}
                         className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold ring-1 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 ${
                           soundOn
                             ? "bg-emerald-400/10 text-emerald-300 ring-emerald-400/30 hover:bg-emerald-400/20"
@@ -271,7 +265,7 @@ export default function Profile() {
                         ) : (
                           <VolumeX className="h-3.5 w-3.5" />
                         )}
-                        {soundOn ? "Звук и вибрация" : "Без звука"}
+                        <span className="hidden sm:inline">{soundOn ? "Звук" : "Без звука"}</span>
                       </button>
                       <input
                         ref={fileInput}
@@ -299,7 +293,7 @@ export default function Profile() {
                 </div>
               </section>
 
-              <section className="relative overflow-hidden rounded-3xl border border-primary/30 bg-linear-to-br from-primary/20 via-surface/70 to-surface/70 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl lg:col-start-2 lg:row-start-1">
+              <section className="relative overflow-hidden rounded-3xl border border-primary/30 bg-linear-to-br from-primary/20 via-surface/70 to-surface/70 p-4 shadow-2xl sm:p-5 shadow-black/30 backdrop-blur-xl lg:col-start-2 lg:row-start-1">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-xs font-semibold text-primary-soft">
                     Уровень {levelIndex + 1} из {levels.length}
@@ -322,22 +316,22 @@ export default function Profile() {
                 </p>
               </section>
 
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:col-start-1 lg:row-start-2 lg:gap-2.5">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:col-start-1 lg:row-start-2 lg:gap-2.5">
                 {stats.map((stat) => {
                   const Icon = stat.icon;
                   return (
                     <div
                       key={stat.label}
-                      className="flex items-center gap-3 rounded-2xl border border-white/10 bg-surface/60 p-3 backdrop-blur transition hover:-translate-y-0.5 hover:border-primary/40"
+                      className="flex min-w-0 flex-col gap-1 rounded-2xl border border-white/10 bg-surface/60 p-3 backdrop-blur transition sm:flex-row sm:items-center sm:gap-3 sm:hover:-translate-y-0.5 sm:hover:border-primary/40"
                     >
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-primary/25 to-accent/10 text-primary-soft ring-1 ring-primary/20">
+                      <span className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-primary/25 to-accent/10 text-primary-soft ring-1 ring-primary/20 sm:flex">
                         <Icon className="h-5 w-5" />
                       </span>
                       <span className="min-w-0">
                         <span className="block truncate text-lg font-semibold leading-none tabular-nums">
                           {stat.value}
                         </span>
-                        <span className="mt-1 block truncate text-[11px] text-slate-500">
+                        <span className="mt-1 block text-[11px] leading-tight text-slate-500">
                           {stat.label}
                         </span>
                       </span>
@@ -386,7 +380,7 @@ export default function Profile() {
                         >
                           {item.title}
                         </span>
-                        <span className="text-[10px] leading-tight text-slate-500 lg:[@media(max-height:760px)]:hidden">
+                        <span className="hidden text-[10px] leading-tight text-slate-500 sm:block lg:[@media(max-height:760px)]:hidden">
                           {item.hint}
                         </span>
                       </div>
@@ -395,7 +389,7 @@ export default function Profile() {
                 </div>
               </section>
 
-              <section className="flex flex-col rounded-3xl border border-white/10 bg-surface/70 p-4 shadow-2xl shadow-black/30 backdrop-blur-xl lg:col-start-2 lg:row-span-2 lg:row-start-2 lg:h-0 lg:min-h-full">
+              <section className="hidden flex-col rounded-3xl border border-white/10 bg-surface/70 p-4 shadow-2xl shadow-black/30 backdrop-blur-xl lg:flex lg:col-start-2 lg:row-span-2 lg:row-start-2 lg:h-0 lg:min-h-full">
                 <div className="mb-3 flex items-center justify-between lg:shrink-0">
                   <h2 className="text-base font-semibold">Мои привычки</h2>
                   <span className="rounded-lg bg-white/5 px-2 py-0.5 text-xs font-semibold tabular-nums text-slate-300">

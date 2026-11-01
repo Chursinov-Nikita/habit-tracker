@@ -13,6 +13,7 @@ type Data = {
   habits: StoredHabit[];
   logs: Log[];
   meditations: Meditation[];
+  costs?: Record<string, { money: number; minutes: number }>;
 };
 
 export type HabitDraft = {
@@ -330,6 +331,20 @@ export const getProfile = () =>
       minutes: data.meditations.reduce((sum, m) => sum + m.minutes, 0),
     };
     return { createdAt: data.createdAt, stats };
+  });
+
+export const getCosts = () => run(() => read().costs ?? {});
+
+export const saveCost = (key: string, money: number, minutes: number) =>
+  run(() => {
+    const data = read();
+    const clamp = (value: number, max: number) =>
+      Number.isFinite(value) ? Math.min(Math.max(Math.round(value), 0), max) : 0;
+    data.costs = {
+      ...data.costs,
+      [key]: { money: clamp(money, 100000), minutes: clamp(minutes, 1440) },
+    };
+    write(data);
   });
 
 export const exportData = () => JSON.stringify(read(), null, 2);

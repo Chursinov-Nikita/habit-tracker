@@ -8,7 +8,11 @@ import {
   getHabits,
   relapse as saveRelapse,
   untrackHabit,
+  getCosts,
+  saveCost,
 } from "@/app/lib/local";
+import CostsSheet from "./CostsSheet";
+import { defaultCosts, formatMoney, formatTime, type DailyCost } from "./data";
 import { sound } from "@/app/lib/sound";
 import { markCelebrated, readCelebrated } from "@/app/lib/celebrated";
 import Celebration from "@/app/elements/Celebration";
@@ -22,6 +26,8 @@ import {
   Target,
   Trash2,
   Trophy,
+  PiggyBank,
+  SlidersHorizontal,
 } from "lucide-react";
 
 export default function Tracker() {
@@ -34,6 +40,8 @@ export default function Tracker() {
   const [relapsing, setRelapsing] = useState(false);
   const [relapseError, setRelapseError] = useState(false);
   const [celebrated, setCelebrated] = useState<Set<string> | null>(null);
+  const [costs, setCosts] = useState<Record<string, DailyCost>>({});
+  const [costsOpen, setCostsOpen] = useState(false);
 
   useEffect(() => {
     getHabits()
@@ -60,6 +68,7 @@ export default function Tracker() {
         );
         setProgress(next);
         setCelebrated(readCelebrated());
+        getCosts().then(setCosts).catch(() => {});
         setNow(Date.now());
         setHydrated(true);
       })
@@ -155,6 +164,30 @@ export default function Tracker() {
   const relapseItem = relapseTarget
     ? items.find((item) => item.id === relapseTarget.id)
     : undefined;
+  const costOf = (id: string): DailyCost =>
+    costs[id] ?? defaultCosts[id] ?? { money: 0, minutes: 0 };
+  const saved = items.reduce(
+    (sum, item) => {
+      const cost = costOf(item.id);
+      const days = Math.max(0, now - item.startedAt) / DAY;
+      return { money: sum.money + cost.money * days, minutes: sum.minutes + cost.minutes * days };
+    },
+    { money: 0, minutes: 0 },
+  );
+  const hasCosts = items.some((item) => {
+    const cost = costOf(item.id);
+    return cost.money > 0 || cost.minutes > 0;
+  });
+
+  const saveCosts = async (next: Record<string, DailyCost>) => {
+    await Promise.all(
+      Object.entries(next).map(([id, cost]) => saveCost(id, cost.money, cost.minutes)),
+    ).catch(() => {});
+    setCosts((prev) => ({ ...prev, ...next }));
+    setCostsOpen(false);
+    sound.select();
+  };
+
   const goalKey = (item: (typeof items)[number]) =>
     `goal:${item.id}:${item.startedAt}:${item.goalDays}`;
   const goalReached = celebrated
@@ -259,6 +292,51 @@ export default function Tracker() {
                 );
               })}
             </div>
+
+            <section className="mb-5 rounded-3xl border border-emerald-400/20 bg-[linear-gradient(135deg,rgba(52,211,153,0.12),rgba(17,24,39,0.65)_60%)] p-4 sm:mb-8 lg:mb-4 lg:shrink-0">
+              <div className="flex items-center justify-between gap-3">
+                <p className="flex items-center gap-2 text-sm font-semibold text-emerald-200">
+                  <PiggyBank className="h-4 w-4" />
+                  Сэкономлено
+                </p>
+                <button
+                  onClick={() => {
+                    sound.tap();
+                    setCostsOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-slate-400 transition hover:bg-white/5 hover:text-slate-200"
+                >
+                  <SlidersHorizontal className="h-3.5 w-3.5" />
+                  Настроить
+                </button>
+              </div>
+              {hasCosts ? (
+                <>
+                  <div className="mt-2 grid grid-cols-2 gap-3">
+                    <div>
+                      <p className="font-display text-2xl font-bold tabular-nums text-white">
+                        {formatMoney(saved.money)}
+                      </p>
+                      <p className="text-xs text-slate-400">денег не потрачено</p>
+                    </div>
+                    <div>
+                      <p className="font-display text-2xl font-bold tabular-nums text-white">
+                        {formatTime(saved.minutes)}
+                      </p>
+                      <p className="text-xs text-slate-400">времени освободилось</p>
+                    </div>
+                  </div>
+                  <p className="mt-2 text-[11px] text-slate-500">
+                    За текущие серии без срывов
+                  </p>
+                </>
+              ) : (
+                <p className="mt-2 text-sm leading-relaxed text-slate-400">
+                  Укажи, сколько денег и времени уходило на привычки в день, —
+                  посчитаем, сколько уже сэкономлено.
+                </p>
+              )}
+            </section>
 
             <ul
               className={`grid gap-4 lg:min-h-0 lg:flex-1 lg:grid-cols-2 lg:content-start lg:gap-3 lg:overflow-y-auto lg:py-1 lg:pr-1 ${
@@ -413,6 +491,14 @@ export default function Tracker() {
           </>
         )}
       </div>
+
+      {costsOpen && (
+        <CostsSheet
+          rows={items.map((item) => ({ id: item.id, name: item.name, icon: item.icon, cost: costOf(item.id) }))}
+          onSave={saveCosts}
+          onClose={() => setCostsOpen(false)}
+        />
+      )}
 
       {removeTarget && (
         <div

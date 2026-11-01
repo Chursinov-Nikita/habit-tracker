@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CalendarDays, Flame, ListChecks, User, Wind } from "lucide-react";
@@ -14,7 +15,16 @@ const tabs = [
 
 export default function TabBar() {
   const pathname = usePathname();
+  const [pending, setPending] = useState<{ href: string; from: string } | null>(null);
+
   if (pathname === "/") return null;
+
+  const current = tabs.findIndex((tab) => pathname.startsWith(tab.href));
+  const pendingIndex =
+    pending && pending.from === pathname
+      ? tabs.findIndex((tab) => tab.href === pending.href)
+      : -1;
+  const activeIndex = pendingIndex >= 0 ? pendingIndex : current;
 
   return (
     <>
@@ -23,26 +33,43 @@ export default function TabBar() {
         aria-label="Разделы приложения"
         className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-ink/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
       >
-        <ul className="mx-auto flex h-16 max-w-lg items-stretch">
-          {tabs.map(({ href, label, Icon }) => {
-            const active = pathname.startsWith(href);
+        <ul className="relative mx-auto flex h-16 max-w-lg items-stretch">
+          {activeIndex >= 0 && (
+            <li
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 left-0 flex w-1/5 justify-center pt-2 transition-transform duration-300 ease-[cubic-bezier(.32,.72,0,1)] motion-reduce:transition-none"
+              style={{ transform: `translateX(${activeIndex * 100}%)` }}
+            >
+              <span className="h-7 w-12 rounded-full bg-primary/20" />
+            </li>
+          )}
+          {tabs.map(({ href, label, Icon }, index) => {
+            const active = index === activeIndex;
             return (
-              <li key={href} className="flex-1">
+              <li key={href} className="relative flex-1">
                 <Link
                   href={href}
-                  aria-current={active ? "page" : undefined}
-                  className={`flex h-full flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors active:scale-95 ${
-                    active ? "text-white" : "text-slate-500 hover:text-slate-300"
-                  }`}
+                  onClick={() => {
+                    if (index !== current) setPending({ href, from: pathname });
+                  }}
+                  aria-current={index === current ? "page" : undefined}
+                  className="flex h-full flex-col items-center justify-start gap-1 pt-2 text-[11px] font-medium [-webkit-tap-highlight-color:transparent]"
                 >
+                  <span className="flex h-7 w-12 items-center justify-center">
+                    <Icon
+                      className={`h-5 w-5 transition-colors duration-200 ${
+                        active ? "text-primary-soft" : "text-slate-500"
+                      }`}
+                      strokeWidth={active ? 2.4 : 2}
+                    />
+                  </span>
                   <span
-                    className={`flex h-7 w-12 items-center justify-center rounded-full transition-colors ${
-                      active ? "bg-primary/20 text-primary-soft" : ""
+                    className={`transition-colors duration-200 ${
+                      active ? "text-white" : "text-slate-500"
                     }`}
                   >
-                    <Icon className="h-5 w-5" strokeWidth={active ? 2.4 : 2} />
+                    {label}
                   </span>
-                  {label}
                 </Link>
               </li>
             );
