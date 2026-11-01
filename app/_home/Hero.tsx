@@ -27,7 +27,7 @@ export default function Hero() {
 
             <Link
               href={HABITS_PATH}
-              className="group mt-9 flex w-full items-center justify-center gap-2.5 rounded-full bg-[linear-gradient(90deg,#A78BFA_0%,#8B5CF6_45%,#3B82F6_100%)] px-8 py-4 text-base font-semibold text-white shadow-[0_12px_32px_-12px_rgba(124,92,246,0.8),inset_0_1px_0_rgba(255,255,255,0.25)] [text-shadow:0_1px_2px_rgba(30,16,80,0.45)] transition duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-12px_rgba(99,102,241,0.9),inset_0_1px_0_rgba(255,255,255,0.3)] hover:brightness-110 active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#A78BFA] sm:mt-10 sm:inline-flex sm:w-auto"
+              className="group mt-9 flex w-full items-center justify-center gap-2.5 rounded-full bg-[linear-gradient(90deg,#8B5CF6_0%,#6D28D9_45%,#2563EB_100%)] px-8 py-4 text-base font-semibold text-white shadow-[0_12px_32px_-12px_rgba(124,92,246,0.8),inset_0_1px_0_rgba(255,255,255,0.25)] [text-shadow:0_1px_2px_rgba(30,16,80,0.45)] transition duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-12px_rgba(99,102,241,0.9),inset_0_1px_0_rgba(255,255,255,0.3)] hover:brightness-110 active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#A78BFA] sm:mt-10 sm:inline-flex sm:w-auto"
             >
               Сделать первый шаг
               <ArrowRight
