@@ -333,11 +333,11 @@ export default function Habits() {
           <div>
             <div className="mb-4 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 py-1.5 pl-3 pr-4 text-sm text-slate-300 backdrop-blur lg:mb-2">
               <span className="flex gap-1">
-                <span className="h-1.5 w-6 rounded-full bg-[#6366F1]" />
+                <span className="h-1.5 w-6 rounded-full bg-primary" />
                 <span className="h-1.5 w-6 rounded-full bg-white/10" />
               </span>
               <span className="flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-[#6366F1]" />
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
                 Шаг 1 из 2
               </span>
             </div>
@@ -355,10 +355,10 @@ export default function Habits() {
             {trackedCount > 0 && (
               <Link
                 href={TRACKER_PATH}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0F1A] active:scale-[0.98]"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink active:scale-[0.98]"
               >
                 Мой прогресс
-                <span className="rounded-md bg-[#6366F1]/20 px-1.5 text-xs tabular-nums text-[#A5B4FC]">
+                <span className="rounded-md bg-primary/20 px-1.5 text-xs tabular-nums text-primary-soft">
                   {trackedCount}
                 </span>
                 <ArrowRight className="h-4 w-4" />
@@ -366,7 +366,7 @@ export default function Habits() {
             )}
             <button
               onClick={() => setModalOpen(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#6366F1] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[#6366F1]/25 transition hover:bg-[#5558E8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0F1A] active:scale-[0.98]"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink active:scale-[0.98]"
             >
               <Plus className="h-4 w-4" />
               Создать свою
@@ -384,7 +384,7 @@ export default function Habits() {
                   onChange={(e) => setQuery(e.target.value)}
                   aria-label="Поиск привычки"
                   placeholder="Поиск привычки"
-                  className="w-full rounded-2xl border border-white/10 bg-white/5 py-3.5 pl-11 pr-11 text-sm text-slate-100 placeholder:text-slate-500 outline-none backdrop-blur transition focus:border-[#6366F1]/60 focus:bg-white/[0.07] focus:ring-4 focus:ring-[#6366F1]/10 lg:py-3"
+                  className="w-full rounded-2xl border border-white/10 bg-white/5 py-3.5 pl-11 pr-11 text-sm text-slate-100 placeholder:text-slate-500 outline-none backdrop-blur transition focus:border-primary/60 focus:bg-white/[0.07] focus:ring-4 focus:ring-primary/10 lg:py-3"
                 />
                 {query && (
                   <button
@@ -403,9 +403,9 @@ export default function Habits() {
                     key={item}
                     onClick={() => setCategory(item)}
                     aria-pressed={category === item}
-                    className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-[13px] transition sm:gap-2 sm:px-4 sm:py-2 sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 ${
+                    className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-[13px] transition sm:gap-2 sm:px-4 sm:py-2 sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 ${
                       category === item
-                        ? "border-[#6366F1] bg-[#6366F1] font-medium text-white shadow-lg shadow-[#6366F1]/20"
+                        ? "border-primary bg-primary font-medium text-white shadow-lg shadow-primary/20"
                         : "border-white/10 bg-white/5 text-slate-400 hover:border-white/20 hover:text-slate-200"
                     }`}
                   >
@@ -456,9 +456,9 @@ export default function Habits() {
                     setName(query.slice(0, 40));
                     setModalOpen(true);
                   }}
-                  className="mt-6 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-slate-200 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70"
+                  className="mt-6 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-slate-200 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
                 >
-                  <Plus className="h-4 w-4 text-[#6366F1]" />
+                  <Plus className="h-4 w-4 text-primary" />
                   {query
                     ? `Создать «${query.slice(0, 24)}»`
                     : "Создать привычку"}
@@ -485,17 +485,17 @@ export default function Habits() {
                         }
                       }}
                       aria-pressed={active}
-                      className={`group relative flex cursor-pointer select-none items-center gap-3.5 overflow-hidden rounded-2xl border p-4 text-left backdrop-blur transition duration-200 before:absolute before:inset-x-6 before:top-0 before:h-px before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 active:scale-[0.98] lg:p-3 ${
+                      className={`group relative flex cursor-pointer select-none items-center gap-3.5 overflow-hidden rounded-2xl border p-4 text-left backdrop-blur transition duration-200 before:absolute before:inset-x-6 before:top-0 before:h-px before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 active:scale-[0.98] lg:p-3 ${
                         active
-                          ? "border-[#6366F1]/70 bg-[#6366F1]/10 shadow-[0_10px_30px_-12px_rgba(99,102,241,0.6)]"
-                          : "border-white/10 bg-[#111827]/60 hover:-translate-y-0.5 hover:border-white/20 hover:bg-[#111827]"
+                          ? "border-primary/70 bg-primary/10 shadow-[0_10px_30px_-12px_rgba(99,102,241,0.6)]"
+                          : "border-white/10 bg-surface/60 hover:-translate-y-0.5 hover:border-white/20 hover:bg-surface"
                       }`}
                     >
                       <span
                         className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition duration-200 lg:h-10 lg:w-10 ${
                           active
-                            ? "bg-[#6366F1] text-white shadow-lg shadow-[#6366F1]/30"
-                            : "bg-white/5 text-[#6366F1] group-hover:bg-[#6366F1]/15"
+                            ? "bg-primary text-white shadow-lg shadow-primary/30"
+                            : "bg-white/5 text-primary group-hover:bg-primary/15"
                         }`}
                       >
                         <Icon className="h-6 w-6 lg:h-5 lg:w-5" />
@@ -506,7 +506,7 @@ export default function Habits() {
                         </span>
                         <span className="mt-1 flex items-center gap-2 text-xs text-slate-500">
                           {habit.custom && (
-                            <span className="rounded-md bg-[#6366F1]/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#A5B4FC]">
+                            <span className="rounded-md bg-primary/15 px-1.5 py-0.5 text-[11px] font-semibold text-primary-soft">
                               Своя
                             </span>
                           )}
@@ -529,7 +529,7 @@ export default function Habits() {
                       <span
                         className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition duration-200 ${
                           active
-                            ? "border-[#6366F1] bg-[#6366F1] text-white"
+                            ? "border-primary bg-primary text-white"
                             : "border-white/15 text-transparent group-hover:border-white/30"
                         }`}
                       >
@@ -543,12 +543,12 @@ export default function Habits() {
           </section>
 
           <aside className="min-w-0 lg:flex lg:min-h-0 lg:flex-col">
-            <div className="rounded-3xl border border-white/10 bg-[#111827]/70 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:p-4">
+            <div className="rounded-3xl border border-white/10 bg-surface/70 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:p-4">
               <div className="mb-5 flex items-center justify-between gap-3 lg:mb-3 lg:shrink-0">
                 <h2
                   className={` flex items-center gap-3 text-lg font-semibold`}
                 >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#6366F1]/15 text-[#6366F1]">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/15 text-primary">
                     <Target className="h-5 w-5" />
                   </span>
                   Мои привычки
@@ -594,7 +594,7 @@ export default function Habits() {
                         className="rounded-2xl border border-white/10 bg-white/3 p-3 lg:p-2.5"
                       >
                         <div className="flex items-center gap-3">
-                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#6366F1]/15 text-[#6366F1]">
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
                             <Icon className="h-5 w-5" />
                           </span>
                           <span className="min-w-0 flex-1">
@@ -611,7 +611,7 @@ export default function Habits() {
                                 onClick={() => askAi(habit)}
                                 aria-label="Узнать подробнее о вреде"
                                 title="Узнать подробнее о вреде"
-                                className="mr-1 inline-flex min-w-14 items-center justify-center gap-1 rounded-lg bg-linear-to-r from-[#6366F1]/25 to-[#8B5CF6]/25 px-2 py-1 text-[11px] font-semibold text-[#C4B5FD] shadow-[0_0_14px_-4px_rgba(139,92,246,0.8)] ring-1 ring-[#8B5CF6]/30 transition hover:from-[#6366F1]/40 hover:to-[#8B5CF6]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8B5CF6]/70 active:scale-95"
+                                className="mr-1 inline-flex min-w-14 items-center justify-center gap-1 rounded-lg bg-linear-to-r from-primary/25 to-accent/25 px-2 py-1 text-[11px] font-semibold text-accent-pale shadow-[0_0_14px_-4px_rgba(139,92,246,0.8)] ring-1 ring-accent/30 transition hover:from-primary/40 hover:to-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 active:scale-95"
                               >
                                 <Sparkles className="h-3.5 w-3.5" />
                                 ИИ
@@ -637,7 +637,7 @@ export default function Habits() {
                           </div>
                         </div>
                         <div className="mt-3 lg:mt-2">
-                          <p className="mb-1.5 text-[11px] uppercase tracking-wider text-slate-500 lg:mb-1">
+                          <p className="mb-1.5 text-xs text-slate-500 lg:mb-1">
                             Цель в днях
                           </p>
                           <div className="grid grid-cols-5 gap-1.5">
@@ -652,9 +652,9 @@ export default function Habits() {
                                   }));
                                 }}
                                 aria-pressed={(goals[habit.id] ?? 30) === days}
-                                className={`rounded-lg border py-1.5 text-xs font-medium tabular-nums transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 lg:py-1 ${
+                                className={`rounded-lg border py-1.5 text-xs font-medium tabular-nums transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 lg:py-1 ${
                                   (goals[habit.id] ?? 30) === days
-                                    ? "border-[#6366F1] bg-[#6366F1] text-white"
+                                    ? "border-primary bg-primary text-white"
                                     : "border-white/10 bg-white/5 text-slate-400 hover:border-white/20 hover:text-slate-200"
                                 }`}
                               >
@@ -680,10 +680,10 @@ export default function Habits() {
               <button
                 onClick={save}
                 disabled={selectedHabits.length === 0 || saving}
-                className={`mt-5 hidden w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/5 disabled:text-slate-600 disabled:shadow-none lg:mt-3 lg:flex lg:shrink-0 lg:py-3 ${
+                className={`mt-5 hidden w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/5 disabled:text-slate-600 disabled:shadow-none lg:mt-3 lg:flex lg:shrink-0 lg:py-3 ${
                   saved
                     ? "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30"
-                    : "bg-[#6366F1] text-white shadow-lg shadow-[#6366F1]/25 hover:bg-[#5558E8]"
+                    : "bg-primary text-white shadow-lg shadow-primary/25 hover:bg-primary-hover"
                 }`}
               >
                 {saved ? (
@@ -698,7 +698,7 @@ export default function Habits() {
         </div>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-4 border-t border-white/10 bg-[#0B0F1A]/85 px-4 py-3 backdrop-blur-xl sm:px-6 lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-4 border-t border-white/10 bg-ink/85 px-4 py-3 backdrop-blur-xl sm:px-6 lg:hidden">
         <div className="min-w-0 flex-1">
           <p className={` text-xl font-semibold leading-none tabular-nums`}>
             {selectedHabits.length}
@@ -715,7 +715,7 @@ export default function Habits() {
           className={`flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/5 disabled:text-slate-600 disabled:shadow-none ${
             saved
               ? "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30"
-              : "bg-[#6366F1] text-white shadow-lg shadow-[#6366F1]/25 hover:bg-[#5558E8]"
+              : "bg-primary text-white shadow-lg shadow-primary/25 hover:bg-primary-hover"
           }`}
         >
           {saved ? (
@@ -737,7 +737,7 @@ export default function Habits() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="new-habit-title"
-            className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-[#111827] shadow-2xl shadow-black/50 sm:rounded-3xl"
+            className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-surface shadow-2xl shadow-black/50 sm:rounded-3xl"
           >
             <div className="px-6 pb-4 pt-3 sm:pt-6">
               <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/15 sm:hidden" />
@@ -763,8 +763,8 @@ export default function Habits() {
             <div
               className={`flex flex-col gap-6 overflow-y-auto px-6 pb-6 ${scrollbar}`}
             >
-              <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-[#0B0F1A]/60 p-4">
-                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[#6366F1] text-white shadow-lg shadow-[#6366F1]/30">
+              <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-ink/60 p-4">
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary text-white shadow-lg shadow-primary/30">
                   <PreviewIcon className="h-7 w-7" />
                 </span>
                 <span className="min-w-0 flex-1">
@@ -804,10 +804,10 @@ export default function Habits() {
                   maxLength={40}
                   placeholder="Например, ночной перекус"
                   aria-invalid={duplicate}
-                  className={`w-full rounded-xl border bg-[#0B0F1A] px-4 py-3 text-sm text-slate-100 placeholder:text-slate-600 outline-none transition focus:ring-4 ${
+                  className={`w-full rounded-xl border bg-ink px-4 py-3 text-sm text-slate-100 placeholder:text-slate-600 outline-none transition focus:ring-4 ${
                     duplicate
                       ? "border-rose-500/60 focus:border-rose-500/60 focus:ring-rose-500/10"
-                      : "border-white/10 focus:border-[#6366F1]/60 focus:ring-[#6366F1]/10"
+                      : "border-white/10 focus:border-primary/60 focus:ring-primary/10"
                   }`}
                 />
                 {duplicate && (
@@ -827,9 +827,9 @@ export default function Habits() {
                       key={item}
                       onClick={() => setNewCategory(item)}
                       aria-pressed={newCategory === item}
-                      className={`rounded-full border px-4 py-1.5 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 ${
+                      className={`rounded-full border px-4 py-1.5 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 ${
                         newCategory === item
-                          ? "border-[#6366F1] bg-[#6366F1] font-medium text-white"
+                          ? "border-primary bg-primary font-medium text-white"
                           : "border-white/10 bg-white/5 text-slate-400 hover:border-white/20 hover:text-slate-200"
                       }`}
                     >
@@ -852,10 +852,10 @@ export default function Habits() {
                         onClick={() => setNewIcon(key)}
                         aria-label={key}
                         aria-pressed={newIcon === key}
-                        className={`flex aspect-square items-center justify-center rounded-xl border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 ${
+                        className={`flex aspect-square items-center justify-center rounded-xl border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 ${
                           newIcon === key
-                            ? "border-[#6366F1] bg-[#6366F1] text-white shadow-lg shadow-[#6366F1]/25"
-                            : "border-white/10 bg-white/5 text-[#6366F1] hover:bg-white/10"
+                            ? "border-primary bg-primary text-white shadow-lg shadow-primary/25"
+                            : "border-white/10 bg-white/5 text-primary hover:bg-white/10"
                         }`}
                       >
                         <Icon className="h-5 w-5" />
@@ -873,9 +873,9 @@ export default function Habits() {
                       key={days}
                       onClick={() => setNewGoal(days)}
                       aria-pressed={newGoal === days}
-                      className={`rounded-xl border py-2.5 text-center transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 ${
+                      className={`rounded-xl border py-2.5 text-center transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 ${
                         newGoal === days
-                          ? "border-[#6366F1] bg-[#6366F1] text-white"
+                          ? "border-primary bg-primary text-white"
                           : "border-white/10 bg-white/5 text-slate-400 hover:border-white/20 hover:text-slate-200"
                       }`}
                     >
@@ -897,7 +897,7 @@ export default function Habits() {
               </div>
             </div>
 
-            <div className="flex gap-3 border-t border-white/10 bg-[#111827] p-4 sm:px-6">
+            <div className="flex gap-3 border-t border-white/10 bg-surface p-4 sm:px-6">
               <button
                 onClick={() => setModalOpen(false)}
                 className="flex-1 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/10"
@@ -907,7 +907,7 @@ export default function Habits() {
               <button
                 onClick={createHabit}
                 disabled={!name.trim() || duplicate}
-                className="flex-1 rounded-xl bg-[#6366F1] py-3 text-sm font-semibold text-white shadow-lg shadow-[#6366F1]/25 transition hover:bg-[#5558E8] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/5 disabled:text-slate-600 disabled:shadow-none"
+                className="flex-1 rounded-xl bg-primary py-3 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-hover active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/5 disabled:text-slate-600 disabled:shadow-none"
               >
                 Добавить
               </button>
@@ -927,7 +927,7 @@ export default function Habits() {
             aria-modal="true"
             aria-labelledby="clear-title"
             aria-describedby="clear-text"
-            className="w-full max-w-md rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-2xl shadow-black/50"
+            className="w-full max-w-md rounded-3xl border border-white/10 bg-surface p-6 shadow-2xl shadow-black/50"
           >
             <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/15 text-rose-400">
               <Trash2 className="h-6 w-6" />
@@ -946,7 +946,7 @@ export default function Habits() {
               <button
                 onClick={() => setClearOpen(false)}
                 autoFocus
-                className="flex-1 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70"
+                className="flex-1 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
               >
                 Отмена
               </button>
@@ -972,7 +972,7 @@ export default function Habits() {
             aria-modal="true"
             aria-labelledby="delete-title"
             aria-describedby="delete-text"
-            className="w-full max-w-md animate-[ai-pop_0.3s_cubic-bezier(0.16,1,0.3,1)] rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-2xl shadow-black/50 motion-reduce:animate-none"
+            className="w-full max-w-md animate-[ai-pop_0.3s_cubic-bezier(0.16,1,0.3,1)] rounded-3xl border border-white/10 bg-surface p-6 shadow-2xl shadow-black/50 motion-reduce:animate-none"
           >
             <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/15 text-rose-400">
               <Trash2 className="h-6 w-6" />
@@ -992,7 +992,7 @@ export default function Habits() {
               <button
                 onClick={() => setDeleteTarget(null)}
                 autoFocus
-                className="flex-1 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70"
+                className="flex-1 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
               >
                 Отмена
               </button>
@@ -1025,20 +1025,20 @@ export default function Habits() {
                 : "animate-[ai-pop_0.4s_cubic-bezier(0.16,1,0.3,1)]"
             }`}
           >
-            <div className="pointer-events-none absolute -inset-6 hidden animate-[ai-glow_4s_ease-in-out_infinite] rounded-[3rem] bg-linear-to-br from-[#6366F1]/40 via-[#8B5CF6]/30 to-[#A78BFA]/20 blur-3xl motion-reduce:animate-none sm:block" />
+            <div className="pointer-events-none absolute -inset-6 hidden animate-[ai-glow_4s_ease-in-out_infinite] rounded-[3rem] bg-linear-to-br from-primary/40 via-accent/30 to-accent-soft/20 blur-3xl motion-reduce:animate-none sm:block" />
             <div className="relative flex max-h-[92vh] overflow-hidden rounded-t-3xl p-[1.5px] shadow-[0_0_60px_-12px_rgba(139,92,246,0.7)] sm:rounded-3xl">
               <div className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[200%] animate-[ai-spin_7s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0%,transparent_55%,#6366F1_75%,#A78BFA_88%,transparent_100%)] motion-reduce:animate-none" />
               <div
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="ai-title"
-                className="relative flex min-h-0 w-full flex-col overflow-hidden rounded-t-[22px] bg-[#111827] sm:rounded-[22px]"
+                className="relative flex min-h-0 w-full flex-col overflow-hidden rounded-t-[22px] bg-surface sm:rounded-[22px]"
               >
                 <div className="relative shrink-0 overflow-hidden px-5 pb-3 pt-4 sm:px-6">
-                  <div className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 animate-[ai-glow_5s_ease-in-out_infinite] rounded-full bg-[#8B5CF6]/25 blur-3xl motion-reduce:animate-none" />
+                  <div className="pointer-events-none absolute -right-12 -top-16 h-44 w-44 animate-[ai-glow_5s_ease-in-out_infinite] rounded-full bg-accent/25 blur-3xl motion-reduce:animate-none" />
                   <div className="relative flex items-center justify-between gap-4">
                     <div className="flex min-w-0 items-center gap-3.5">
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-[#6366F1] to-[#8B5CF6] text-white shadow-[0_0_24px_-2px_rgba(139,92,246,0.8)]">
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-accent text-white shadow-[0_0_24px_-2px_rgba(139,92,246,0.8)]">
                         <AiIcon className="h-6 w-6" />
                       </span>
                       <div className="min-w-0">
@@ -1048,7 +1048,7 @@ export default function Habits() {
                         >
                           {aiHabit.name}
                         </h2>
-                        <p className="flex items-center gap-1.5 text-xs text-[#C4B5FD]">
+                        <p className="flex items-center gap-1.5 text-xs text-accent-pale">
                           <Sparkles className="h-3.5 w-3.5 animate-[ai-twinkle_2.4s_ease-in-out_infinite] motion-reduce:animate-none" />
                           Разбор от GigaChat · {aiHabit.category}
                         </p>
@@ -1079,7 +1079,7 @@ export default function Habits() {
                   ) : !aiCurrent ? (
                     <div className="flex flex-col gap-3" aria-live="polite">
                       <p className="flex items-center gap-2 text-sm text-slate-400">
-                        <Sparkles className="h-4 w-4 animate-[ai-twinkle_1.6s_ease-in-out_infinite] text-[#8B5CF6] motion-reduce:animate-none" />
+                        <Sparkles className="h-4 w-4 animate-[ai-twinkle_1.6s_ease-in-out_infinite] text-accent motion-reduce:animate-none" />
                         Открываем разбор…
                       </p>
                       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -1112,7 +1112,7 @@ export default function Habits() {
 
                       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
                         <section className="animate-[ai-rise_0.5s_ease-out_both] rounded-2xl border border-rose-500/15 bg-rose-500/5 p-3.5 [animation-delay:60ms] motion-reduce:animate-none">
-                          <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-rose-300/80">
+                          <p className="mb-2 text-xs font-semibold text-rose-300/80">
                             Чем вредно
                           </p>
                           <ul className="flex flex-col gap-2">
@@ -1134,7 +1134,7 @@ export default function Habits() {
 
                         {aiCurrent.benefits.length > 0 && (
                           <section className="animate-[ai-rise_0.5s_ease-out_both] rounded-2xl border border-emerald-500/15 bg-emerald-500/5 p-3.5 [animation-delay:120ms] motion-reduce:animate-none">
-                            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-emerald-300/80">
+                            <p className="mb-2 text-xs font-semibold text-emerald-300/80">
                               Что изменится, если бросить
                             </p>
                             <ol className="flex flex-col gap-2">
@@ -1156,8 +1156,8 @@ export default function Habits() {
                         )}
 
                         {aiCurrent.steps.length > 0 && (
-                          <section className="animate-[ai-rise_0.5s_ease-out_both] rounded-2xl border border-[#6366F1]/20 bg-[#6366F1]/5 p-3.5 [animation-delay:180ms] motion-reduce:animate-none">
-                            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[#A5B4FC]/80">
+                          <section className="animate-[ai-rise_0.5s_ease-out_both] rounded-2xl border border-primary/20 bg-primary/5 p-3.5 [animation-delay:180ms] motion-reduce:animate-none">
+                            <p className="mb-2 text-xs font-semibold text-primary-soft/80">
                               План на неделю
                             </p>
                             <ol className="flex flex-col gap-2">
@@ -1166,7 +1166,7 @@ export default function Habits() {
                                   key={item}
                                   className="flex items-start gap-2.5 text-[13px] leading-snug text-slate-300"
                                 >
-                                  <span className="mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#6366F1]/25 text-[11px] font-bold tabular-nums text-[#C7D2FE]">
+                                  <span className="mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/25 text-[11px] font-bold tabular-nums text-primary-pale">
                                     {index + 1}
                                   </span>
                                   {item}
@@ -1178,7 +1178,7 @@ export default function Habits() {
 
                         {aiCurrent.facts.length > 0 && (
                           <section className="animate-[ai-rise_0.5s_ease-out_both] rounded-2xl border border-white/10 bg-white/3 p-3.5 [animation-delay:240ms] motion-reduce:animate-none">
-                            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                            <p className="mb-2 text-xs font-semibold text-slate-500">
                               Интересные факты
                             </p>
                             <ul className="flex flex-col gap-2">
@@ -1187,7 +1187,7 @@ export default function Habits() {
                                   key={item}
                                   className="flex gap-2 text-[13px] leading-snug text-slate-300"
                                 >
-                                  <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[#8B5CF6]" />
+                                  <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-accent" />
                                   {item}
                                 </li>
                               ))}
@@ -1197,7 +1197,7 @@ export default function Habits() {
 
                         {aiCurrent.triggers.length > 0 && (
                           <section className="animate-[ai-rise_0.5s_ease-out_both] rounded-2xl border border-white/10 bg-white/3 p-3.5 [animation-delay:300ms] motion-reduce:animate-none">
-                            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                            <p className="mb-2 text-xs font-semibold text-slate-500">
                               Когда тянет сильнее
                             </p>
                             <ul className="flex flex-wrap gap-1.5">
@@ -1215,7 +1215,7 @@ export default function Habits() {
 
                         {aiCurrent.alternatives.length > 0 && (
                           <section className="animate-[ai-rise_0.5s_ease-out_both] rounded-2xl border border-white/10 bg-white/3 p-3.5 [animation-delay:360ms] motion-reduce:animate-none">
-                            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                            <p className="mb-2 text-xs font-semibold text-slate-500">
                               Чем заменить
                             </p>
                             <ul className="flex flex-col gap-1.5">
@@ -1224,7 +1224,7 @@ export default function Habits() {
                                   key={item}
                                   className="flex items-start gap-2 text-[13px] leading-snug text-slate-300"
                                 >
-                                  <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#6366F1]" />
+                                  <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
                                   {item}
                                 </li>
                               ))}
@@ -1233,16 +1233,16 @@ export default function Habits() {
                         )}
                       </div>
 
-                      <div className="animate-[ai-rise_0.5s_ease-out_both] rounded-2xl border border-[#6366F1]/30 bg-linear-to-br from-[#6366F1]/20 to-[#8B5CF6]/10 p-4 shadow-[0_0_30px_-10px_rgba(139,92,246,0.6)] [animation-delay:420ms] motion-reduce:animate-none">
+                      <div className="animate-[ai-rise_0.5s_ease-out_both] rounded-2xl border border-primary/30 bg-linear-to-br from-primary/20 to-accent/10 p-4 shadow-[0_0_30px_-10px_rgba(139,92,246,0.6)] [animation-delay:420ms] motion-reduce:animate-none">
                         <div className="flex gap-3">
-                          <Flame className="mt-0.5 h-5 w-5 shrink-0 text-[#A78BFA]" />
+                          <Flame className="mt-0.5 h-5 w-5 shrink-0 text-accent-soft" />
                           <p className="text-sm leading-relaxed text-slate-100">
                             {aiCurrent.motivation}
                           </p>
                         </div>
                         {aiCurrent.tip && (
                           <p className="mt-3 flex gap-2.5 border-t border-white/10 pt-3 text-xs leading-relaxed text-slate-400">
-                            <Target className="mt-0.5 h-4 w-4 shrink-0 text-[#6366F1]" />
+                            <Target className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                             <span>
                               <span className="font-medium text-slate-300">
                                 Совет:{" "}

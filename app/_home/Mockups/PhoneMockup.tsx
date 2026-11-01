@@ -10,14 +10,14 @@ export default function PhoneMockup() {
 
   return (
     <div className="h-[432px] w-[214px] rounded-[40px] bg-[linear-gradient(160deg,#2c2546_0%,#151124_55%,#0c0916_100%)] p-[6px] shadow-[0_40px_70px_-25px_rgba(0,0,0,0.95),0_30px_60px_-20px_rgba(139,92,246,0.55),inset_0_1px_0_rgba(255,255,255,0.2)] [transform:perspective(1600px)_rotateY(-11deg)_rotateX(5deg)]">
-      <div className="relative isolate flex h-full w-full flex-col overflow-hidden rounded-[34px] bg-[#0B0F1A] px-4 pb-4 pt-2.5 text-white">
-        <div className="pointer-events-none absolute -right-20 -top-16 -z-10 h-56 w-56 rounded-full bg-[#8B5CF6]/25 blur-3xl" />
+      <div className="relative isolate flex h-full w-full flex-col overflow-hidden rounded-[34px] bg-ink px-4 pb-4 pt-2.5 text-white">
+        <div className="pointer-events-none absolute -right-20 -top-16 -z-10 h-56 w-56 rounded-full bg-accent/25 blur-3xl" />
         <div className="mk-shine pointer-events-none absolute inset-0 z-20" />
 
         <div className="mx-auto h-[18px] w-[70px] rounded-full bg-black ring-1 ring-white/6" />
 
         <div className="mt-3.5 flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#6366F1]/18 text-[#A5B4FC]">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/18 text-primary-soft">
             <Icon className="h-3.5 w-3.5" strokeWidth={2.4} />
           </span>
           <div className="leading-none">
@@ -95,8 +95,8 @@ export default function PhoneMockup() {
           })}
         </div>
 
-        <div className="mt-3 rounded-2xl border border-[#8B5CF6]/25 bg-[linear-gradient(135deg,rgba(99,102,241,0.16),rgba(139,92,246,0.06))] p-2.5">
-          <p className="flex items-center gap-1 text-[9px] font-semibold text-[#C4B5FD]">
+        <div className="mt-3 rounded-2xl border border-accent/25 bg-[linear-gradient(135deg,rgba(99,102,241,0.16),rgba(139,92,246,0.06))] p-2.5">
+          <p className="flex items-center gap-1 text-[9px] font-semibold text-accent-pale">
             <Sparkles className="h-3 w-3" strokeWidth={2.4} />
             Совет на сегодня
           </p>

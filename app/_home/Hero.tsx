@@ -20,14 +20,14 @@ export default function Hero() {
               </span>
             </h1>
             <p className="mt-6 max-w-136 text-[17px] leading-[1.65] text-slate-300/85 sm:mt-7 sm:text-lg">
-              Отмечай каждый день без срыва и смотри, как растёт твоя серия.
-              Трекер напомнит, посчитает прогресс и поддержит, когда будет
-              трудно.
+              Выбери, от чего хочешь отказаться, — трекер сам посчитает дни
+              без срыва, покажет серию и рекорд, а в трудный момент поддержит
+              дыхательной практикой и советами.
             </p>
 
             <Link
               href={HABITS_PATH}
-              className="group mt-9 flex w-full items-center justify-center gap-2.5 rounded-full bg-[#6366F1] px-8 py-4 text-base font-semibold text-white shadow-lg shadow-[#6366F1]/30 transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-[#5558E8] hover:shadow-xl hover:shadow-[#6366F1]/40 active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0F1A] sm:mt-10 sm:inline-flex sm:w-auto"
+              className="group mt-9 flex w-full items-center justify-center gap-2.5 rounded-full bg-primary px-8 py-4 text-base font-semibold text-white shadow-lg shadow-primary/30 transition duration-200 ease-out hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-xl hover:shadow-primary/40 active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:mt-10 sm:inline-flex sm:w-auto"
             >
               Сделать первый шаг
               <ArrowRight
@@ -48,11 +48,11 @@ export default function Hero() {
                     <li key={id}>
                       <Link
                         href={HABITS_PATH}
-                        className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 py-2 pl-3 pr-4 text-sm font-medium text-slate-200 transition duration-200 hover:border-[#8B5CF6]/50 hover:bg-[#8B5CF6]/15 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#A78BFA]"
+                        className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 py-2 pl-3 pr-4 text-sm font-medium text-slate-200 transition duration-200 hover:border-accent/50 hover:bg-accent/15 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-soft"
                       >
                         {Icon && (
                           <Icon
-                            className="h-4 w-4 text-[#A78BFA]"
+                            className="h-4 w-4 text-accent-soft"
                             strokeWidth={2}
                           />
                         )}
@@ -64,7 +64,7 @@ export default function Hero() {
                 <li>
                   <Link
                     href={HABITS_PATH}
-                    className="inline-flex items-center rounded-full px-3 py-2 text-sm font-medium text-slate-400 underline decoration-white/20 underline-offset-4 transition hover:text-white hover:decoration-[#A78BFA]"
+                    className="inline-flex items-center rounded-full px-3 py-2 text-sm font-medium text-slate-400 underline decoration-white/20 underline-offset-4 transition hover:text-white hover:decoration-accent-soft"
                   >
                     и ещё {catalog.length - popular.length}
                   </Link>

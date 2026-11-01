@@ -39,7 +39,7 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${rubik.variable} ${montserrat.variable} scroll-smooth`}
     >
-      <body className="font-sans bg-[#0B0F1A] text-white antialiased">
+      <body className="font-sans bg-ink text-white antialiased">
         <ServiceWorker />
         <Header />
         <Background />

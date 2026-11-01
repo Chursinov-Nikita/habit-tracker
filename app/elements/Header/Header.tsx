@@ -72,7 +72,7 @@ export default function Header() {
           aria-label="HabitTrack"
         >
           <Image src={asset("/logo.svg")} alt="" width={32} height={32} />
-          <span className="text-xl font-bold transition-colors group-hover:text-[#A78BFA]">
+          <span className="text-xl font-bold transition-colors group-hover:text-accent-soft">
             Трекер
           </span>
         </Link>
@@ -91,7 +91,7 @@ export default function Header() {
                 isActive(l.href) ? "text-white" : "text-white/70"
               }`}
             >
-              <span className="font-mono text-[10px] text-[#8B5CF6] transition-transform duration-200 group-hover:-translate-y-0.5">
+              <span className="font-mono text-[10px] text-accent transition-transform duration-200 group-hover:-translate-y-0.5">
                 {String(i + 1).padStart(2, "0")}
               </span>
               {l.label}
@@ -104,9 +104,9 @@ export default function Header() {
             href="/profile"
             aria-label="Профиль"
             aria-current={pathname.startsWith("/profile") ? "page" : undefined}
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-all duration-300 hover:border-[#8B5CF6]/60 hover:bg-[#8B5CF6]/15 hover:text-[#A78BFA] active:scale-95 ${
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-all duration-300 hover:border-accent/60 hover:bg-accent/15 hover:text-accent-soft active:scale-95 ${
               pathname.startsWith("/profile")
-                ? "border-[#8B5CF6]/60 bg-[#8B5CF6]/20 text-[#C4B5FD]"
+                ? "border-accent/60 bg-accent/20 text-accent-pale"
                 : "border-white/15 bg-white/5"
             }`}
           >
@@ -118,7 +118,7 @@ export default function Header() {
             aria-expanded={openMobileMenu}
             aria-controls="mobile-menu"
             aria-label={openMobileMenu ? "Закрыть меню" : "Открыть меню"}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 transition-all duration-300 hover:border-[#8B5CF6]/60 hover:bg-[#8B5CF6]/15 hover:text-[#A78BFA] active:scale-95 md:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 transition-all duration-300 hover:border-accent/60 hover:bg-accent/15 hover:text-accent-soft active:scale-95 md:hidden"
           >
             <span className="relative flex h-5 w-5 items-center justify-center">
               <Menu
@@ -144,7 +144,7 @@ export default function Header() {
         <nav
           id="mobile-menu"
           aria-label="Мобильная навигация"
-          className="absolute inset-x-6 top-full mt-3 origin-top animate-[fadeIn_0.2s_ease-out] overflow-hidden rounded-xl border border-[#8B5CF6]/30 bg-[#0B0F1A] md:hidden"
+          className="absolute inset-x-6 top-full mt-3 origin-top animate-[fadeIn_0.2s_ease-out] overflow-hidden rounded-xl border border-accent/30 bg-ink md:hidden"
         >
           {navLinks.map((l, i) => (
             <Link
@@ -152,12 +152,12 @@ export default function Header() {
               href={l.href}
               onClick={(e) => handleNavClick(e, l.href)}
               aria-current={isActive(l.href) ? "page" : undefined}
-              className={`group flex items-center justify-between border-b border-white/10 px-5 py-4 text-base font-semibold transition-colors last:border-b-0 hover:bg-[#8B5CF6] hover:text-white ${
-                isActive(l.href) ? "bg-[#8B5CF6]/15 text-white" : "text-white/90"
+              className={`group flex items-center justify-between border-b border-white/10 px-5 py-4 text-base font-semibold transition-colors last:border-b-0 hover:bg-accent hover:text-white ${
+                isActive(l.href) ? "bg-accent/15 text-white" : "text-white/90"
               }`}
             >
               <span className="flex items-baseline gap-3">
-                <span className="font-mono text-xs text-[#8B5CF6] transition-colors group-hover:text-white/70">
+                <span className="font-mono text-xs text-accent transition-colors group-hover:text-white/70">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 {l.label}

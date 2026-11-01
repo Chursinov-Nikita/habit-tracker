@@ -1,32 +1,32 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  Bell,
   ChartNoAxesColumn,
-  Star,
+  Sparkles,
   Target,
+  Wind,
 } from "lucide-react";
 
 const features = [
   {
-    title: "Постановка целей",
-    text: "Устанавливай цели и разбивай их на простые шаги, которые реально выполнить за день.",
+    title: "Цель в днях",
+    text: "Выбери срок — от недели до трёх месяцев. Кольцо прогресса покажет, сколько осталось.",
     Icon: Target,
   },
   {
-    title: "Аналитика прогресса",
-    text: "Серии, срывы и лучшие недели — вся статистика в одном месте и без лишних цифр.",
+    title: "Календарь и рекорды",
+    text: "Дни без срывов и срывы в календаре, серии и рекорды — всё видно с первого взгляда.",
     Icon: ChartNoAxesColumn,
   },
   {
-    title: "Напоминания",
-    text: "Трекер напомнит отметить день, чтобы серия не прервалась из-за забывчивости.",
-    Icon: Bell,
+    title: "Разбор от ИИ",
+    text: "Чем вредна привычка, что изменится, если бросить, и план на первую неделю.",
+    Icon: Sparkles,
   },
   {
-    title: "Мотивация",
-    text: "Достижения и поддержка в моменты, когда хочется сдаться больше всего.",
-    Icon: Star,
+    title: "Медитация и поддержка",
+    text: "Дыхательные практики, уровни и достижения помогают не сорваться в трудный момент.",
+    Icon: Wind,
   },
 ];
 
@@ -34,12 +34,12 @@ const steps = [
   {
     n: "1",
     title: "Выбери привычки",
-    text: "Отметь, от чего хочешь отказаться или что хочешь добавить в жизнь.",
+    text: "Возьми готовую из списка или создай свою и задай цель в днях.",
   },
   {
     n: "2",
-    title: "Отмечай каждый день",
-    text: "Одно касание вечером — и день засчитан в твою серию.",
+    title: "Держи серию",
+    text: "Дни без срыва засчитываются сами. Сорвался — отметь, рекорд сохранится.",
   },
   {
     n: "3",
@@ -72,7 +72,7 @@ export default function About() {
                 key={title}
                 className="grid grid-cols-[auto_1fr] gap-x-5 border-b border-white/10 py-7 sm:gap-x-7 sm:py-8"
               >
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#8B5CF6]/25 bg-[#8B5CF6]/10 text-[#A78BFA]">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-accent/25 bg-accent/10 text-accent-soft">
                   <Icon className="h-5 w-5" strokeWidth={1.8} />
                 </span>
                 <div>
@@ -99,14 +99,14 @@ export default function About() {
           <ol className="relative mt-12 grid gap-10 md:mt-16 md:grid-cols-3 md:gap-8">
             <span
               aria-hidden="true"
-              className="absolute bottom-24 left-6 top-6 w-px bg-linear-to-b from-[#8B5CF6] via-[#6366F1]/60 to-[#3B82F6]/40 md:bottom-auto md:left-6 md:right-[calc((100%-4rem)/3-1.5rem)] md:top-6 md:h-px md:w-auto md:bg-linear-to-r"
+              className="absolute bottom-24 left-6 top-6 w-px bg-linear-to-b from-accent via-primary/60 to-[#3B82F6]/40 md:bottom-auto md:left-6 md:right-[calc((100%-4rem)/3-1.5rem)] md:top-6 md:h-px md:w-auto md:bg-linear-to-r"
             />
             {steps.map((s) => (
               <li
                 key={s.n}
                 className="relative grid grid-cols-[auto_1fr] gap-x-5 md:block"
               >
-                <span className="relative flex h-12 w-12 items-center justify-center rounded-full border border-[#8B5CF6]/40 bg-[#0B0F1A] font-display text-lg font-semibold text-[#C4B5FD] shadow-[0_0_24px_-6px_rgba(139,92,246,0.7)]">
+                <span className="relative flex h-12 w-12 items-center justify-center rounded-full border border-accent/40 bg-ink font-display text-lg font-semibold text-accent-pale shadow-[0_0_24px_-6px_rgba(139,92,246,0.7)]">
                   {s.n}
                 </span>
                 <div className="md:mt-7 md:pr-6">
@@ -124,8 +124,8 @@ export default function About() {
       </section>
 
       <section className="mx-auto max-w-7xl px-6 pb-24 sm:pb-32">
-        <div className="relative isolate overflow-hidden rounded-[28px] border border-white/10 bg-[#111827]/60 px-6 py-14 text-center sm:px-12 sm:py-20">
-          <div className="pointer-events-none absolute left-1/2 top-0 -z-10 h-64 w-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#8B5CF6]/35 blur-[110px]" />
+        <div className="relative isolate overflow-hidden rounded-[28px] border border-white/10 bg-surface/60 px-6 py-14 text-center sm:px-12 sm:py-20">
+          <div className="pointer-events-none absolute left-1/2 top-0 -z-10 h-64 w-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/35 blur-[110px]" />
           <h2 className="mx-auto max-w-3xl text-balance font-display text-[32px] font-bold leading-[1.1] tracking-[-0.02em] sm:text-5xl">
             Сегодня — первый день новой жизни
           </h2>
@@ -135,7 +135,7 @@ export default function About() {
           </p>
           <Link
             href="/habits"
-            className="group mt-9 inline-flex items-center justify-center gap-3 rounded-full bg-white px-8 py-4 text-[15px] font-semibold text-[#0B0F1A] transition duration-300 hover:bg-[#EDE9FE] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#A78BFA]"
+            className="group mt-9 inline-flex items-center justify-center gap-3 rounded-full bg-white px-8 py-4 text-[15px] font-semibold text-ink transition duration-300 hover:bg-[#EDE9FE] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent-soft"
           >
             Начать серию
             <ArrowRight

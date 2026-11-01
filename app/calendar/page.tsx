@@ -108,7 +108,7 @@ export default function Calendar() {
       <div className="relative mx-auto flex w-full max-w-6xl flex-col lg:min-h-0 lg:flex-1">
         <div className="mb-10 text-center lg:mb-4 lg:shrink-0 lg:text-left">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm text-slate-300 backdrop-blur-xl lg:mb-2">
-            <CalendarDays className="h-4 w-4 text-indigo-400" />
+            <CalendarDays className="h-4 w-4 text-primary-soft" />
             Календарь
           </div>
           <h1 className="text-3xl font-bold tracking-tight sm:text-5xl lg:text-4xl">
@@ -140,14 +140,14 @@ export default function Calendar() {
                 </button>
                 <button
                   onClick={() => setCursor(new Date(year, month - 1, 1))}
-                  className="rounded-xl bg-[#6366F1] p-2 text-white transition hover:bg-[#5558E8] lg:p-1.5"
+                  className="rounded-xl bg-primary p-2 text-white transition hover:bg-primary-hover lg:p-1.5"
                   aria-label="Предыдущий месяц"
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </button>
                 <button
                   onClick={() => setCursor(new Date(year, month + 1, 1))}
-                  className="rounded-xl bg-[#6366F1] p-2 text-white transition hover:bg-[#5558E8] lg:p-1.5"
+                  className="rounded-xl bg-primary p-2 text-white transition hover:bg-primary-hover lg:p-1.5"
                   aria-label="Следующий месяц"
                 >
                   <ChevronRight className="h-5 w-5" />
@@ -159,7 +159,7 @@ export default function Calendar() {
               {weekDays.map((w) => (
                 <div
                   key={w}
-                  className="py-1 text-center text-xs font-medium uppercase tracking-wide text-slate-500 lg:py-0.5"
+                  className="py-1 text-center text-xs font-medium text-slate-500 lg:py-0.5"
                 >
                   {w}
                 </div>
@@ -183,7 +183,7 @@ export default function Calendar() {
                         : ok > 0
                           ? "border-emerald-500/30 bg-emerald-500/10"
                           : "border-white/5 bg-white/3"
-                    } ${c.key === selected ? "ring-2 ring-[#6366F1]" : "hover:bg-white/10"}`}
+                    } ${c.key === selected ? "ring-2 ring-primary" : "hover:bg-white/10"}`}
                   >
                     <span
                       className={`flex h-6 w-6 items-center justify-center rounded-full text-sm font-medium sm:h-7 sm:w-7 lg:h-6 lg:w-6 ${
@@ -215,7 +215,7 @@ export default function Calendar() {
           <aside className="flex flex-col gap-6 lg:min-h-0 lg:gap-3">
             <div className="grid grid-cols-2 gap-4 lg:shrink-0 lg:gap-3">
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl lg:p-3">
-                <p className="text-xs uppercase tracking-wide text-slate-500">
+                <p className="text-xs text-slate-500">
                   Без срывов
                 </p>
                 <p className="mt-2 text-3xl font-semibold text-emerald-400 lg:mt-1 lg:text-2xl">
@@ -223,7 +223,7 @@ export default function Calendar() {
                 </p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl lg:p-3">
-                <p className="text-xs uppercase tracking-wide text-slate-500">
+                <p className="text-xs text-slate-500">
                   Срывы
                 </p>
                 <p className="mt-2 text-3xl font-semibold text-red-400 lg:mt-1 lg:text-2xl">
@@ -243,7 +243,7 @@ export default function Calendar() {
                     Привычек пока нет
                     <Link
                       href={HABITS_PATH}
-                      className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-[#6366F1] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[#6366F1]/25 transition hover:bg-[#5558E8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 active:scale-[0.98]"
+                      className="mt-3 inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 active:scale-[0.98]"
                     >
                       <Plus className="h-4 w-4" />
                       Выбрать привычки

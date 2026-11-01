@@ -141,13 +141,13 @@ export default function Celebration({
         role="dialog"
         aria-modal="true"
         aria-labelledby="celebration-title"
-        className="relative w-full max-w-sm overflow-hidden rounded-3xl border border-[#8B5CF6]/40 bg-[#111827] px-6 pb-6 pt-8 text-center shadow-[0_0_80px_-20px_rgba(139,92,246,0.9)] animate-[cl-pop_0.5s_cubic-bezier(0.16,1,0.3,1)] motion-reduce:animate-none"
+        className="relative w-full max-w-sm overflow-hidden rounded-3xl border border-accent/40 bg-surface px-6 pb-6 pt-8 text-center shadow-[0_0_80px_-20px_rgba(139,92,246,0.9)] animate-[cl-pop_0.5s_cubic-bezier(0.16,1,0.3,1)] motion-reduce:animate-none"
       >
-        <div className="pointer-events-none absolute -top-24 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-[#8B5CF6]/35 blur-3xl animate-[cl-glow_2.4s_ease-in-out_infinite] motion-reduce:animate-none" />
+        <div className="pointer-events-none absolute -top-24 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-accent/35 blur-3xl animate-[cl-glow_2.4s_ease-in-out_infinite] motion-reduce:animate-none" />
         <span className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[linear-gradient(135deg,#FBBF24_0%,#F59E0B_45%,#8B5CF6_100%)] text-white shadow-[0_0_40px_-4px_rgba(251,191,36,0.7)] animate-[cl-badge_0.7s_cubic-bezier(0.34,1.56,0.64,1)_0.15s_both] motion-reduce:animate-none">
           <Icon className="h-10 w-10" />
         </span>
-        <p className="relative mt-5 text-xs font-semibold text-[#C4B5FD]">{eyebrow}</p>
+        <p className="relative mt-5 text-xs font-semibold text-accent-pale">{eyebrow}</p>
         <h2 id="celebration-title" className="relative mt-1 font-display text-2xl font-bold text-white">
           {title}
         </h2>
@@ -156,7 +156,7 @@ export default function Celebration({
           type="button"
           onClick={onClose}
           autoFocus
-          className="relative mt-6 w-full rounded-xl bg-[#6366F1] py-3 text-sm font-semibold text-white shadow-lg shadow-[#6366F1]/30 transition hover:bg-[#5558E8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A78BFA]/70 active:scale-[0.98]"
+          className="relative mt-6 w-full rounded-xl bg-primary py-3 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-soft/70 active:scale-[0.98]"
         >
           Продолжить
         </button>

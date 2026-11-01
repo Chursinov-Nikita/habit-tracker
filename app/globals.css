@@ -3,6 +3,16 @@
 @theme {
   --font-sans: var(--font-sans), system-ui, -apple-system, sans-serif;
   --font-display: var(--font-display), system-ui, -apple-system, sans-serif;
+
+  --color-primary: #6366F1;
+  --color-primary-hover: #5558E8;
+  --color-primary-soft: #A5B4FC;
+  --color-primary-pale: #C7D2FE;
+  --color-accent: #8B5CF6;
+  --color-accent-soft: #A78BFA;
+  --color-accent-pale: #C4B5FD;
+  --color-ink: #0B0F1A;
+  --color-surface: #111827;
 }
 
 html {

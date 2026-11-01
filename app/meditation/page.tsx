@@ -93,7 +93,7 @@ export default function Meditation() {
       <div className="relative mx-auto max-w-6xl">
         <div className="mb-10 text-center lg:mb-4 lg:text-left">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm text-slate-300 backdrop-blur-xl lg:mb-2">
-            <Wind className="h-4 w-4 text-indigo-400" />
+            <Wind className="h-4 w-4 text-primary-soft" />
             Релакс
           </div>
           <h1 className="text-3xl font-bold tracking-tight sm:text-5xl lg:text-4xl">
@@ -135,7 +135,7 @@ export default function Meditation() {
               </svg>
 
               <div
-                className={`h-[89%] w-[89%] rounded-full bg-linear-to-br from-indigo-500 via-violet-500 to-cyan-400 shadow-[0_0_80px_rgba(99,102,241,0.45)] transition-transform ease-in-out ${orbClass}`}
+                className={`h-[89%] w-[89%] rounded-full bg-linear-to-br from-primary via-violet-500 to-cyan-400 shadow-[0_0_80px_rgba(99,102,241,0.45)] transition-transform ease-in-out ${orbClass}`}
               />
 
               <div className="absolute flex flex-col items-center text-center">
@@ -179,7 +179,7 @@ export default function Meditation() {
                   }
                   setRunning((value) => !value);
                 }}
-                className="inline-flex items-center gap-2 rounded-full bg-indigo-500 px-8 py-3.5 font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:bg-indigo-400 active:scale-95 lg:py-3"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3.5 font-semibold text-white shadow-lg shadow-primary/30 transition hover:bg-primary-hover active:scale-95 lg:py-3"
               >
                 {running ? (
                   <Pause className="h-5 w-5" />
@@ -220,7 +220,7 @@ export default function Meditation() {
                     aria-pressed={index === techniqueIndex}
                     className={`rounded-2xl border px-4 py-3 text-left transition lg:py-2 ${
                       index === techniqueIndex
-                        ? "border-indigo-400/60 bg-indigo-500/15"
+                        ? "border-primary-soft/60 bg-primary/15"
                         : "border-white/10 bg-white/5 hover:bg-white/10"
                     }`}
                   >
@@ -248,7 +248,7 @@ export default function Meditation() {
                     aria-pressed={index === durationIndex}
                     className={`rounded-2xl border py-3 text-sm font-medium transition lg:py-2 ${
                       index === durationIndex
-                        ? "border-indigo-400/60 bg-indigo-500/15"
+                        ? "border-primary-soft/60 bg-primary/15"
                         : "border-white/10 bg-white/5 hover:bg-white/10"
                     }`}
                   >
@@ -264,7 +264,7 @@ export default function Meditation() {
               </h2>
               <div className="grid grid-cols-2 gap-3 lg:gap-2">
                 <div className="rounded-2xl bg-white/5 p-4 lg:flex lg:items-center lg:gap-3 lg:p-2.5">
-                  <Sparkles className="mb-2 h-5 w-5 text-indigo-400 lg:mb-0 lg:shrink-0" />
+                  <Sparkles className="mb-2 h-5 w-5 text-primary-soft lg:mb-0 lg:shrink-0" />
                   <div>
                     <div className="text-2xl font-bold tabular-nums lg:text-xl lg:leading-none">
                       {today.sessions}
@@ -275,7 +275,7 @@ export default function Meditation() {
                   </div>
                 </div>
                 <div className="rounded-2xl bg-white/5 p-4 lg:flex lg:items-center lg:gap-3 lg:p-2.5">
-                  <Clock className="mb-2 h-5 w-5 text-indigo-400 lg:mb-0 lg:shrink-0" />
+                  <Clock className="mb-2 h-5 w-5 text-primary-soft lg:mb-0 lg:shrink-0" />
                   <div>
                     <div className="text-2xl font-bold tabular-nums lg:text-xl lg:leading-none">
                       {today.minutes}

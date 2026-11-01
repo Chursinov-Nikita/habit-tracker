@@ -188,11 +188,11 @@ export default function Tracker() {
           <div>
             <div className="mb-4 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 py-1.5 pl-3 pr-4 text-sm text-slate-300 backdrop-blur lg:mb-2">
               <span className="flex gap-1">
-                <span className="h-1.5 w-6 rounded-full bg-[#6366F1]" />
-                <span className="h-1.5 w-6 rounded-full bg-[#6366F1]" />
+                <span className="h-1.5 w-6 rounded-full bg-primary" />
+                <span className="h-1.5 w-6 rounded-full bg-primary" />
               </span>
               <span className="flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-[#6366F1]" />
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
                 Шаг 2 из 2
               </span>
             </div>
@@ -206,7 +206,7 @@ export default function Tracker() {
           </div>
           <Link
             href={HABITS_PATH}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0F1A] active:scale-[0.98]"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink active:scale-[0.98]"
           >
             <ArrowLeft className="h-4 w-4" />
             Изменить привычки
@@ -226,7 +226,7 @@ export default function Tracker() {
             </p>
             <Link
               href={HABITS_PATH}
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#6366F1] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[#6366F1]/25 transition hover:bg-[#5558E8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70 active:scale-[0.98]"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 active:scale-[0.98]"
             >
               <Plus className="h-4 w-4" />
               Выбрать привычки
@@ -240,9 +240,9 @@ export default function Tracker() {
                 return (
                   <div
                     key={stat.label}
-                    className="flex items-center gap-4 rounded-2xl border border-white/10 bg-[#111827]/60 p-4 backdrop-blur lg:p-3"
+                    className="flex items-center gap-4 rounded-2xl border border-white/10 bg-surface/60 p-4 backdrop-blur lg:p-3"
                   >
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-[#6366F1]/25 to-[#8B5CF6]/10 text-[#A5B4FC] ring-1 ring-[#6366F1]/20 lg:h-10 lg:w-10">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-primary/25 to-accent/10 text-primary-soft ring-1 ring-primary/20 lg:h-10 lg:w-10">
                       <Icon className="h-5 w-5" />
                     </span>
                     <span className="min-w-0">
@@ -273,7 +273,7 @@ export default function Tracker() {
                     } ${
                       item.done
                         ? "border-emerald-500/30 bg-emerald-500/4 hover:border-emerald-500/50"
-                        : "border-white/10 bg-[#111827]/70 hover:border-[#6366F1]/40"
+                        : "border-white/10 bg-surface/70 hover:border-primary/40"
                     }`}
                   >
                     <div
@@ -333,7 +333,7 @@ export default function Tracker() {
                         >
                           {item.days}
                         </span>
-                        <span className="mt-0.5 text-[9px] font-medium uppercase leading-none tracking-wide text-slate-500">
+                        <span className="mt-0.5 text-[10px] font-medium leading-none text-slate-500">
                           из {item.goalDays}
                         </span>
                       </div>
@@ -345,7 +345,7 @@ export default function Tracker() {
                           className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
                             item.done
                               ? "bg-emerald-500/15 text-emerald-300"
-                              : "bg-[#6366F1]/15 text-[#6366F1]"
+                              : "bg-primary/15 text-primary"
                           }`}
                         >
                           <Icon className="h-4 w-4" />
@@ -388,7 +388,7 @@ export default function Tracker() {
                         <div className="flex shrink-0 items-center gap-1.5">
                           <button
                             onClick={() => openRelapse(item)}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-slate-300 transition hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-slate-300 transition hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
                           >
                             <RotateCcw className="h-3.5 w-3.5" />
                             Сорвался
@@ -397,7 +397,7 @@ export default function Tracker() {
                             onClick={() => openRemove(item)}
                             aria-label={`Убрать «${item.name}» из прогресса`}
                             title="Убрать из прогресса"
-                            className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-400 transition hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70"
+                            className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-400 transition hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
@@ -423,7 +423,7 @@ export default function Tracker() {
             aria-modal="true"
             aria-labelledby="remove-title"
             aria-describedby="remove-text"
-            className="w-full max-w-md rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-2xl shadow-black/50"
+            className="w-full max-w-md rounded-3xl border border-white/10 bg-surface p-6 shadow-2xl shadow-black/50"
           >
             <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/15 text-rose-400">
               <Trash2 className="h-6 w-6" />
@@ -442,7 +442,7 @@ export default function Tracker() {
               <button
                 onClick={() => setRemoveTarget(null)}
                 autoFocus
-                className="flex-1 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70"
+                className="flex-1 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
               >
                 Отмена
               </button>
@@ -479,7 +479,7 @@ export default function Tracker() {
             aria-modal="true"
             aria-labelledby="relapse-title"
             aria-describedby="relapse-text"
-            className="w-full max-w-md rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-2xl shadow-black/50"
+            className="w-full max-w-md rounded-3xl border border-white/10 bg-surface p-6 shadow-2xl shadow-black/50"
           >
             <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/15 text-rose-400">
               <RotateCcw className="h-6 w-6" />
@@ -509,7 +509,7 @@ export default function Tracker() {
               <button
                 onClick={() => setRelapseTarget(null)}
                 autoFocus
-                className="flex-1 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70"
+                className="flex-1 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
               >
                 Отмена
               </button>
