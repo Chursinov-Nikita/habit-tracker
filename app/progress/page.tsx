@@ -24,7 +24,6 @@ import {
   Flame,
   Plus,
   RotateCcw,
-  Target,
   Trash2,
   Trophy,
   PiggyBank,
@@ -161,8 +160,6 @@ export default function Tracker() {
     };
   });
 
-  const completed = items.filter((item) => item.best >= item.goalDays).length;
-  const best = items.reduce((max, item) => Math.max(max, item.best), 0);
   const few = items.length <= 2;
   const many = items.length > 6;
   const relapseItem = relapseTarget
@@ -199,20 +196,6 @@ export default function Tracker() {
     : undefined;
   const GoalIcon = goalReached ? (icons[goalReached.icon] ?? Trophy) : Trophy;
 
-  const stats = [
-    { label: "Привычек в работе", value: String(items.length), icon: Target },
-    {
-      label: "Лучшая серия",
-      value: `${best} ${plural(best)}`,
-      icon: Flame,
-    },
-    {
-      label: "Целей достигнуто",
-      value: `${completed} из ${items.length}`,
-      icon: Trophy,
-    },
-  ];
-
   return (
     <div
       className={`relative min-h-screen px-4 pb-16 pt-24 text-slate-100 sm:px-6 sm:pt-32 lg:flex lg:h-dvh lg:min-h-150 lg:flex-col lg:overflow-hidden lg:px-10 lg:pb-6 lg:pt-24`}
@@ -241,11 +224,7 @@ export default function Tracker() {
 
         {!hydrated ? (
           <div aria-hidden="true">
-            <div className="mb-5 grid grid-cols-3 gap-2 sm:mb-8 sm:gap-3 lg:mb-4">
-              {[0, 1, 2].map((tile) => (
-                <div key={tile} className="h-16 animate-pulse rounded-2xl bg-white/5 sm:h-20" />
-              ))}
-            </div>
+            <div className="mb-5 h-32 animate-pulse rounded-3xl bg-white/5 sm:mb-8 lg:mb-4" />
             <div className="grid gap-4 lg:grid-cols-2 lg:gap-3">
               {[0, 1].map((card) => (
                 <div key={card} className="h-32 animate-pulse rounded-3xl bg-white/5" />
@@ -317,30 +296,6 @@ export default function Tracker() {
                 </p>
               )}
             </section>
-
-            <div className="mb-5 grid grid-cols-3 gap-2 sm:mb-8 sm:gap-3 lg:mb-4 lg:shrink-0">
-              {stats.map((stat) => {
-                const Icon = stat.icon;
-                return (
-                  <div
-                    key={stat.label}
-                    className="flex min-w-0 flex-col gap-1 rounded-2xl border border-white/10 bg-surface/60 p-3 backdrop-blur sm:flex-row sm:items-center sm:gap-4 sm:p-4 lg:p-3"
-                  >
-                    <span className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-primary/25 sm:flex to-accent/10 text-primary-soft ring-1 ring-primary/20 lg:h-10 lg:w-10">
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block truncate text-lg font-semibold leading-none tabular-nums sm:text-xl">
-                        {stat.value}
-                      </span>
-                      <span className="mt-1 block text-[11px] leading-tight text-slate-500 sm:mt-1.5 sm:text-xs">
-                        {stat.label}
-                      </span>
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
 
             <div className="flex flex-col gap-5 lg:min-h-0 lg:flex-1 lg:gap-4 lg:overflow-y-auto lg:py-1 lg:pr-1">
               <ul
