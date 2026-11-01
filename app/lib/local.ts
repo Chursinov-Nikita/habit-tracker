@@ -197,6 +197,22 @@ export const stopTracking = () =>
     write(data);
   });
 
+export const untrackHabit = (key: string) =>
+  run(() => {
+    const data = read();
+    const habit = data.habits.find((h) => h.key === key);
+    if (!habit) return;
+    data.logs = data.logs.filter((l) => l.habitId !== habit.id);
+    Object.assign(habit, {
+      selected: false,
+      tracked: false,
+      startedAt: null,
+      best: 0,
+      relapses: 0,
+    });
+    write(data);
+  });
+
 export const deleteHabit = (key: string) =>
   run(() => {
     const data = read();

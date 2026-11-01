@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { icons, HABITS_PATH, DAY, RING, plural } from "@/app/habits/data";
 import { Tracked, Progress } from "@/app/habits/types";
-import { getHabits, relapse as saveRelapse } from "@/app/lib/local";
+import {
+  getHabits,
+  relapse as saveRelapse,
+  untrackHabit,
+} from "@/app/lib/local";
 import { sound } from "@/app/lib/sound";
 import { markCelebrated, readCelebrated } from "@/app/lib/celebrated";
 import Celebration from "@/app/elements/Celebration";
@@ -17,6 +21,7 @@ import {
   RotateCcw,
   Sparkles,
   Target,
+  Trash2,
   Trophy,
 } from "lucide-react";
 
@@ -26,6 +31,7 @@ export default function Tracker() {
   const [now, setNow] = useState(0);
   const [hydrated, setHydrated] = useState(false);
   const [relapseTarget, setRelapseTarget] = useState<Tracked | null>(null);
+  const [removeTarget, setRemoveTarget] = useState<Tracked | null>(null);
   const [relapsing, setRelapsing] = useState(false);
   const [relapseError, setRelapseError] = useState(false);
   const [celebrated, setCelebrated] = useState<Set<string> | null>(null);
@@ -67,9 +73,11 @@ export default function Tracker() {
   }, []);
 
   useEffect(() => {
-    if (!relapseTarget) return;
+    if (!relapseTarget && !removeTarget) return;
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setRelapseTarget(null);
+      if (e.key !== "Escape") return;
+      setRelapseTarget(null);
+      setRemoveTarget(null);
     };
     document.body.classList.add("overflow-hidden");
     window.addEventListener("keydown", onKeyDown);
@@ -77,7 +85,26 @@ export default function Tracker() {
       document.body.classList.remove("overflow-hidden");
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [relapseTarget]);
+  }, [relapseTarget, removeTarget]);
+
+  const openRemove = (habit: Tracked) => {
+    sound.tap();
+    setRemoveTarget(habit);
+  };
+
+  const remove = async (id: string) => {
+    try {
+      await untrackHabit(id);
+    } catch {}
+    sound.remove();
+    setRemoveTarget(null);
+    setTracked((prev) => prev.filter((habit) => habit.id !== id));
+    setProgress((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  };
 
   const openRelapse = (habit: Tracked) => {
     sound.tap();
@@ -346,8 +373,8 @@ export default function Tracker() {
                         {!item.done &&
                           ` · ещё ${item.left} ${plural(item.left)}`}
                       </p>
-                      <div className="mt-2.5 flex items-center justify-between gap-2">
-                        <p className="truncate text-xs text-slate-500">
+                      <div className="mt-2.5 flex flex-wrap items-center justify-between gap-x-2 gap-y-2">
+                        <p className="text-xs text-slate-500">
                           Рекорд{" "}
                           <span className="tabular-nums text-slate-300">
                             {item.best} {plural(item.best)}
@@ -358,13 +385,23 @@ export default function Tracker() {
                             {item.relapses}
                           </span>
                         </p>
-                        <button
-                          onClick={() => openRelapse(item)}
-                          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-slate-300 transition hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70"
-                        >
-                          <RotateCcw className="h-3.5 w-3.5" />
-                          Сорвался
-                        </button>
+                        <div className="flex shrink-0 items-center gap-1.5">
+                          <button
+                            onClick={() => openRelapse(item)}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-slate-300 transition hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70"
+                          >
+                            <RotateCcw className="h-3.5 w-3.5" />
+                            Сорвался
+                          </button>
+                          <button
+                            onClick={() => openRemove(item)}
+                            aria-label={`Убрать «${item.name}» из прогресса`}
+                            title="Убрать из прогресса"
+                            className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-400 transition hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </li>
@@ -375,7 +412,52 @@ export default function Tracker() {
         )}
       </div>
 
-      {goalReached && !relapseTarget && (
+      {removeTarget && (
+        <div
+          onClick={() => setRemoveTarget(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm sm:p-6"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="remove-title"
+            aria-describedby="remove-text"
+            className="w-full max-w-md rounded-3xl border border-white/10 bg-[#111827] p-6 shadow-2xl shadow-black/50"
+          >
+            <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/15 text-rose-400">
+              <Trash2 className="h-6 w-6" />
+            </span>
+            <h2 id="remove-title" className="wrap-break-word text-xl font-bold">
+              Убрать «{removeTarget.name}» из прогресса?
+            </h2>
+            <p
+              id="remove-text"
+              className="mt-2 text-sm leading-relaxed text-slate-400"
+            >
+              Серия, рекорд и отметки в календаре по этой привычке удалятся.
+              Сама привычка останется в списке — её можно выбрать снова.
+            </p>
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={() => setRemoveTarget(null)}
+                autoFocus
+                className="flex-1 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6366F1]/70"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={() => remove(removeTarget.id)}
+                className="flex-1 rounded-xl bg-rose-500 py-3 text-sm font-semibold text-white shadow-lg shadow-rose-500/25 transition hover:bg-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/70 active:scale-[0.98]"
+              >
+                Убрать
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {goalReached && !relapseTarget && !removeTarget && (
         <Celebration
           key={goalKey(goalReached)}
           icon={GoalIcon}
