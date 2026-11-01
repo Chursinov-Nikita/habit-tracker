@@ -1,6 +1,6 @@
-const CACHE = "tracker-v2";
+const CACHE = "tracker-v3";
 const BASE = new URL(self.registration.scope).pathname;
-const ROUTES = ["", "habits/", "progress/", "calendar/", "meditation/", "profile/"];
+const ROUTES = ["", "habits/", "progress/", "meditation/", "profile/"];
 const FILES = [
   "manifest.webmanifest",
   "logo.svg",

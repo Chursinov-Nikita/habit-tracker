@@ -454,7 +454,7 @@ export default function Habits() {
               </div>
             ) : (
               <div
-                className={`grid grid-cols-2 gap-2.5 sm:gap-3 xl:grid-cols-3 lg:min-h-0 lg:flex-1 lg:content-start lg:overflow-y-auto lg:py-1 lg:pr-1 ${scrollbar}`}
+                className={`grid grid-cols-3 gap-2 sm:grid-cols-2 sm:gap-3 xl:grid-cols-3 lg:min-h-0 lg:flex-1 lg:content-start lg:overflow-y-auto lg:py-1 lg:pr-1 ${scrollbar}`}
               >
                 {filtered.map((habit) => {
                   const Icon = icons[habit.icon] ?? Ban;
@@ -473,14 +473,14 @@ export default function Habits() {
                         }
                       }}
                       aria-pressed={active}
-                      className={`group relative flex min-w-0 cursor-pointer select-none flex-col items-start gap-2.5 overflow-hidden rounded-2xl border p-3 text-left sm:flex-row sm:items-center sm:gap-3.5 sm:p-4 backdrop-blur transition duration-200 before:absolute before:inset-x-6 before:top-0 before:h-px before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 active:scale-[0.98] lg:p-3 ${
+                      className={`group relative flex min-w-0 cursor-pointer select-none flex-col items-start gap-2 overflow-hidden rounded-2xl border p-2.5 text-left sm:flex-row sm:items-center sm:gap-3.5 sm:p-4 backdrop-blur transition duration-200 before:absolute before:inset-x-6 before:top-0 before:h-px before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 active:scale-[0.98] lg:p-3 ${
                         active
                           ? "border-primary/70 bg-primary/10 shadow-[0_10px_30px_-12px_rgba(99,102,241,0.6)]"
                           : "border-white/10 bg-surface/60 hover:-translate-y-0.5 hover:border-white/20 hover:bg-surface"
                       }`}
                     >
                       <span
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition duration-200 sm:h-12 sm:w-12 lg:h-10 lg:w-10 ${
+                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition duration-200 sm:h-12 sm:w-12 lg:h-10 lg:w-10 ${
                           active
                             ? "bg-primary text-white shadow-lg shadow-primary/30"
                             : "bg-white/5 text-primary group-hover:bg-primary/15"
@@ -489,10 +489,10 @@ export default function Habits() {
                         <Icon className="h-5 w-5 sm:h-6 sm:w-6 lg:h-5 lg:w-5" />
                       </span>
                       <span className="w-full min-w-0 sm:w-auto sm:flex-1">
-                        <span className="line-clamp-2 text-sm font-medium leading-snug text-slate-100 sm:block sm:truncate sm:text-base">
+                        <span className="line-clamp-2 hyphens-auto wrap-break-word text-xs font-medium leading-snug text-slate-100 sm:block sm:truncate sm:text-base">
                           {habit.name}
                         </span>
-                        <span className="mt-1 flex items-center gap-1.5 text-[11px] text-slate-500 sm:gap-2 sm:text-xs">
+                        <span className="mt-1 hidden items-center gap-1.5 text-[11px] text-slate-500 sm:flex sm:gap-2 sm:text-xs">
                           {habit.custom && (
                             <span className="rounded-md bg-primary/15 px-1.5 py-0.5 text-[11px] font-semibold text-primary-soft">
                               Своя
@@ -509,13 +509,13 @@ export default function Habits() {
                           }}
                           aria-label={`Удалить привычку ${habit.name}`}
                           title="Удалить привычку"
-                          className="absolute right-11 top-2.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-600 transition hover:bg-rose-500/15 hover:text-rose-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/70 sm:static"
+                          className="absolute right-9 top-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-600 transition hover:bg-rose-500/15 hover:text-rose-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/70 sm:static"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
                       )}
                       <span
-                        className={`absolute right-3 top-3 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition duration-200 sm:static ${
+                        className={`absolute right-2.5 top-2.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition duration-200 sm:static ${
                           active
                             ? "border-primary bg-primary text-white"
                             : "border-white/15 text-transparent group-hover:border-white/30"
@@ -578,7 +578,7 @@ export default function Habits() {
                 </div>
               ) : (
                 <ul
-                  className={`flex max-h-147.5 flex-col gap-2.5 overflow-y-auto pr-1 lg:max-h-none lg:min-h-0 lg:flex-1 lg:gap-2 ${scrollbar}`}
+                  className={`flex flex-col gap-2.5 lg:min-h-0 lg:flex-1 lg:gap-2 lg:overflow-y-auto lg:pr-1 ${scrollbar}`}
                 >
                   {selectedHabits.map((habit) => {
                     const Icon = icons[habit.icon] ?? Ban;

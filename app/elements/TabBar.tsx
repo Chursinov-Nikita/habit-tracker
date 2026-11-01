@@ -3,12 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, Flame, ListChecks, User, Wind } from "lucide-react";
+import { Flame, ListChecks, User, Wind } from "lucide-react";
 
 const tabs = [
   { href: "/progress", label: "Прогресс", Icon: Flame },
   { href: "/habits", label: "Привычки", Icon: ListChecks },
-  { href: "/calendar", label: "Календарь", Icon: CalendarDays },
   { href: "/meditation", label: "Медитация", Icon: Wind },
   { href: "/profile", label: "Профиль", Icon: User },
 ];
@@ -37,7 +36,7 @@ export default function TabBar() {
           {activeIndex >= 0 && (
             <li
               aria-hidden="true"
-              className="pointer-events-none absolute inset-y-0 left-0 flex w-1/5 justify-center pt-2 transition-transform duration-300 ease-[cubic-bezier(.32,.72,0,1)] motion-reduce:transition-none"
+              className="pointer-events-none absolute inset-y-0 left-0 flex w-1/4 justify-center pt-2 transition-transform duration-300 ease-[cubic-bezier(.32,.72,0,1)] motion-reduce:transition-none"
               style={{ transform: `translateX(${activeIndex * 100}%)` }}
             >
               <span className="h-7 w-12 rounded-full bg-primary/20" />

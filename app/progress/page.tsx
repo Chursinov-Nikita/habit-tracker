@@ -12,6 +12,7 @@ import {
   saveCost,
 } from "@/app/lib/local";
 import CostsSheet from "./CostsSheet";
+import MonthCalendar from "./MonthCalendar";
 import { defaultCosts, formatMoney, formatTime, type DailyCost } from "./data";
 import { sound } from "@/app/lib/sound";
 import { markCelebrated, readCelebrated } from "@/app/lib/celebrated";
@@ -38,6 +39,7 @@ export default function Tracker() {
   const [relapseTarget, setRelapseTarget] = useState<Tracked | null>(null);
   const [removeTarget, setRemoveTarget] = useState<Tracked | null>(null);
   const [relapsing, setRelapsing] = useState(false);
+  const [logsVersion, setLogsVersion] = useState(0);
   const [relapseError, setRelapseError] = useState(false);
   const [celebrated, setCelebrated] = useState<Set<string> | null>(null);
   const [costs, setCosts] = useState<Record<string, DailyCost>>({});
@@ -106,6 +108,7 @@ export default function Tracker() {
     } catch {}
     sound.remove();
     setRemoveTarget(null);
+    setLogsVersion((version) => version + 1);
     setTracked((prev) => prev.filter((habit) => habit.id !== id));
     setProgress((prev) => {
       const next = { ...prev };
@@ -134,6 +137,7 @@ export default function Tracker() {
       }));
       sound.relapse();
       setRelapseTarget(null);
+      setLogsVersion((version) => version + 1);
     } catch {
       setRelapseError(true);
     }
@@ -269,30 +273,6 @@ export default function Tracker() {
           </div>
         ) : (
           <>
-            <div className="mb-5 grid grid-cols-3 gap-2 sm:mb-8 sm:gap-3 lg:mb-4 lg:shrink-0">
-              {stats.map((stat) => {
-                const Icon = stat.icon;
-                return (
-                  <div
-                    key={stat.label}
-                    className="flex min-w-0 flex-col gap-1 rounded-2xl border border-white/10 bg-surface/60 p-3 backdrop-blur sm:flex-row sm:items-center sm:gap-4 sm:p-4 lg:p-3"
-                  >
-                    <span className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-primary/25 sm:flex to-accent/10 text-primary-soft ring-1 ring-primary/20 lg:h-10 lg:w-10">
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block truncate text-lg font-semibold leading-none tabular-nums sm:text-xl">
-                        {stat.value}
-                      </span>
-                      <span className="mt-1 block text-[11px] leading-tight text-slate-500 sm:mt-1.5 sm:text-xs">
-                        {stat.label}
-                      </span>
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-
             <section className="mb-5 rounded-3xl border border-emerald-400/20 bg-[linear-gradient(135deg,rgba(52,211,153,0.12),rgba(17,24,39,0.65)_60%)] p-4 sm:mb-8 lg:mb-4 lg:shrink-0">
               <div className="flex items-center justify-between gap-3">
                 <p className="flex items-center gap-2 text-sm font-semibold text-emerald-200">
@@ -338,156 +318,183 @@ export default function Tracker() {
               )}
             </section>
 
-            <ul
-              className={`grid gap-4 lg:min-h-0 lg:flex-1 lg:grid-cols-2 lg:content-start lg:gap-3 lg:overflow-y-auto lg:py-1 lg:pr-1 ${
-                many ? "xl:grid-cols-3" : ""
-              }`}
-            >
-              {items.map((item) => {
-                const Icon = icons[item.icon] ?? Ban;
+            <div className="mb-5 grid grid-cols-3 gap-2 sm:mb-8 sm:gap-3 lg:mb-4 lg:shrink-0">
+              {stats.map((stat) => {
+                const Icon = stat.icon;
                 return (
-                  <li
-                    key={item.id}
-                    className={`group relative flex items-center gap-4 overflow-hidden rounded-3xl border p-4 shadow-xl shadow-black/20 backdrop-blur-xl transition duration-200 before:absolute before:inset-x-8 before:top-0 before:h-px before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent hover:-translate-y-0.5 ${
-                      many ? "lg:gap-3 lg:p-3" : few ? "lg:p-6" : "lg:p-4"
-                    } ${
-                      item.done
-                        ? "border-emerald-500/30 bg-emerald-500/4 hover:border-emerald-500/50"
-                        : "border-white/10 bg-surface/70 hover:border-primary/40"
-                    }`}
+                  <div
+                    key={stat.label}
+                    className="flex min-w-0 flex-col gap-1 rounded-2xl border border-white/10 bg-surface/60 p-3 backdrop-blur sm:flex-row sm:items-center sm:gap-4 sm:p-4 lg:p-3"
                   >
-                    <div
-                      className={`relative h-16 w-16 shrink-0 ${
-                        many ? "lg:h-14 lg:w-14" : few ? "lg:h-24 lg:w-24" : ""
-                      }`}
-                    >
-                      <svg
-                        viewBox="0 0 64 64"
-                        className="h-full w-full -rotate-90"
-                        aria-hidden="true"
-                      >
-                        <defs>
-                          <linearGradient
-                            id={`ring-${item.id}`}
-                            x1="0"
-                            y1="0"
-                            x2="1"
-                            y2="1"
-                          >
-                            <stop
-                              offset="0%"
-                              stopColor={item.done ? "#34D399" : "#6366F1"}
-                            />
-                            <stop
-                              offset="100%"
-                              stopColor={item.done ? "#10B981" : "#A78BFA"}
-                            />
-                          </linearGradient>
-                        </defs>
-                        <circle
-                          cx="32"
-                          cy="32"
-                          r="26"
-                          fill="none"
-                          stroke="rgba(255,255,255,0.08)"
-                          strokeWidth="6"
-                        />
-                        <circle
-                          cx="32"
-                          cy="32"
-                          r="26"
-                          fill="none"
-                          stroke={`url(#ring-${item.id})`}
-                          strokeWidth="6"
-                          strokeLinecap="round"
-                          strokeDasharray={RING}
-                          strokeDashoffset={RING * (1 - item.percent / 100)}
-                          className="transition-[stroke-dashoffset] duration-700"
-                        />
-                      </svg>
-                      <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span
-                          className={`text-xl font-bold leading-none tabular-nums ${
-                            item.done ? "text-emerald-300" : "text-slate-100"
-                          } ${many ? "lg:text-lg" : few ? "lg:text-3xl" : ""}`}
-                        >
-                          {item.days}
-                        </span>
-                        <span className="mt-0.5 text-[10px] font-medium leading-none text-slate-500">
-                          из {item.goalDays}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
-                            item.done
-                              ? "bg-emerald-500/15 text-emerald-300"
-                              : "bg-primary/15 text-primary"
-                          }`}
-                        >
-                          <Icon className="h-4 w-4" />
-                        </span>
-                        <span className="min-w-0 flex-1 truncate font-medium text-slate-100">
-                          {item.name}
-                        </span>
-                        {item.done ? (
-                          <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-emerald-500/15 px-1.5 py-0.5 text-[11px] font-semibold text-emerald-300 ring-1 ring-emerald-500/30">
-                            <Check className="h-3 w-3" />
-                            Цель
-                          </span>
-                        ) : (
-                          <span className="shrink-0 text-sm font-semibold tabular-nums text-slate-300">
-                            {item.percent}%
-                          </span>
-                        )}
-                      </div>
-                      <p className="mt-1 truncate text-xs text-slate-500">
-                        {item.category} · с{" "}
-                        {new Date(item.startedAt).toLocaleDateString("ru-RU", {
-                          day: "numeric",
-                          month: "short",
-                        })}
-                        {!item.done &&
-                          ` · ещё ${item.left} ${plural(item.left)}`}
-                      </p>
-                      <div className="mt-2.5 flex flex-wrap items-center justify-between gap-x-2 gap-y-2">
-                        <p className="text-xs text-slate-500">
-                          Рекорд{" "}
-                          <span className="tabular-nums text-slate-300">
-                            {item.best} {plural(item.best)}
-                          </span>
-                          <span className="mx-1.5 text-slate-700">·</span>
-                          Срывов{" "}
-                          <span className="tabular-nums text-slate-300">
-                            {item.relapses}
-                          </span>
-                        </p>
-                        <div className="flex shrink-0 items-center gap-1.5">
-                          <button
-                            onClick={() => openRelapse(item)}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-slate-300 transition hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
-                          >
-                            <RotateCcw className="h-3.5 w-3.5" />
-                            Сорвался
-                          </button>
-                          <button
-                            onClick={() => openRemove(item)}
-                            aria-label={`Убрать «${item.name}» из прогресса`}
-                            title="Убрать из прогресса"
-                            className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-400 transition hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
+                    <span className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-primary/25 sm:flex to-accent/10 text-primary-soft ring-1 ring-primary/20 lg:h-10 lg:w-10">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-lg font-semibold leading-none tabular-nums sm:text-xl">
+                        {stat.value}
+                      </span>
+                      <span className="mt-1 block text-[11px] leading-tight text-slate-500 sm:mt-1.5 sm:text-xs">
+                        {stat.label}
+                      </span>
+                    </span>
+                  </div>
                 );
               })}
-            </ul>
+            </div>
+
+            <div className="flex flex-col gap-5 lg:min-h-0 lg:flex-1 lg:gap-4 lg:overflow-y-auto lg:py-1 lg:pr-1">
+              <ul
+                className={`grid gap-4 lg:grid-cols-2 lg:content-start lg:gap-3 ${
+                  many ? "xl:grid-cols-3" : ""
+                }`}
+              >
+                {items.map((item) => {
+                  const Icon = icons[item.icon] ?? Ban;
+                  return (
+                    <li
+                      key={item.id}
+                      className={`group relative flex items-center gap-4 overflow-hidden rounded-3xl border p-4 shadow-xl shadow-black/20 backdrop-blur-xl transition duration-200 before:absolute before:inset-x-8 before:top-0 before:h-px before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent hover:-translate-y-0.5 ${
+                        many ? "lg:gap-3 lg:p-3" : few ? "lg:p-6" : "lg:p-4"
+                      } ${
+                        item.done
+                          ? "border-emerald-500/30 bg-emerald-500/4 hover:border-emerald-500/50"
+                          : "border-white/10 bg-surface/70 hover:border-primary/40"
+                      }`}
+                    >
+                      <div
+                        className={`relative h-16 w-16 shrink-0 ${
+                          many ? "lg:h-14 lg:w-14" : few ? "lg:h-24 lg:w-24" : ""
+                        }`}
+                      >
+                        <svg
+                          viewBox="0 0 64 64"
+                          className="h-full w-full -rotate-90"
+                          aria-hidden="true"
+                        >
+                          <defs>
+                            <linearGradient
+                              id={`ring-${item.id}`}
+                              x1="0"
+                              y1="0"
+                              x2="1"
+                              y2="1"
+                            >
+                              <stop
+                                offset="0%"
+                                stopColor={item.done ? "#34D399" : "#6366F1"}
+                              />
+                              <stop
+                                offset="100%"
+                                stopColor={item.done ? "#10B981" : "#A78BFA"}
+                              />
+                            </linearGradient>
+                          </defs>
+                          <circle
+                            cx="32"
+                            cy="32"
+                            r="26"
+                            fill="none"
+                            stroke="rgba(255,255,255,0.08)"
+                            strokeWidth="6"
+                          />
+                          <circle
+                            cx="32"
+                            cy="32"
+                            r="26"
+                            fill="none"
+                            stroke={`url(#ring-${item.id})`}
+                            strokeWidth="6"
+                            strokeLinecap="round"
+                            strokeDasharray={RING}
+                            strokeDashoffset={RING * (1 - item.percent / 100)}
+                            className="transition-[stroke-dashoffset] duration-700"
+                          />
+                        </svg>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                          <span
+                            className={`text-xl font-bold leading-none tabular-nums ${
+                              item.done ? "text-emerald-300" : "text-slate-100"
+                            } ${many ? "lg:text-lg" : few ? "lg:text-3xl" : ""}`}
+                          >
+                            {item.days}
+                          </span>
+                          <span className="mt-0.5 text-[10px] font-medium leading-none text-slate-500">
+                            из {item.goalDays}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
+                              item.done
+                                ? "bg-emerald-500/15 text-emerald-300"
+                                : "bg-primary/15 text-primary"
+                            }`}
+                          >
+                            <Icon className="h-4 w-4" />
+                          </span>
+                          <span className="min-w-0 flex-1 truncate font-medium text-slate-100">
+                            {item.name}
+                          </span>
+                          {item.done ? (
+                            <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-emerald-500/15 px-1.5 py-0.5 text-[11px] font-semibold text-emerald-300 ring-1 ring-emerald-500/30">
+                              <Check className="h-3 w-3" />
+                              Цель
+                            </span>
+                          ) : (
+                            <span className="shrink-0 text-sm font-semibold tabular-nums text-slate-300">
+                              {item.percent}%
+                            </span>
+                          )}
+                        </div>
+                        <p className="mt-1 truncate text-xs text-slate-500">
+                          {item.category} · с{" "}
+                          {new Date(item.startedAt).toLocaleDateString("ru-RU", {
+                            day: "numeric",
+                            month: "short",
+                          })}
+                          {!item.done &&
+                            ` · ещё ${item.left} ${plural(item.left)}`}
+                        </p>
+                        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-x-2 gap-y-2">
+                          <p className="text-xs text-slate-500">
+                            Рекорд{" "}
+                            <span className="tabular-nums text-slate-300">
+                              {item.best} {plural(item.best)}
+                            </span>
+                            <span className="mx-1.5 text-slate-700">·</span>
+                            Срывов{" "}
+                            <span className="tabular-nums text-slate-300">
+                              {item.relapses}
+                            </span>
+                          </p>
+                          <div className="flex shrink-0 items-center gap-1.5">
+                            <button
+                              onClick={() => openRelapse(item)}
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-slate-300 transition hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
+                            >
+                              <RotateCcw className="h-3.5 w-3.5" />
+                              Сорвался
+                            </button>
+                            <button
+                              onClick={() => openRemove(item)}
+                              aria-label={`Убрать «${item.name}» из прогресса`}
+                              title="Убрать из прогресса"
+                              className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-400 transition hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+              <MonthCalendar version={logsVersion} />
+            </div>
           </>
         )}
       </div>

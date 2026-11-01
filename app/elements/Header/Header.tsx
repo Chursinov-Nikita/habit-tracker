@@ -10,7 +10,6 @@ import { asset } from "@/app/lib/asset";
 const navLinks = [
   { label: "Привычки", href: "/habits", match: ["/habits", "/progress"] },
   { label: "Медитация", href: "/meditation", match: ["/meditation"] },
-  { label: "Календарь", href: "/calendar", match: ["/calendar"] },
   { label: "О нас", href: "/#about", match: [] },
 ];
 

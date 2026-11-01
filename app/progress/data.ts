@@ -26,3 +26,8 @@ export const formatTime = (minutes: number) => {
   const hours = minutes / 60;
   return hours < 100 ? `${hours.toFixed(hours < 10 ? 1 : 0).replace(".0", "")} ч` : `${Math.round(hours)} ч`;
 };
+
+export const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+
+export const toKey = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
