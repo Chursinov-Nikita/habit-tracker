@@ -13,6 +13,7 @@ import {
   pickerIcons,
   icons,
   DAY,
+  plural,
   TRACKER_PATH,
 } from "./data";
 import { type AiInfo, getAi, hasAi } from "./ai";
@@ -451,7 +452,7 @@ export default function Habits() {
                 {selectedHabits.length > 0 && (
                   <button
                     onClick={() => setClearOpen(true)}
-                    className="ml-3 rounded-lg px-1.5 py-0.5 text-slate-500 underline-offset-2 transition hover:bg-white/5 hover:text-slate-200"
+                    className="-my-2 ml-2 rounded-lg px-2 py-2 text-slate-500 transition hover:bg-white/5 hover:text-slate-200"
                   >
                     Очистить
                   </button>
@@ -459,7 +460,16 @@ export default function Habits() {
               </p>
             </div>
 
-            {filtered.length === 0 ? (
+            {!hydrated ? (
+              <div
+                aria-hidden="true"
+                className="grid grid-cols-2 gap-2.5 max-[340px]:grid-cols-1 sm:gap-3 lg:grid-cols-3 xl:grid-cols-4"
+              >
+                {catalog.map((habit) => (
+                  <div key={habit.id} className="h-16 animate-pulse rounded-2xl bg-white/5" />
+                ))}
+              </div>
+            ) : filtered.length === 0 ? (
               <div className="flex flex-col items-center rounded-3xl border border-dashed border-white/10 bg-white/3 px-6 py-16 text-center lg:min-h-0 lg:flex-1 lg:justify-center lg:py-8">
                 <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-slate-500">
                   <Search className="h-7 w-7" />
@@ -489,11 +499,12 @@ export default function Habits() {
               </div>
             ) : (
               <div
-                className={`grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3 xl:grid-cols-4 lg:min-h-0 lg:flex-1 lg:content-start lg:overflow-y-auto lg:py-1 lg:pr-1 ${scrollbar}`}
+                className={`grid grid-cols-2 gap-2.5 max-[340px]:grid-cols-1 sm:gap-3 lg:grid-cols-3 xl:grid-cols-4 lg:min-h-0 lg:flex-1 lg:content-start lg:overflow-y-auto lg:py-1 lg:pr-1 ${scrollbar}`}
               >
                 {filtered.map((habit) => {
                   const Icon = icons[habit.icon] ?? Ban;
                   const active = selected.includes(habit.id);
+                  const goal = goals[habit.id] ?? 30;
                   return (
                     <div
                       key={habit.id}
@@ -512,53 +523,48 @@ export default function Habits() {
                         }
                       }}
                       aria-haspopup="dialog"
-                      className={`group relative flex min-w-0 cursor-pointer select-none flex-col items-start gap-2.5 overflow-hidden rounded-2xl border p-3 text-left sm:flex-row sm:items-center sm:gap-3.5 sm:p-4 backdrop-blur transition duration-200 before:absolute before:inset-x-6 before:top-0 before:h-px before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 active:scale-[0.98] lg:p-3 ${
+                      aria-label={
                         active
-                          ? "border-primary/70 bg-primary/10 shadow-[0_10px_30px_-12px_rgba(99,102,241,0.6)]"
-                          : "border-white/10 bg-surface/60 hover:-translate-y-0.5 hover:border-white/20 hover:bg-surface"
+                          ? `${habit.name}, выбрано, цель ${goal} ${plural(goal)}`
+                          : habit.name
+                      }
+                      className={`group flex min-h-16 min-w-0 cursor-pointer select-none items-center gap-2 rounded-2xl border p-2 text-left backdrop-blur transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink active:scale-[0.98] sm:gap-3 sm:p-3 ${
+                        active
+                          ? "border-primary bg-primary shadow-lg shadow-primary/25 hover:bg-primary-hover"
+                          : "border-white/10 bg-surface/60 hover:border-white/20 hover:bg-surface"
                       }`}
                     >
                       <span
-                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition duration-200 sm:h-12 sm:w-12 lg:h-10 lg:w-10 ${
+                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition duration-200 sm:h-10 sm:w-10 sm:rounded-xl ${
                           active
-                            ? "bg-primary text-white shadow-lg shadow-primary/30"
+                            ? "bg-white/20 text-white"
                             : "bg-white/5 text-primary group-hover:bg-primary/15"
                         }`}
                       >
-                        <Icon className="h-5 w-5 sm:h-6 sm:w-6 lg:h-5 lg:w-5" />
+                        <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                       </span>
-                      <span className="w-full min-w-0 sm:w-auto sm:flex-1">
-                        <span className="line-clamp-2 hyphens-auto wrap-break-word text-sm font-medium leading-snug text-slate-100 sm:block sm:truncate sm:text-base">
-                          {habit.name}
-                        </span>
-                        <span className="mt-1 flex items-center gap-1.5 text-[11px] text-slate-500 sm:gap-2 sm:text-xs">
-                          {habit.custom && (
-                            <span className="rounded-md bg-primary/15 px-1.5 py-0.5 text-[11px] font-semibold text-primary-soft">
-                              Своя
-                            </span>
-                          )}
-                          {habit.category}
-                        </span>
-                      </span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggle(habit.id);
-                        }}
-                        aria-pressed={active}
-                        aria-label={`Выбрать привычку ${habit.name}`}
-                        className="absolute right-1.5 top-1.5 shrink-0 rounded-full p-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 sm:static sm:p-0"
-                      >
+                      <span className="min-w-0 flex-1">
                         <span
-                          className={`flex h-6 w-6 items-center justify-center rounded-full border transition duration-200 ${
-                            active
-                              ? "border-primary bg-primary text-white"
-                              : "border-white/15 text-transparent group-hover:border-white/30"
+                          className={`line-clamp-3 hyphens-auto wrap-break-word text-[13px] font-medium leading-snug tracking-tight sm:text-sm sm:tracking-normal ${
+                            active ? "text-white" : "text-slate-100"
                           }`}
                         >
-                          <Check className="h-3.5 w-3.5" />
+                          {habit.name}
                         </span>
-                      </button>
+                        {active ? (
+                          <span className="mt-0.5 block text-xs tabular-nums text-primary-pale">
+                            {goal} {plural(goal)}
+                          </span>
+                        ) : habit.custom ? (
+                          <span className="mt-0.5 block text-xs text-primary-soft">
+                            Своя
+                          </span>
+                        ) : (
+                          <span className="mt-0.5 hidden text-xs text-slate-500 sm:block">
+                            {habit.category}
+                          </span>
+                        )}
+                      </span>
                     </div>
                   );
                 })}

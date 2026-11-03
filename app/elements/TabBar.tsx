@@ -14,15 +14,18 @@ const tabs = [
 
 export default function TabBar() {
   const pathname = usePathname();
-  const [pending, setPending] = useState<{ href: string; from: string } | null>(null);
+  const [pending, setPending] = useState<string | null>(null);
+  const [lastPathname, setLastPathname] = useState(pathname);
+
+  if (pathname !== lastPathname) {
+    setLastPathname(pathname);
+    setPending(null);
+  }
 
   if (pathname === "/") return null;
 
   const current = tabs.findIndex((tab) => pathname.startsWith(tab.href));
-  const pendingIndex =
-    pending && pending.from === pathname
-      ? tabs.findIndex((tab) => tab.href === pending.href)
-      : -1;
+  const pendingIndex = tabs.findIndex((tab) => tab.href === pending);
   const activeIndex = pendingIndex >= 0 ? pendingIndex : current;
 
   return (
@@ -49,7 +52,7 @@ export default function TabBar() {
                 <Link
                   href={href}
                   onClick={() => {
-                    if (index !== current) setPending({ href, from: pathname });
+                    if (index !== current) setPending(href);
                   }}
                   aria-current={index === current ? "page" : undefined}
                   className="flex h-full flex-col items-center justify-start gap-1 pt-2 text-[11px] font-medium [-webkit-tap-highlight-color:transparent]"

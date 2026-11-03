@@ -263,7 +263,7 @@ export default function Tracker() {
                     sound.tap();
                     setCostsOpen(true);
                   }}
-                  className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-slate-400 transition hover:bg-white/5 hover:text-slate-200"
+                  className="-my-1.5 -mr-2 inline-flex items-center gap-1.5 rounded-lg px-2 py-2.5 text-xs text-slate-400 transition hover:bg-white/5 hover:text-slate-200"
                 >
                   <SlidersHorizontal className="h-3.5 w-3.5" />
                   Настроить
@@ -390,7 +390,7 @@ export default function Tracker() {
                           >
                             <Icon className="h-4 w-4" />
                           </span>
-                          <span className="min-w-0 flex-1 truncate font-medium text-slate-100">
+                          <span className="line-clamp-2 min-w-0 flex-1 font-medium leading-snug text-slate-100">
                             {item.name}
                           </span>
                           {item.done ? (
@@ -404,7 +404,7 @@ export default function Tracker() {
                             </span>
                           )}
                         </div>
-                        <p className="mt-1 truncate text-xs text-slate-500">
+                        <p className="mt-1 text-xs text-slate-500">
                           {item.category} · с{" "}
                           {new Date(item.startedAt).toLocaleDateString("ru-RU", {
                             day: "numeric",
@@ -428,7 +428,7 @@ export default function Tracker() {
                           <div className="flex shrink-0 items-center gap-1.5">
                             <button
                               onClick={() => openRelapse(item)}
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-slate-300 transition hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
+                              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-slate-300 transition hover:border-rose-500/40 sm:min-h-0 hover:bg-rose-500/10 hover:text-rose-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
                             >
                               <RotateCcw className="h-3.5 w-3.5" />
                               Сорвался
@@ -437,7 +437,7 @@ export default function Tracker() {
                               onClick={() => openRemove(item)}
                               aria-label={`Убрать «${item.name}» из прогресса`}
                               title="Убрать из прогресса"
-                              className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-400 transition hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
+                              className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-slate-400 sm:h-7 sm:w-7 transition hover:border-rose-500/40 hover:bg-rose-500/10 hover:text-rose-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                             </button>

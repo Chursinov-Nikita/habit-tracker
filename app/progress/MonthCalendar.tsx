@@ -65,7 +65,7 @@ export default function MonthCalendar({ version }: { version: number }) {
   }`;
 
   return (
-    <section className="rounded-3xl border border-white/10 bg-surface/70 p-4 backdrop-blur-xl lg:max-w-xl">
+    <section className="rounded-3xl border border-white/10 bg-surface/70 p-4 backdrop-blur-xl max-w-xl">
       <div className="mb-3 flex items-center justify-between gap-3">
         <p className="flex items-center gap-2 text-sm font-semibold text-slate-200">
           <CalendarDays className="h-4 w-4 text-primary-soft" />
@@ -77,21 +77,21 @@ export default function MonthCalendar({ version }: { version: number }) {
               onClick={() =>
                 setCursor(new Date(today.getFullYear(), today.getMonth(), 1))
               }
-              className="rounded-lg px-2 py-1 text-xs text-slate-400 transition hover:bg-white/5 hover:text-slate-200"
+              className="rounded-lg px-2 py-2 text-xs text-slate-400 transition hover:bg-white/5 hover:text-slate-200"
             >
               Сегодня
             </button>
           )}
           <button
             onClick={() => setCursor(new Date(year, month - 1, 1))}
-            className="rounded-lg p-1.5 text-slate-300 transition hover:bg-white/10"
+            className="rounded-lg p-2 text-slate-300 transition hover:bg-white/10"
             aria-label="Предыдущий месяц"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
           <button
             onClick={() => setCursor(new Date(year, month + 1, 1))}
-            className="rounded-lg p-1.5 text-slate-300 transition hover:bg-white/10"
+            className="rounded-lg p-2 text-slate-300 transition hover:bg-white/10"
             aria-label="Следующий месяц"
           >
             <ChevronRight className="h-4 w-4" />

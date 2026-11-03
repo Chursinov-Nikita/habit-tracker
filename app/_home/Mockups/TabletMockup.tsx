@@ -28,7 +28,7 @@ export default function TabletMockup() {
           <div className="flex items-center gap-3.5 text-[9.5px] font-semibold text-white/45">
             <span>Привычки</span>
             <span>Медитация</span>
-            <span className="text-white">Календарь</span>
+            <span className="text-white">Прогресс</span>
           </div>
           <span className="h-5 w-5 rounded-full bg-[linear-gradient(135deg,#6366F1,#A78BFA)] ring-1 ring-white/20" />
         </div>

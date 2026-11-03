@@ -61,7 +61,9 @@ const play = (notes: Note[], vibrate?: number | number[]) => {
         osc.stop(start + length + 0.02);
       });
     }
-    if (vibrate && "vibrate" in navigator) navigator.vibrate(vibrate);
+    if (vibrate && "vibrate" in navigator && navigator.userActivation?.hasBeenActive) {
+      navigator.vibrate(vibrate);
+    }
   } catch {}
 };
 

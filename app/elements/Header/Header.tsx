@@ -8,7 +8,8 @@ import Image from "next/image";
 import { asset } from "@/app/lib/asset";
 
 const navLinks = [
-  { label: "Привычки", href: "/habits", match: ["/habits", "/progress"] },
+  { label: "Прогресс", href: "/progress", match: ["/progress"] },
+  { label: "Привычки", href: "/habits", match: ["/habits"] },
   { label: "Медитация", href: "/meditation", match: ["/meditation"] },
   { label: "О нас", href: "/#about", match: [] },
 ];

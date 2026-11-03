@@ -236,7 +236,7 @@ export default function Profile() {
                       <button
                         type="button"
                         onClick={downloadBackup}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-primary/15 px-3 py-1.5 text-xs font-semibold text-primary-pale ring-1 ring-primary/30 transition hover:bg-primary/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
+                        className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-primary/15 px-3 py-1.5 text-xs sm:min-h-0 font-semibold text-primary-pale ring-1 ring-primary/30 transition hover:bg-primary/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
                       >
                         <Download className="h-3.5 w-3.5" />
                         Копия
@@ -244,7 +244,7 @@ export default function Profile() {
                       <button
                         type="button"
                         onClick={() => fileInput.current?.click()}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300 ring-1 ring-white/10 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
+                        className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-white/5 px-3 py-1.5 text-xs sm:min-h-0 font-semibold text-slate-300 ring-1 ring-white/10 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
                       >
                         <Upload className="h-3.5 w-3.5" />
                         Восстановить
@@ -254,7 +254,7 @@ export default function Profile() {
                         onClick={toggleSound}
                         aria-pressed={soundOn}
                         aria-label={soundOn ? "Звук включён" : "Звук выключен"}
-                        className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold ring-1 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 ${
+                        className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold ring-1 transition sm:min-h-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 ${
                           soundOn
                             ? "bg-emerald-400/10 text-emerald-300 ring-emerald-400/30 hover:bg-emerald-400/20"
                             : "bg-white/5 text-slate-400 ring-white/10 hover:bg-white/10"
@@ -328,7 +328,7 @@ export default function Profile() {
                         <Icon className="h-5 w-5" />
                       </span>
                       <span className="min-w-0">
-                        <span className="block truncate text-lg font-semibold leading-none tabular-nums">
+                        <span className="block text-lg font-semibold leading-tight tabular-nums">
                           {stat.value}
                         </span>
                         <span className="mt-1 block text-[11px] leading-tight text-slate-500">
