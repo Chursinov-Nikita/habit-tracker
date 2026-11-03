@@ -1,4 +1,5 @@
 import { dayKey, daysBetween } from "./days";
+import { MAX_GOAL_DAYS, MAX_HELD_DAYS } from "@/app/habits/data";
 import type { ServerHabit } from "@/app/habits/types";
 
 const KEY = "habittrack:offline:v1";
@@ -24,6 +25,7 @@ export type HabitDraft = {
   custom: boolean;
   selected: boolean;
   goalDays: number;
+  heldDays?: number;
 };
 
 export type LocalStats = {
@@ -126,13 +128,20 @@ export const saveHabits = (draft: string) =>
 
     input.forEach((h) => {
       const goalDays =
-        Number.isInteger(h.goalDays) && h.goalDays > 0 && h.goalDays <= 365
+        Number.isInteger(h.goalDays) && h.goalDays > 0 && h.goalDays <= MAX_GOAL_DAYS
           ? h.goalDays
           : 30;
+      const pendingHeld =
+        Number.isInteger(h.heldDays) &&
+        h.heldDays! >= 0 &&
+        h.heldDays! <= MAX_HELD_DAYS
+          ? h.heldDays
+          : undefined;
       const existing = data.habits.find((item) => item.key === h.key);
       if (existing) {
         existing.selected = h.selected === true;
         existing.goalDays = goalDays;
+        existing.pendingHeld = pendingHeld;
         return;
       }
       data.habits.push({
@@ -149,12 +158,24 @@ export const saveHabits = (draft: string) =>
         startedAt: null,
         best: 0,
         relapses: 0,
+        pendingHeld,
         createdAt: new Date().toISOString(),
       });
     });
 
     write(data);
   });
+
+const moveStart = (data: Data, habit: StoredHabit, heldDays: number) => {
+  const started = new Date(Date.now() - heldDays * DAY);
+  const startDay = dayKey(started, tz());
+  habit.startedAt = started.toISOString();
+  data.logs = data.logs.filter(
+    (log) =>
+      log.habitId !== habit.id ||
+      (log.completed ? log.day >= startDay : log.day <= startDay),
+  );
+};
 
 export const startTracking = () =>
   run(() => {
@@ -178,6 +199,8 @@ export const startTracking = () =>
           relapses: 0,
         });
       }
+      if (h.selected && h.pendingHeld !== undefined) moveStart(data, h, h.pendingHeld);
+      delete h.pendingHeld;
     });
     write(data);
   });

@@ -12,6 +12,7 @@ import {
   goalOptions,
   pickerIcons,
   icons,
+  DAY,
   TRACKER_PATH,
 } from "./data";
 import { type AiInfo, getAi, hasAi } from "./ai";
@@ -43,6 +44,8 @@ export default function Habits() {
   const [selected, setSelected] = useState<string[]>([]);
   const [custom, setCustom] = useState<Habit[]>([]);
   const [goals, setGoals] = useState<Record<string, number>>({});
+  const [heldNow, setHeldNow] = useState<Record<string, number>>({});
+  const [heldEdits, setHeldEdits] = useState<Record<string, number>>({});
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("Все");
   const [modalOpen, setModalOpen] = useState(false);
@@ -98,6 +101,18 @@ export default function Habits() {
           nextGoals[row.key] = row.goalDays;
         });
         const trackedRows = rows.filter((row) => row.tracked);
+        const nextHeldNow: Record<string, number> = {};
+        const nextHeldEdits: Record<string, number> = {};
+        rows.forEach((row) => {
+          if (row.tracked && row.startedAt) {
+            nextHeldNow[row.key] = Math.floor(
+              (Date.now() - new Date(row.startedAt).getTime()) / DAY,
+            );
+          }
+          if (row.pendingHeld !== undefined) nextHeldEdits[row.key] = row.pendingHeld;
+        });
+        setHeldNow(nextHeldNow);
+        setHeldEdits(nextHeldEdits);
         setCustom(storedCustom);
         setSelected(selectedKeys);
         setGoals(nextGoals);
@@ -106,7 +121,10 @@ export default function Habits() {
           trackedRows.length > 0 &&
             trackedRows.length === selectedKeys.length &&
             trackedRows.every(
-              (row) => row.selected && row.trackedGoal === row.goalDays,
+              (row) =>
+                row.selected &&
+                row.trackedGoal === row.goalDays &&
+                row.pendingHeld === undefined,
             ),
         );
         loaded.current = true;
@@ -125,6 +143,7 @@ export default function Habits() {
         custom: true,
         selected: selected.includes(habit.id),
         goalDays: goals[habit.id] ?? 30,
+        heldDays: heldEdits[habit.id],
       })),
       ...catalog
         .filter((habit) => selected.includes(habit.id))
@@ -136,6 +155,7 @@ export default function Habits() {
           custom: false,
           selected: true,
           goalDays: goals[habit.id] ?? 30,
+          heldDays: heldEdits[habit.id],
         })),
     ],
   });
@@ -237,6 +257,8 @@ export default function Habits() {
     sound.remove();
     setSaved(false);
     setSelected([]);
+    setHeldNow({});
+    setHeldEdits({});
     setClearOpen(false);
     setTrackedCount(0);
     try {
@@ -311,7 +333,9 @@ export default function Habits() {
     ? "Сохраняем…"
     : saved
       ? "Сохранено"
-      : "Начать отслеживать";
+      : trackedCount > 0
+        ? "Сохранить"
+        : "Начать отслеживать";
 
   return (
     <div
@@ -770,6 +794,16 @@ export default function Habits() {
           onGoal={(days) => {
             if (selected.includes(detailHabit.id)) setSaved(false);
             setGoals((prev) => ({ ...prev, [detailHabit.id]: days }));
+          }}
+          held={heldEdits[detailHabit.id] ?? heldNow[detailHabit.id] ?? 0}
+          onHeld={(days) => {
+            if (selected.includes(detailHabit.id)) setSaved(false);
+            setHeldEdits((prev) => {
+              const next = { ...prev };
+              if (days === (heldNow[detailHabit.id] ?? 0)) delete next[detailHabit.id];
+              else next[detailHabit.id] = days;
+              return next;
+            });
           }}
           onToggle={() => {
             toggle(detailHabit.id);

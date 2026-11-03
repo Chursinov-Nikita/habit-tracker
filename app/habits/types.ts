@@ -34,4 +34,5 @@ export type ServerHabit = {
   startedAt: string | null;
   best: number;
   relapses: number;
+  pendingHeld?: number;
 };

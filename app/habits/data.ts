@@ -83,6 +83,8 @@ export const categories = [
 export const formCategories = ["Здоровье", "Питание", "Цифровое", "Финансы", "Общение"];
 
 export const goalOptions = [7, 14, 30, 66, 90];
+export const MAX_GOAL_DAYS = 365;
+export const MAX_HELD_DAYS = 3650;
 
 export const pickerIcons = [
   "ban",
