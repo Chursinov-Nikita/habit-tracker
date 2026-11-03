@@ -130,18 +130,19 @@ export default function MonthCalendar({ version }: { version: number }) {
         ))}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
-        <span>За {monthName}:</span>
-        <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-emerald-400" />
-          <span className="tabular-nums text-slate-200">{cleanDays.size}</span>
-          {plural(cleanDays.size)} без срывов
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-red-400" />
-          <span className="tabular-nums text-slate-200">{failedDays.size}</span>
-          {plural(failedDays.size)} со срывом
-        </span>
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <div className="rounded-xl bg-emerald-500/10 px-3 py-2">
+          <p className="text-lg font-semibold leading-tight tabular-nums text-emerald-300">
+            {cleanDays.size} {plural(cleanDays.size)}
+          </p>
+          <p className="text-[11px] text-slate-400">без срывов</p>
+        </div>
+        <div className="rounded-xl bg-red-500/10 px-3 py-2">
+          <p className="text-lg font-semibold leading-tight tabular-nums text-red-300">
+            {failedDays.size} {plural(failedDays.size)}
+          </p>
+          <p className="text-[11px] text-slate-400">со срывом</p>
+        </div>
       </div>
     </section>
   );
