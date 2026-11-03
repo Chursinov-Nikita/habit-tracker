@@ -8,6 +8,7 @@ import {
   Gamepad2,
   Hand,
   Hourglass,
+  MessageCircleOff,
   Moon,
   Pizza,
   ShoppingBag,
@@ -66,6 +67,7 @@ export const catalog: Habit[] = [
     category: "Финансы",
     icon: "bag",
   },
+  { id: "swearing", name: "Маты", category: "Общение", icon: "speech" },
 ];
 
 export const categories = [
@@ -74,10 +76,11 @@ export const categories = [
   "Питание",
   "Цифровое",
   "Финансы",
+  "Общение",
   "Свои",
 ];
 
-export const formCategories = ["Здоровье", "Питание", "Цифровое", "Финансы"];
+export const formCategories = ["Здоровье", "Питание", "Цифровое", "Финансы", "Общение"];
 
 export const goalOptions = [7, 14, 30, 66, 90];
 
@@ -115,6 +118,7 @@ export const icons: Record<string, typeof Ban> = {
   hand: Hand,
   hourglass: Hourglass,
   moon: Moon,
+  speech: MessageCircleOff,
   pizza: Pizza,
   bag: ShoppingBag,
   phone: Smartphone,

@@ -16,6 +16,7 @@ export const defaultCosts: Record<string, DailyCost> = {
   series: { money: 0, minutes: 120 },
   procrastination: { money: 0, minutes: 90 },
   impulse: { money: 500, minutes: 15 },
+  swearing: { money: 0, minutes: 0 },
 };
 
 export const formatMoney = (value: number) =>
