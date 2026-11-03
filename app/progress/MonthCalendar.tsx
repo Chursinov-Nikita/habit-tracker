@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { weekDays, toKey } from "./data";
+import { plural } from "@/app/habits/data";
 import { getLogs } from "@/app/lib/local";
 
 type HabitLog = {
@@ -40,30 +41,21 @@ export default function MonthCalendar({ version }: { version: number }) {
     };
   }, [monthKey, version]);
 
-  const logsByDay = useMemo(() => {
-    const map: Record<string, HabitLog[]> = {};
-    logs.forEach((log) => {
-      (map[log.date.slice(0, 10)] ||= []).push(log);
-    });
-    return map;
-  }, [logs]);
+  const failedDays = new Set(
+    logs.filter((log) => !log.completed).map((log) => log.date.slice(0, 10)),
+  );
+  const cleanDays = new Set(
+    logs
+      .map((log) => log.date.slice(0, 10))
+      .filter((day) => day < todayKey && !failedDays.has(day)),
+  );
 
-  const cells = useMemo(() => {
-    const offset = (new Date(year, month, 1).getDay() + 6) % 7;
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const total = Math.ceil((offset + daysInMonth) / 7) * 7;
-    return Array.from({ length: total }, (_, i) => {
-      const date = new Date(year, month, i - offset + 1);
-      return {
-        key: toKey(date),
-        day: date.getDate(),
-        inMonth: date.getMonth() === month,
-      };
-    });
-  }, [year, month]);
-
-  const successCount = logs.filter((log) => log.completed).length;
-  const failCount = logs.length - successCount;
+  const leadingBlanks = (new Date(year, month, 1).getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const cells = Array.from({ length: daysInMonth }, (_, i) => ({
+    key: toKey(new Date(year, month, i + 1)),
+    day: i + 1,
+  }));
 
   const monthName = new Intl.DateTimeFormat("ru-RU", { month: "long" }).format(
     cursor,
@@ -119,37 +111,36 @@ export default function MonthCalendar({ version }: { version: number }) {
       </div>
 
       <div className="grid grid-cols-7 gap-1">
-        {cells.map((cell) => {
-          const dayLogs = logsByDay[cell.key] ?? [];
-          const ok = dayLogs.filter((log) => log.completed).length;
-          const fail = dayLogs.length - ok;
-          return (
-            <div
-              key={cell.key}
-              className={`flex aspect-square items-center justify-center rounded-lg text-xs font-medium tabular-nums ${
-                cell.inMonth ? "text-slate-200" : "text-slate-600"
-              } ${
-                fail > 0
-                  ? "bg-red-500/20 text-red-200"
-                  : ok > 0
-                    ? "bg-emerald-500/15 text-emerald-200"
-                    : "bg-white/3"
-              } ${cell.key === todayKey ? "ring-2 ring-primary" : ""}`}
-            >
-              {cell.day}
-            </div>
-          );
-        })}
+        {Array.from({ length: leadingBlanks }, (_, i) => (
+          <div key={i} aria-hidden="true" />
+        ))}
+        {cells.map((cell) => (
+          <div
+            key={cell.key}
+            className={`flex aspect-square items-center justify-center rounded-lg text-xs font-medium tabular-nums ${
+              failedDays.has(cell.key)
+                ? "bg-red-500/20 text-red-200"
+                : cleanDays.has(cell.key)
+                  ? "bg-emerald-500/15 text-emerald-200"
+                  : "bg-white/3 text-slate-200"
+            } ${cell.key === todayKey ? "ring-2 ring-primary" : ""}`}
+          >
+            {cell.day}
+          </div>
+        ))}
       </div>
 
-      <div className="mt-3 flex items-center gap-4 text-xs text-slate-400">
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
+        <span>За {monthName}:</span>
         <span className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full bg-emerald-400" />
-          Без срывов: <span className="tabular-nums text-slate-200">{successCount}</span>
+          <span className="tabular-nums text-slate-200">{cleanDays.size}</span>
+          {plural(cleanDays.size)} без срывов
         </span>
         <span className="flex items-center gap-1.5">
           <span className="h-2 w-2 rounded-full bg-red-400" />
-          Срывы: <span className="tabular-nums text-slate-200">{failCount}</span>
+          <span className="tabular-nums text-slate-200">{failedDays.size}</span>
+          {plural(failedDays.size)} со срывом
         </span>
       </div>
     </section>

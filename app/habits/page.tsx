@@ -419,7 +419,7 @@ export default function Habits() {
                 <span className="mx-2 text-slate-700">·</span>
                 Выбрано:{" "}
                 <span className="tabular-nums text-slate-300">
-                  {selectedHabits.length}
+                  {hydrated ? selectedHabits.length : "–"}
                 </span>
               </p>
             </div>
@@ -674,7 +674,7 @@ export default function Habits() {
               <button
                 onClick={save}
                 disabled={selectedHabits.length === 0 || saving}
-                className={`mt-5 hidden w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/5 disabled:text-slate-600 disabled:shadow-none lg:mt-3 lg:flex lg:shrink-0 lg:py-3 ${
+                className={`mt-5 hidden w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/5 disabled:text-slate-600 disabled:shadow-none lg:mt-3 lg:flex lg:shrink-0 lg:py-3 ${hydrated ? "" : "invisible"} ${
                   saved
                     ? "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30"
                     : "bg-primary text-white shadow-lg shadow-primary/25 hover:bg-primary-hover"
@@ -693,7 +693,7 @@ export default function Habits() {
       </div>
 
       <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 flex items-center gap-4 border-t border-white/10 bg-ink/85 px-4 py-3 backdrop-blur-xl sm:px-6 md:bottom-0 lg:hidden">
-        <div className="min-w-0 flex-1">
+        <div className={`min-w-0 flex-1 ${hydrated ? "" : "invisible"}`}>
           <p className={` text-xl font-semibold leading-none tabular-nums`}>
             {selectedHabits.length}
           </p>
@@ -706,7 +706,7 @@ export default function Habits() {
         <button
           onClick={save}
           disabled={selectedHabits.length === 0 || saving}
-          className={`flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/5 disabled:text-slate-600 disabled:shadow-none ${
+          className={`flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/5 disabled:text-slate-600 disabled:shadow-none ${hydrated ? "" : "invisible"} ${
             saved
               ? "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30"
               : "bg-primary text-white shadow-lg shadow-primary/25 hover:bg-primary-hover"

@@ -285,7 +285,7 @@ export default function Profile() {
                         С нами с{" "}
                         {new Date(profile.createdAt).toLocaleDateString(
                           "ru-RU",
-                          { month: "long", year: "numeric" },
+                          { day: "numeric", month: "long", year: "numeric" },
                         )}
                       </span>
                     </div>
