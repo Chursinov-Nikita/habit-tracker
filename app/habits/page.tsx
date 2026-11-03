@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Habit } from "./types";
+import HabitSheet from "./HabitSheet";
 import {
   catalog,
   categories,
@@ -54,6 +55,7 @@ export default function Habits() {
   const [trackedCount, setTrackedCount] = useState(0);
   const [clearOpen, setClearOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Habit | null>(null);
+  const [detailHabit, setDetailHabit] = useState<Habit | null>(null);
   const [aiHabit, setAiHabit] = useState<Habit | null>(null);
   const [aiClosing, setAiClosing] = useState(false);
   const [aiInfo, setAiInfo] = useState<Record<string, AiInfo>>({});
@@ -153,13 +155,14 @@ export default function Habits() {
   }, [hydrated, draft]);
 
   useEffect(() => {
-    if (!modalOpen && !clearOpen && !aiHabit && !deleteTarget) return;
+    if (!modalOpen && !clearOpen && !aiHabit && !deleteTarget && !detailHabit) return;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setModalOpen(false);
         setClearOpen(false);
         setDeleteTarget(null);
         if (aiHabit) closeAi();
+        else setDetailHabit(null);
       }
     };
     document.body.classList.add("overflow-hidden");
@@ -168,7 +171,7 @@ export default function Habits() {
       document.body.classList.remove("overflow-hidden");
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [modalOpen, clearOpen, aiHabit, deleteTarget, closeAi]);
+  }, [modalOpen, clearOpen, aiHabit, deleteTarget, detailHabit, closeAi]);
 
   const all = [...catalog, ...custom];
 
@@ -312,7 +315,7 @@ export default function Habits() {
 
   return (
     <div
-      className={`relative min-h-screen px-4 pb-28 pt-24 text-slate-100 sm:px-6 sm:pt-32 lg:flex lg:h-dvh lg:min-h-150 lg:flex-col lg:overflow-hidden lg:px-10 lg:pb-6 lg:pt-24`}
+      className={`relative min-h-screen px-4 pb-28 pt-24 text-slate-100 sm:px-6 sm:pt-32 lg:flex lg:h-dvh lg:min-h-150 lg:flex-col lg:overflow-hidden lg:px-10 lg:pb-24 lg:pt-24`}
     >
       <style>{`
         @keyframes ai-fade{from{opacity:0}to{opacity:1}}
@@ -362,7 +365,7 @@ export default function Habits() {
           </div>
         </div>
 
-        <div className="grid gap-8 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_400px] lg:grid-rows-[minmax(0,1fr)] lg:gap-6">
+        <div className="grid lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)]">
           <section className="min-w-0 lg:flex lg:min-h-0 lg:flex-col">
             <div className="mb-5 flex flex-col gap-4 lg:mb-3 lg:shrink-0 lg:gap-3">
               <div className="relative">
@@ -421,6 +424,14 @@ export default function Habits() {
                 <span className="tabular-nums text-slate-300">
                   {hydrated ? selectedHabits.length : "–"}
                 </span>
+                {selectedHabits.length > 0 && (
+                  <button
+                    onClick={() => setClearOpen(true)}
+                    className="ml-3 rounded-lg px-1.5 py-0.5 text-slate-500 underline-offset-2 transition hover:bg-white/5 hover:text-slate-200"
+                  >
+                    Очистить
+                  </button>
+                )}
               </p>
             </div>
 
@@ -454,7 +465,7 @@ export default function Habits() {
               </div>
             ) : (
               <div
-                className={`grid grid-cols-3 gap-2 sm:grid-cols-2 sm:gap-3 xl:grid-cols-3 lg:min-h-0 lg:flex-1 lg:content-start lg:overflow-y-auto lg:py-1 lg:pr-1 ${scrollbar}`}
+                className={`grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3 xl:grid-cols-4 lg:min-h-0 lg:flex-1 lg:content-start lg:overflow-y-auto lg:py-1 lg:pr-1 ${scrollbar}`}
               >
                 {filtered.map((habit) => {
                   const Icon = icons[habit.icon] ?? Ban;
@@ -464,23 +475,27 @@ export default function Habits() {
                       key={habit.id}
                       role="button"
                       tabIndex={0}
-                      onClick={() => toggle(habit.id)}
+                      onClick={() => {
+                        sound.tap();
+                        setDetailHabit(habit);
+                      }}
                       onKeyDown={(e) => {
                         if (e.target !== e.currentTarget) return;
                         if (e.key === "Enter" || e.key === " ") {
                           e.preventDefault();
-                          toggle(habit.id);
+                          sound.tap();
+                          setDetailHabit(habit);
                         }
                       }}
-                      aria-pressed={active}
-                      className={`group relative flex min-w-0 cursor-pointer select-none flex-col items-start gap-2 overflow-hidden rounded-2xl border p-2.5 text-left sm:flex-row sm:items-center sm:gap-3.5 sm:p-4 backdrop-blur transition duration-200 before:absolute before:inset-x-6 before:top-0 before:h-px before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 active:scale-[0.98] lg:p-3 ${
+                      aria-haspopup="dialog"
+                      className={`group relative flex min-w-0 cursor-pointer select-none flex-col items-start gap-2.5 overflow-hidden rounded-2xl border p-3 text-left sm:flex-row sm:items-center sm:gap-3.5 sm:p-4 backdrop-blur transition duration-200 before:absolute before:inset-x-6 before:top-0 before:h-px before:bg-linear-to-r before:from-transparent before:via-white/25 before:to-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 active:scale-[0.98] lg:p-3 ${
                         active
                           ? "border-primary/70 bg-primary/10 shadow-[0_10px_30px_-12px_rgba(99,102,241,0.6)]"
                           : "border-white/10 bg-surface/60 hover:-translate-y-0.5 hover:border-white/20 hover:bg-surface"
                       }`}
                     >
                       <span
-                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition duration-200 sm:h-12 sm:w-12 lg:h-10 lg:w-10 ${
+                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition duration-200 sm:h-12 sm:w-12 lg:h-10 lg:w-10 ${
                           active
                             ? "bg-primary text-white shadow-lg shadow-primary/30"
                             : "bg-white/5 text-primary group-hover:bg-primary/15"
@@ -489,10 +504,10 @@ export default function Habits() {
                         <Icon className="h-5 w-5 sm:h-6 sm:w-6 lg:h-5 lg:w-5" />
                       </span>
                       <span className="w-full min-w-0 sm:w-auto sm:flex-1">
-                        <span className="line-clamp-2 hyphens-auto wrap-break-word text-xs font-medium leading-snug text-slate-100 sm:block sm:truncate sm:text-base">
+                        <span className="line-clamp-2 hyphens-auto wrap-break-word text-sm font-medium leading-snug text-slate-100 sm:block sm:truncate sm:text-base">
                           {habit.name}
                         </span>
-                        <span className="mt-1 hidden items-center gap-1.5 text-[11px] text-slate-500 sm:flex sm:gap-2 sm:text-xs">
+                        <span className="mt-1 flex items-center gap-1.5 text-[11px] text-slate-500 sm:gap-2 sm:text-xs">
                           {habit.custom && (
                             <span className="rounded-md bg-primary/15 px-1.5 py-0.5 text-[11px] font-semibold text-primary-soft">
                               Своя
@@ -501,198 +516,35 @@ export default function Habits() {
                           {habit.category}
                         </span>
                       </span>
-                      {habit.custom && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setDeleteTarget(habit);
-                          }}
-                          aria-label={`Удалить привычку ${habit.name}`}
-                          title="Удалить привычку"
-                          className="absolute right-9 top-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-slate-600 transition hover:bg-rose-500/15 hover:text-rose-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/70 sm:static"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      )}
-                      <span
-                        className={`absolute right-2.5 top-2.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition duration-200 sm:static ${
-                          active
-                            ? "border-primary bg-primary text-white"
-                            : "border-white/15 text-transparent group-hover:border-white/30"
-                        }`}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggle(habit.id);
+                        }}
+                        aria-pressed={active}
+                        aria-label={`Выбрать привычку ${habit.name}`}
+                        className="absolute right-1.5 top-1.5 shrink-0 rounded-full p-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 sm:static sm:p-0"
                       >
-                        <Check className="h-3.5 w-3.5" />
-                      </span>
+                        <span
+                          className={`flex h-6 w-6 items-center justify-center rounded-full border transition duration-200 ${
+                            active
+                              ? "border-primary bg-primary text-white"
+                              : "border-white/15 text-transparent group-hover:border-white/30"
+                          }`}
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                        </span>
+                      </button>
                     </div>
                   );
                 })}
               </div>
             )}
           </section>
-
-          <aside className="min-w-0 lg:flex lg:min-h-0 lg:flex-col">
-            <div className="rounded-3xl border border-white/10 bg-surface/70 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:p-4">
-              <div className="mb-5 flex items-center justify-between gap-3 lg:mb-3 lg:shrink-0">
-                <h2
-                  className={` flex items-center gap-3 text-lg font-semibold`}
-                >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/15 text-primary">
-                    <Target className="h-5 w-5" />
-                  </span>
-                  Мои привычки
-                </h2>
-                <div className="flex items-center gap-2">
-                  {selectedHabits.length > 0 && (
-                    <button
-                      onClick={() => setClearOpen(true)}
-                      className="rounded-lg px-2 py-1 text-xs text-slate-500 transition hover:bg-white/5 hover:text-slate-200"
-                    >
-                      Очистить
-                    </button>
-                  )}
-                  <span
-                    className={` min-w-8 rounded-lg bg-white/5 px-2.5 py-1 text-center text-sm font-semibold tabular-nums text-slate-300`}
-                  >
-                    {selectedHabits.length}
-                  </span>
-                </div>
-              </div>
-
-              {!hydrated ? (
-                <div aria-hidden="true" className="flex flex-col gap-2.5 lg:gap-2">
-                  {[0, 1, 2].map((row) => (
-                    <div key={row} className="h-24 animate-pulse rounded-2xl bg-white/5 lg:h-20" />
-                  ))}
-                </div>
-              ) : selectedHabits.length === 0 ? (
-                <div className="flex flex-col items-center rounded-2xl border border-dashed border-white/10 px-4 py-12 text-center lg:flex-1 lg:justify-center lg:py-6">
-                  <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-slate-600">
-                    <Flame className="h-6 w-6" />
-                  </span>
-                  <p className="text-sm text-slate-300">
-                    Пока ничего не выбрано
-                  </p>
-                  <p className="mt-1 max-w-55 text-xs leading-relaxed text-slate-500">
-                    Нажми на карточку слева, чтобы добавить привычку
-                  </p>
-                </div>
-              ) : (
-                <ul
-                  className={`flex flex-col gap-2.5 lg:min-h-0 lg:flex-1 lg:gap-2 lg:overflow-y-auto lg:pr-1 ${scrollbar}`}
-                >
-                  {selectedHabits.map((habit) => {
-                    const Icon = icons[habit.icon] ?? Ban;
-                    return (
-                      <li
-                        key={habit.id}
-                        className="rounded-2xl border border-white/10 bg-white/3 p-3 lg:p-2.5"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary">
-                            <Icon className="h-5 w-5" />
-                          </span>
-                          <span className="min-w-0 flex-1">
-                            <span className="block truncate text-sm font-medium">
-                              {habit.name}
-                            </span>
-                            <span className="block text-xs text-slate-500">
-                              {habit.category}
-                            </span>
-                          </span>
-                          <div className="flex items-center gap-0.5">
-                            {hasAi(habit.id) && (
-                              <button
-                                onClick={() => askAi(habit)}
-                                aria-label="Узнать подробнее о вреде"
-                                title="Узнать подробнее о вреде"
-                                className="mr-1 inline-flex min-w-14 items-center justify-center gap-1 rounded-lg bg-linear-to-r from-primary/25 to-accent/25 px-2 py-1 text-[11px] font-semibold text-accent-pale shadow-[0_0_14px_-4px_rgba(139,92,246,0.8)] ring-1 ring-accent/30 transition hover:from-primary/40 hover:to-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 active:scale-95"
-                              >
-                                <Sparkles className="h-3.5 w-3.5" />
-                                ИИ
-                              </button>
-                            )}
-                            {habit.custom && (
-                              <button
-                                onClick={() => setDeleteTarget(habit)}
-                                aria-label="Удалить привычку навсегда"
-                                title="Удалить привычку навсегда"
-                                className="rounded-lg p-1.5 text-slate-500 transition hover:bg-rose-500/10 hover:text-rose-400"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
-                            )}
-                            <button
-                              onClick={() => toggle(habit.id)}
-                              aria-label="Убрать привычку"
-                              className="rounded-lg p-1.5 text-slate-500 transition hover:bg-white/10 hover:text-slate-200"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </div>
-                        <div className="mt-3 lg:mt-2">
-                          <p className="mb-1.5 text-xs text-slate-500 lg:mb-1">
-                            Цель в днях
-                          </p>
-                          <div className="grid grid-cols-5 gap-1.5">
-                            {goalOptions.map((days) => (
-                              <button
-                                key={days}
-                                onClick={() => {
-                                  setSaved(false);
-                                  setGoals((prev) => ({
-                                    ...prev,
-                                    [habit.id]: days,
-                                  }));
-                                }}
-                                aria-pressed={(goals[habit.id] ?? 30) === days}
-                                className={`rounded-lg border py-1.5 text-xs font-medium tabular-nums transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 lg:py-1 ${
-                                  (goals[habit.id] ?? 30) === days
-                                    ? "border-primary bg-primary text-white"
-                                    : "border-white/10 bg-white/5 text-slate-400 hover:border-white/20 hover:text-slate-200"
-                                }`}
-                              >
-                                {days}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-
-              {saveError && (
-                <p
-                  role="alert"
-                  className="mt-4 hidden rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-center text-xs text-rose-300 lg:mt-3 lg:block lg:shrink-0"
-                >
-                  Не удалось сохранить. Проверь подключение и попробуй ещё раз
-                </p>
-              )}
-              <button
-                onClick={save}
-                disabled={selectedHabits.length === 0 || saving}
-                className={`mt-5 hidden w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/5 disabled:text-slate-600 disabled:shadow-none lg:mt-3 lg:flex lg:shrink-0 lg:py-3 ${hydrated ? "" : "invisible"} ${
-                  saved
-                    ? "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30"
-                    : "bg-primary text-white shadow-lg shadow-primary/25 hover:bg-primary-hover"
-                }`}
-              >
-                {saved ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  <Flame className={`h-4 w-4 ${saving ? "animate-pulse" : ""}`} />
-                )}
-                {saveLabel}
-              </button>
-            </div>
-          </aside>
         </div>
       </div>
 
-      <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 flex items-center gap-4 border-t border-white/10 bg-ink/85 px-4 py-3 backdrop-blur-xl sm:px-6 md:bottom-0 lg:hidden">
+      <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 flex items-center gap-4 border-t border-white/10 bg-ink/85 px-4 py-3 backdrop-blur-xl sm:px-6 md:bottom-0">
         <div className={`min-w-0 flex-1 ${hydrated ? "" : "invisible"}`}>
           <p className={` text-xl font-semibold leading-none tabular-nums`}>
             {selectedHabits.length}
@@ -908,6 +760,32 @@ export default function Habits() {
             </div>
           </div>
         </div>
+      )}
+
+      {detailHabit && (
+        <HabitSheet
+          habit={detailHabit}
+          active={selected.includes(detailHabit.id)}
+          goal={goals[detailHabit.id] ?? 30}
+          onGoal={(days) => {
+            if (selected.includes(detailHabit.id)) setSaved(false);
+            setGoals((prev) => ({ ...prev, [detailHabit.id]: days }));
+          }}
+          onToggle={() => {
+            toggle(detailHabit.id);
+            setDetailHabit(null);
+          }}
+          onAskAi={hasAi(detailHabit.id) ? () => askAi(detailHabit) : undefined}
+          onDelete={
+            detailHabit.custom
+              ? () => {
+                  setDeleteTarget(detailHabit);
+                  setDetailHabit(null);
+                }
+              : undefined
+          }
+          onClose={() => setDetailHabit(null)}
+        />
       )}
 
       {clearOpen && (
