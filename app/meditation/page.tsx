@@ -14,7 +14,7 @@ import useWakeLock from "./useWakeLock";
 
 export default function Meditation() {
   const [techniqueIndex, setTechniqueIndex] = useState(0);
-  const [durationIndex, setDurationIndex] = useState(1);
+  const [durationIndex, setDurationIndex] = useState(0);
   const [elapsed, setElapsed] = useState(0);
   const [running, setRunning] = useState(false);
   const [today, setToday] = useState({ sessions: 0, minutes: 0 });

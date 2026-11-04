@@ -1,8 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Habit } from "./types";
 import HabitSheet from "./HabitSheet";
 import GoalFields from "./GoalFields";
@@ -21,9 +20,9 @@ import { type AiInfo, getAi, hasAi } from "./ai";
 import {
   deleteHabit,
   getHabits,
-  saveHabits,
-  startTracking,
   stopTracking,
+  trackHabit,
+  untrackHabit,
 } from "@/app/lib/local";
 import { sound } from "@/app/lib/sound";
 import {
@@ -47,7 +46,6 @@ export default function Habits() {
   const [custom, setCustom] = useState<Habit[]>([]);
   const [goals, setGoals] = useState<Record<string, number>>({});
   const [heldNow, setHeldNow] = useState<Record<string, number>>({});
-  const [heldEdits, setHeldEdits] = useState<Record<string, number>>({});
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("Все");
   const [modalOpen, setModalOpen] = useState(false);
@@ -57,21 +55,15 @@ export default function Habits() {
   const [newGoal, setNewGoal] = useState(30);
   const [newHeld, setNewHeld] = useState(0);
   const keyboardHeight = useKeyboardHeight();
-  const [saved, setSaved] = useState(false);
   const [hydrated, setHydrated] = useState(false);
-  const [trackedCount, setTrackedCount] = useState(0);
   const [clearOpen, setClearOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Habit | null>(null);
   const [detailHabit, setDetailHabit] = useState<Habit | null>(null);
+  const [untrackTarget, setUntrackTarget] = useState<Habit | null>(null);
   const [aiHabit, setAiHabit] = useState<Habit | null>(null);
   const [aiClosing, setAiClosing] = useState(false);
   const [aiInfo, setAiInfo] = useState<Record<string, AiInfo>>({});
   const [aiFailed, setAiFailed] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState(false);
-  const router = useRouter();
-  const loaded = useRef(false);
-  const savedDraft = useRef<string | null>(null);
 
   const closeAi = useCallback(() => {
     setAiClosing(true);
@@ -98,93 +90,46 @@ export default function Habits() {
           ...storedCustom.map((habit) => habit.id),
         ]);
         const selectedKeys = rows
-          .filter((row) => row.selected && validIds.has(row.key))
+          .filter((row) => row.tracked && validIds.has(row.key))
           .map((row) => row.key);
         const nextGoals: Record<string, number> = {};
         rows.forEach((row) => {
-          nextGoals[row.key] = row.goalDays;
+          nextGoals[row.key] = row.tracked ? row.trackedGoal : row.goalDays;
         });
-        const trackedRows = rows.filter((row) => row.tracked);
         const nextHeldNow: Record<string, number> = {};
-        const nextHeldEdits: Record<string, number> = {};
         rows.forEach((row) => {
           if (row.tracked && row.startedAt) {
             nextHeldNow[row.key] = Math.floor(
               (Date.now() - new Date(row.startedAt).getTime()) / DAY,
             );
           }
-          if (row.pendingHeld !== undefined) nextHeldEdits[row.key] = row.pendingHeld;
         });
         setHeldNow(nextHeldNow);
-        setHeldEdits(nextHeldEdits);
         setCustom(storedCustom);
         setSelected(selectedKeys);
         setGoals(nextGoals);
-        setTrackedCount(trackedRows.length);
-        setSaved(
-          trackedRows.length > 0 &&
-            trackedRows.length === selectedKeys.length &&
-            trackedRows.every(
-              (row) =>
-                row.selected &&
-                row.trackedGoal === row.goalDays &&
-                row.pendingHeld === undefined,
-            ),
-        );
-        loaded.current = true;
         setHydrated(true);
       })
       .catch(() => setHydrated(true));
   }, []);
 
-  const draft = JSON.stringify({
-    habits: [
-      ...custom.map((habit) => ({
-        key: habit.id,
-        name: habit.name,
-        category: habit.category,
-        icon: habit.icon,
-        custom: true,
-        selected: selected.includes(habit.id),
-        goalDays: goals[habit.id] ?? 30,
-        heldDays: heldEdits[habit.id],
-      })),
-      ...catalog
-        .filter((habit) => selected.includes(habit.id))
-        .map((habit) => ({
-          key: habit.id,
-          name: habit.name,
-          category: habit.category,
-          icon: habit.icon,
-          custom: false,
-          selected: true,
-          goalDays: goals[habit.id] ?? 30,
-          heldDays: heldEdits[habit.id],
-        })),
-    ],
-  });
-
   useEffect(() => {
-    if (!hydrated || !loaded.current) return;
-    if (savedDraft.current === null) savedDraft.current = draft;
-    if (draft === savedDraft.current) return;
-    const timer = window.setTimeout(() => {
-      saveHabits(draft)
-        .then(() => {
-          savedDraft.current = draft;
-        })
-        .catch(() => {});
-    }, 400);
-    return () => window.clearTimeout(timer);
-  }, [hydrated, draft]);
-
-  useEffect(() => {
-    if (!modalOpen && !clearOpen && !aiHabit && !deleteTarget && !detailHabit) return;
+    if (
+      !modalOpen &&
+      !clearOpen &&
+      !aiHabit &&
+      !deleteTarget &&
+      !detailHabit &&
+      !untrackTarget
+    ) {
+      return;
+    }
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setModalOpen(false);
         setClearOpen(false);
         setDeleteTarget(null);
+        setUntrackTarget(null);
         if (aiHabit) closeAi();
         else setDetailHabit(null);
       }
@@ -195,7 +140,7 @@ export default function Habits() {
       document.body.classList.remove("overflow-hidden");
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [modalOpen, clearOpen, aiHabit, deleteTarget, detailHabit, closeAi]);
+  }, [modalOpen, clearOpen, aiHabit, deleteTarget, detailHabit, untrackTarget, closeAi]);
 
   const all = [...catalog, ...custom];
 
@@ -247,24 +192,60 @@ export default function Habits() {
     }
   };
 
-  const toggle = (id: string) => {
-    if (selected.includes(id)) sound.deselect();
-    else sound.select();
-    setSaved(false);
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
-    );
-    setGoals((prev) => (prev[id] ? prev : { ...prev, [id]: 30 }));
+  const persistHabit = (habit: Habit, goal: number, held: number) => {
+    const wasTracked = selected.includes(habit.id);
+    const heldChanged = held !== (heldNow[habit.id] ?? 0);
+    return trackHabit({
+      key: habit.id,
+      name: habit.name,
+      category: habit.category,
+      icon: habit.icon,
+      custom: habit.custom === true,
+      goalDays: goal,
+      heldDays: heldChanged ? held : undefined,
+    }).then(() => {
+      if (!wasTracked) setSelected((prev) => [habit.id, ...prev]);
+      setGoals((prev) => ({ ...prev, [habit.id]: goal }));
+      setHeldNow((prev) => ({ ...prev, [habit.id]: held }));
+    });
+  };
+
+  const submitHabit = (habit: Habit, goal: number, held: number) => {
+    const wasTracked = selected.includes(habit.id);
+    setDetailHabit(null);
+    const unchanged =
+      wasTracked &&
+      goal === (goals[habit.id] ?? 30) &&
+      held === (heldNow[habit.id] ?? 0);
+    if (unchanged) return;
+    persistHabit(habit, goal, held)
+      .then(() => {
+        if (wasTracked) sound.select();
+        else sound.success();
+      })
+      .catch(() => {});
+  };
+
+  const removeFromTracking = (habit: Habit) => {
+    setUntrackTarget(null);
+    untrackHabit(habit.id)
+      .then(() => {
+        sound.remove();
+        setSelected((prev) => prev.filter((item) => item !== habit.id));
+        setHeldNow((prev) => {
+          const next = { ...prev };
+          delete next[habit.id];
+          return next;
+        });
+      })
+      .catch(() => {});
   };
 
   const clearAll = async () => {
     sound.remove();
-    setSaved(false);
     setSelected([]);
     setHeldNow({});
-    setHeldEdits({});
     setClearOpen(false);
-    setTrackedCount(0);
     try {
       await stopTracking();
     } catch {}
@@ -273,7 +254,6 @@ export default function Habits() {
   const removeCustom = async (habit: Habit) => {
     sound.remove();
     setDeleteTarget(null);
-    setSaved(false);
     setCustom((prev) => prev.filter((item) => item.id !== habit.id));
     setSelected((prev) => prev.filter((item) => item !== habit.id));
     setGoals((prev) => {
@@ -287,8 +267,7 @@ export default function Habits() {
       return next;
     });
     try {
-      const data = await deleteHabit(habit.id);
-      if (data.wasTracked) setTrackedCount((count) => Math.max(0, count - 1));
+      await deleteHabit(habit.id);
     } catch {}
   };
 
@@ -296,56 +275,26 @@ export default function Habits() {
     const trimmed = name.trim();
     if (!trimmed || duplicate) return;
     sound.create();
-    const id = `custom-${Date.now()}`;
-    setCustom((prev) => [
-      { id, name: trimmed, category: newCategory, icon: newIcon, custom: true },
-      ...prev,
-    ]);
-    setSelected((prev) => [id, ...prev]);
-    setGoals((prev) => ({ ...prev, [id]: newGoal }));
-    if (newHeld > 0) setHeldEdits((prev) => ({ ...prev, [id]: newHeld }));
+    const habit: Habit = {
+      id: `custom-${Date.now()}`,
+      name: trimmed,
+      category: newCategory,
+      icon: newIcon,
+      custom: true,
+    };
+    setCustom((prev) => [habit, ...prev]);
+    persistHabit(habit, newGoal, newHeld).catch(() => {});
     setName("");
     setNewCategory("Здоровье");
     setNewIcon("ban");
     setNewGoal(30);
     setNewHeld(0);
-    setSaved(false);
     setModalOpen(false);
   };
 
-  const save = async () => {
-    if (saving) return;
-    setSaving(true);
-    setSaveError(false);
-    try {
-      if (draft !== savedDraft.current) {
-        await saveHabits(draft);
-        savedDraft.current = draft;
-      }
-      await startTracking();
-    } catch {
-      setSaving(false);
-      setSaveError(true);
-      return;
-    }
-    setSaving(false);
-    sound.success();
-    setTrackedCount(selectedHabits.length);
-    setSaved(true);
-    router.push(TRACKER_PATH);
-  };
-
-  const saveLabel = saving
-    ? "Сохраняем…"
-    : saved
-      ? "Сохранено"
-      : trackedCount > 0
-        ? "Сохранить"
-        : "Начать отслеживать";
-
   return (
     <div
-      className={`relative min-h-screen px-4 pb-28 pt-24 text-slate-100 sm:px-6 sm:pt-32 lg:flex lg:h-dvh lg:min-h-150 lg:flex-col lg:overflow-hidden lg:px-10 lg:pb-24 lg:pt-24`}
+      className={`relative min-h-screen px-4 pb-16 pt-24 text-slate-100 sm:px-6 sm:pt-32 lg:flex lg:h-dvh lg:min-h-150 lg:flex-col lg:overflow-hidden lg:px-10 lg:pb-6 lg:pt-24`}
     >
       <style>{`
         @keyframes ai-fade{from{opacity:0}to{opacity:1}}
@@ -373,14 +322,14 @@ export default function Habits() {
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
-            {trackedCount > 0 && (
+            {selectedHabits.length > 0 && (
               <Link
                 href={TRACKER_PATH}
                 className="hidden items-center justify-center gap-2 rounded-xl border border-white/10 sm:inline-flex bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink active:scale-[0.98]"
               >
                 Мой прогресс
                 <span className="rounded-md bg-primary/20 px-1.5 text-xs tabular-nums text-primary-soft">
-                  {trackedCount}
+                  {selectedHabits.length}
                 </span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
@@ -450,7 +399,7 @@ export default function Habits() {
                   {filtered.length}
                 </span>
                 <span className="mx-2 text-slate-700">·</span>
-                Выбрано:{" "}
+                В работе:{" "}
                 <span className="tabular-nums text-slate-300">
                   {hydrated ? selectedHabits.length : "–"}
                 </span>
@@ -530,7 +479,7 @@ export default function Habits() {
                       aria-haspopup="dialog"
                       aria-label={
                         active
-                          ? `${habit.name}, выбрано, цель ${goal} ${plural(goal)}`
+                          ? `${habit.name}, в работе, цель ${goal} ${plural(goal)}`
                           : habit.name
                       }
                       className={`group flex min-h-16 min-w-0 cursor-pointer select-none items-center gap-2 rounded-2xl border p-2 text-left backdrop-blur transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink active:scale-[0.98] sm:gap-3 sm:p-3 ${
@@ -577,35 +526,6 @@ export default function Habits() {
             )}
           </section>
         </div>
-      </div>
-
-      <div className="fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 flex items-center gap-4 border-t border-white/10 bg-ink/85 px-4 py-3 backdrop-blur-xl sm:px-6 md:bottom-0">
-        <div className={`min-w-0 flex-1 ${hydrated ? "" : "invisible"}`}>
-          <p className={` text-xl font-semibold leading-none tabular-nums`}>
-            {selectedHabits.length}
-          </p>
-          <p
-            className={`mt-1 truncate text-xs ${saveError ? "text-rose-400" : "text-slate-500"}`}
-          >
-            {saveError ? "Не удалось сохранить" : "выбрано"}
-          </p>
-        </div>
-        <button
-          onClick={save}
-          disabled={selectedHabits.length === 0 || saving}
-          className={`flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/5 disabled:text-slate-600 disabled:shadow-none ${hydrated ? "" : "invisible"} ${
-            saved
-              ? "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30"
-              : "bg-primary text-white shadow-lg shadow-primary/25 hover:bg-primary-hover"
-          }`}
-        >
-          {saved ? (
-            <Check className="h-4 w-4" />
-          ) : (
-            <Flame className={`h-4 w-4 ${saving ? "animate-pulse" : ""}`} />
-          )}
-          {saveLabel}
-        </button>
       </div>
 
       {modalOpen && (
@@ -780,22 +700,10 @@ export default function Habits() {
           habit={detailHabit}
           active={selected.includes(detailHabit.id)}
           goal={goals[detailHabit.id] ?? 30}
-          onGoal={(days) => {
-            if (selected.includes(detailHabit.id)) setSaved(false);
-            setGoals((prev) => ({ ...prev, [detailHabit.id]: days }));
-          }}
-          held={heldEdits[detailHabit.id] ?? heldNow[detailHabit.id] ?? 0}
-          onHeld={(days) => {
-            if (selected.includes(detailHabit.id)) setSaved(false);
-            setHeldEdits((prev) => {
-              const next = { ...prev };
-              if (days === (heldNow[detailHabit.id] ?? 0)) delete next[detailHabit.id];
-              else next[detailHabit.id] = days;
-              return next;
-            });
-          }}
-          onToggle={() => {
-            toggle(detailHabit.id);
+          held={heldNow[detailHabit.id] ?? 0}
+          onSubmit={(goal, held) => submitHabit(detailHabit, goal, held)}
+          onRemove={() => {
+            setUntrackTarget(detailHabit);
             setDetailHabit(null);
           }}
           onAskAi={hasAi(detailHabit.id) ? () => askAi(detailHabit) : undefined}
@@ -809,6 +717,51 @@ export default function Habits() {
           }
           onClose={() => setDetailHabit(null)}
         />
+      )}
+
+      {untrackTarget && (
+        <div
+          onClick={() => setUntrackTarget(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm sm:p-6"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="untrack-title"
+            aria-describedby="untrack-text"
+            className="w-full max-w-md rounded-3xl border border-white/10 bg-surface p-6 shadow-2xl shadow-black/50"
+          >
+            <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/15 text-rose-400">
+              <Trash2 className="h-6 w-6" />
+            </span>
+            <h2 id="untrack-title" className="text-xl font-bold">
+              Убрать «{untrackTarget.name}»?
+            </h2>
+            <p
+              id="untrack-text"
+              className="mt-2 text-sm leading-relaxed text-slate-400"
+            >
+              Серия, рекорд и отметки в календаре по этой привычке удалятся. Это
+              действие нельзя отменить.
+            </p>
+            <div className="mt-6 flex gap-3">
+              <button
+                onClick={() => setUntrackTarget(null)}
+                autoFocus
+                className="flex-1 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={() => removeFromTracking(untrackTarget)}
+                className="flex-1 rounded-xl bg-rose-500 py-3 text-sm font-semibold text-white shadow-lg shadow-rose-500/25 transition hover:bg-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400/70 active:scale-[0.98]"
+              >
+                Убрать
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {clearOpen && (
@@ -834,7 +787,7 @@ export default function Habits() {
               id="clear-text"
               className="mt-2 text-sm leading-relaxed text-slate-400"
             >
-              Выбранные привычки пропадут и со страницы прогресса, а серии,
+              Все привычки пропадут со страницы прогресса, а серии,
               рекорды и срывы будут удалены. Это действие нельзя отменить.
             </p>
             <div className="mt-6 flex gap-3">

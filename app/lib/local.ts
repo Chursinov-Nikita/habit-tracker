@@ -17,13 +17,12 @@ type Data = {
   costs?: Record<string, { money: number; minutes: number }>;
 };
 
-export type HabitDraft = {
+export type TrackInput = {
   key: string;
   name: string;
   category: string;
   icon: string;
   custom: boolean;
-  selected: boolean;
   goalDays: number;
   heldDays?: number;
 };
@@ -110,62 +109,6 @@ export const getHabits = () =>
       .map(strip),
   );
 
-export const saveHabits = (draft: string) =>
-  run(() => {
-    const data = read();
-    const parsed = JSON.parse(draft) as { habits?: HabitDraft[] };
-    const input = Array.isArray(parsed.habits) ? parsed.habits.slice(0, 200) : [];
-    const keys = new Set(input.map((h) => h.key));
-
-    const removed = new Set(
-      data.habits.filter((h) => h.custom && !keys.has(h.key)).map((h) => h.id),
-    );
-    data.habits = data.habits.filter((h) => !removed.has(h.id));
-    data.logs = data.logs.filter((l) => !removed.has(l.habitId));
-    data.habits.forEach((h) => {
-      if (!keys.has(h.key)) h.selected = false;
-    });
-
-    input.forEach((h) => {
-      const goalDays =
-        Number.isInteger(h.goalDays) && h.goalDays > 0 && h.goalDays <= MAX_GOAL_DAYS
-          ? h.goalDays
-          : 30;
-      const pendingHeld =
-        Number.isInteger(h.heldDays) &&
-        h.heldDays! >= 0 &&
-        h.heldDays! <= MAX_HELD_DAYS
-          ? h.heldDays
-          : undefined;
-      const existing = data.habits.find((item) => item.key === h.key);
-      if (existing) {
-        existing.selected = h.selected === true;
-        existing.goalDays = goalDays;
-        existing.pendingHeld = pendingHeld;
-        return;
-      }
-      data.habits.push({
-        id: newId(),
-        key: h.key.slice(0, 64),
-        name: h.name.trim().slice(0, 40),
-        category: h.category.slice(0, 40),
-        icon: h.icon.slice(0, 20),
-        custom: h.custom === true,
-        selected: h.selected === true,
-        goalDays,
-        tracked: false,
-        trackedGoal: 30,
-        startedAt: null,
-        best: 0,
-        relapses: 0,
-        pendingHeld,
-        createdAt: new Date().toISOString(),
-      });
-    });
-
-    write(data);
-  });
-
 const moveStart = (data: Data, habit: StoredHabit, heldDays: number) => {
   const started = new Date(Date.now() - heldDays * DAY);
   const startDay = dayKey(started, tz());
@@ -177,31 +120,53 @@ const moveStart = (data: Data, habit: StoredHabit, heldDays: number) => {
   );
 };
 
-export const startTracking = () =>
+export const trackHabit = (input: TrackInput) =>
   run(() => {
     const data = read();
-    const now = new Date().toISOString();
-    const dropped = new Set(
-      data.habits.filter((h) => !h.selected && h.tracked).map((h) => h.id),
-    );
-    data.logs = data.logs.filter((l) => !dropped.has(l.habitId));
-    data.habits.forEach((h) => {
-      if (dropped.has(h.id)) {
-        Object.assign(h, { tracked: false, startedAt: null, best: 0, relapses: 0 });
-      } else if (h.selected && h.tracked) {
-        h.trackedGoal = h.goalDays;
-      } else if (h.selected) {
-        Object.assign(h, {
-          tracked: true,
-          trackedGoal: h.goalDays,
-          startedAt: now,
-          best: 0,
-          relapses: 0,
-        });
-      }
-      if (h.selected && h.pendingHeld !== undefined) moveStart(data, h, h.pendingHeld);
-      delete h.pendingHeld;
-    });
+    const goalDays =
+      Number.isInteger(input.goalDays) &&
+      input.goalDays > 0 &&
+      input.goalDays <= MAX_GOAL_DAYS
+        ? input.goalDays
+        : 30;
+    let habit = data.habits.find((h) => h.key === input.key);
+    if (!habit) {
+      habit = {
+        id: newId(),
+        key: input.key.slice(0, 64),
+        name: input.name.trim().slice(0, 40),
+        category: input.category.slice(0, 40),
+        icon: input.icon.slice(0, 20),
+        custom: input.custom,
+        selected: true,
+        goalDays,
+        tracked: false,
+        trackedGoal: goalDays,
+        startedAt: null,
+        best: 0,
+        relapses: 0,
+        createdAt: new Date().toISOString(),
+      };
+      data.habits.push(habit);
+    }
+    if (!habit.tracked || !habit.startedAt) {
+      Object.assign(habit, {
+        tracked: true,
+        startedAt: new Date().toISOString(),
+        best: 0,
+        relapses: 0,
+      });
+    }
+    Object.assign(habit, { selected: true, goalDays, trackedGoal: goalDays });
+    const held = input.heldDays;
+    if (
+      held !== undefined &&
+      Number.isInteger(held) &&
+      held >= 0 &&
+      held <= MAX_HELD_DAYS
+    ) {
+      moveStart(data, habit, held);
+    }
     write(data);
   });
 

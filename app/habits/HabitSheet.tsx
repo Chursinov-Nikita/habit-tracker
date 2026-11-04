@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Ban, Sparkles, Trash2, X } from "lucide-react";
 import { Habit } from "./types";
 import { icons } from "./data";
@@ -10,10 +11,9 @@ type HabitSheetProps = {
   habit: Habit;
   active: boolean;
   goal: number;
-  onGoal: (days: number) => void;
   held: number;
-  onHeld: (days: number) => void;
-  onToggle: () => void;
+  onSubmit: (goal: number, held: number) => void;
+  onRemove: () => void;
   onAskAi?: () => void;
   onDelete?: () => void;
   onClose: () => void;
@@ -23,16 +23,17 @@ export default function HabitSheet({
   habit,
   active,
   goal,
-  onGoal,
   held,
-  onHeld,
-  onToggle,
+  onSubmit,
+  onRemove,
   onAskAi,
   onDelete,
   onClose,
 }: HabitSheetProps) {
   const Icon = icons[habit.icon] ?? Ban;
   const keyboardHeight = useKeyboardHeight();
+  const [draftGoal, setDraftGoal] = useState(goal);
+  const [draftHeld, setDraftHeld] = useState(held);
 
   return (
     <div
@@ -80,20 +81,25 @@ export default function HabitSheet({
         )}
 
         <div className="mt-5">
-          <GoalFields goal={goal} onGoal={onGoal} held={held} onHeld={onHeld} />
+          <GoalFields
+            goal={draftGoal}
+            onGoal={setDraftGoal}
+            held={draftHeld}
+            onHeld={setDraftHeld}
+          />
         </div>
 
         <div className="mt-5 flex gap-3">
           {active ? (
             <>
               <button
-                onClick={onToggle}
+                onClick={onRemove}
                 className="flex-1 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-medium text-slate-300 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
               >
-                Убрать из выбранных
+                Убрать
               </button>
               <button
-                onClick={onClose}
+                onClick={() => onSubmit(draftGoal, draftHeld)}
                 className="flex-1 rounded-xl bg-primary py-3 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 active:scale-[0.98]"
               >
                 Готово
@@ -101,10 +107,10 @@ export default function HabitSheet({
             </>
           ) : (
             <button
-              onClick={onToggle}
+              onClick={() => onSubmit(draftGoal, draftHeld)}
               className="flex-1 rounded-xl bg-primary py-3 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 active:scale-[0.98]"
             >
-              Выбрать привычку
+              Начать отслеживать
             </button>
           )}
         </div>
