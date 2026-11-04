@@ -1,23 +1,11 @@
 "use client";
 
-import {
-  useEffect,
-  useRef,
-  useState,
-  useSyncExternalStore,
-  type ChangeEvent,
-} from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { icons } from "@/app/habits/data";
 import { ServerHabit } from "@/app/habits/types";
-import {
-  exportData,
-  getHabits,
-  getProfile,
-  importData,
-  type LocalStats,
-} from "@/app/lib/local";
-import { isSoundOn, setSoundOn, sound, subscribeSound } from "@/app/lib/sound";
+import { getHabits, getProfile, type LocalStats } from "@/app/lib/local";
+import { sound } from "@/app/lib/sound";
 import { markCelebrated, readCelebrated } from "@/app/lib/celebrated";
 import Celebration from "@/app/elements/Celebration";
 import {
@@ -25,21 +13,18 @@ import {
   Check,
   Clock,
   Crown,
-  Download,
   Flame,
   Lock,
   Plus,
   RotateCcw,
-  Smartphone,
+  Settings,
   Sparkles,
   Target,
   Trophy,
-  Upload,
   User,
-  Volume2,
-  VolumeX,
 } from "lucide-react";
 import { DAY, HABITS_PATH, levels, achievements, plural } from "./data";
+import SettingsSheet from "./SettingsSheet";
 
 type Profile = {
   createdAt: string;
@@ -51,16 +36,8 @@ export default function Profile() {
   const [habits, setHabits] = useState<ServerHabit[]>([]);
   const [now, setNow] = useState(0);
   const [error, setError] = useState(false);
-  const [importError, setImportError] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [celebrated, setCelebrated] = useState<Set<string> | null>(null);
-  const fileInput = useRef<HTMLInputElement>(null);
-  const soundOn = useSyncExternalStore(subscribeSound, isSoundOn, () => true);
-
-  const toggleSound = () => {
-    setSoundOn(!soundOn);
-    if (!soundOn) sound.select();
-  };
-
   useEffect(() => {
     getProfile()
       .then((data) => {
@@ -78,29 +55,6 @@ export default function Profile() {
       })
       .catch(() => {});
   }, []);
-
-  const downloadBackup = () => {
-    sound.tap();
-    const blob = new Blob([exportData()], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `tracker-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const restoreBackup = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
-    try {
-      importData(await file.text());
-      window.location.reload();
-    } catch {
-      setImportError(true);
-    }
-  };
 
   const best = profile?.stats.bestStreak ?? 0;
   const current = profile?.stats.currentStreak ?? 0;
@@ -214,86 +168,40 @@ export default function Profile() {
       <div className="relative mx-auto max-w-6xl">
         {profile ? (
           <>
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-              <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-surface/70 p-4 shadow-2xl sm:p-5 shadow-black/30 backdrop-blur-xl lg:col-start-1 lg:row-start-1">
-                <div className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-accent/25 blur-3xl" />
-                <div className="pointer-events-none absolute -bottom-24 left-1/4 h-56 w-56 rounded-full bg-primary/15 blur-3xl" />
-                <div className="relative flex items-center gap-4">
-                  <div className="shrink-0 rounded-full bg-linear-to-br from-primary via-accent to-accent-soft p-0.5 shadow-[0_0_30px_-4px_rgba(139,92,246,0.7)]">
-                    <span className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-ink bg-[#1E1B4B] text-white sm:h-20 sm:w-20">
-                      <User className="h-7 w-7 sm:h-9 sm:w-9" />
-                    </span>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h1 className="truncate font-display text-xl font-bold sm:text-3xl">
-                      Мой профиль
-                    </h1>
-                    <p className="flex items-center gap-1.5 text-sm text-slate-400">
-                      <Smartphone className="h-4 w-4 shrink-0" />
-                      Данные на этом устройстве
-                    </p>
-                    <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={downloadBackup}
-                        className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-primary/15 px-3 py-1.5 text-xs sm:min-h-0 font-semibold text-primary-pale ring-1 ring-primary/30 transition hover:bg-primary/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
-                      >
-                        <Download className="h-3.5 w-3.5" />
-                        Копия
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => fileInput.current?.click()}
-                        className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-white/5 px-3 py-1.5 text-xs sm:min-h-0 font-semibold text-slate-300 ring-1 ring-white/10 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
-                      >
-                        <Upload className="h-3.5 w-3.5" />
-                        Восстановить
-                      </button>
-                      <button
-                        type="button"
-                        onClick={toggleSound}
-                        aria-pressed={soundOn}
-                        aria-label={soundOn ? "Звук включён" : "Звук выключен"}
-                        className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold ring-1 transition sm:min-h-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 ${
-                          soundOn
-                            ? "bg-emerald-400/10 text-emerald-300 ring-emerald-400/30 hover:bg-emerald-400/20"
-                            : "bg-white/5 text-slate-400 ring-white/10 hover:bg-white/10"
-                        }`}
-                      >
-                        {soundOn ? (
-                          <Volume2 className="h-3.5 w-3.5" />
-                        ) : (
-                          <VolumeX className="h-3.5 w-3.5" />
-                        )}
-                        <span className="hidden sm:inline">{soundOn ? "Звук" : "Без звука"}</span>
-                      </button>
-                      <input
-                        ref={fileInput}
-                        type="file"
-                        accept="application/json,.json"
-                        onChange={restoreBackup}
-                        className="hidden"
-                      />
-                    </div>
-                    {importError && (
-                      <p role="alert" className="mt-2 text-xs text-rose-400">
-                        Этот файл не похож на копию трекера
-                      </p>
-                    )}
-                    <div className="mt-2">
-                      <span className="text-xs text-slate-500">
-                        С нами с{" "}
-                        {new Date(profile.createdAt).toLocaleDateString(
-                          "ru-RU",
-                          { day: "numeric", month: "long", year: "numeric" },
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </section>
+            <header className="mb-5 flex items-center gap-3 sm:mb-6">
+              <div className="shrink-0 rounded-full bg-linear-to-br from-primary via-accent to-accent-soft p-0.5">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-ink bg-[#1E1B4B] text-white">
+                  <User className="h-6 w-6" />
+                </span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <h1 className="font-display text-2xl font-bold leading-tight sm:text-3xl">
+                  Мой профиль
+                </h1>
+                <p className="text-xs text-slate-500">
+                  С нами с{" "}
+                  {new Date(profile.createdAt).toLocaleDateString("ru-RU", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  sound.tap();
+                  setSettingsOpen(true);
+                }}
+                aria-label="Настройки"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
+              >
+                <Settings className="h-5 w-5" />
+              </button>
+            </header>
 
-              <section className="relative overflow-hidden rounded-3xl border border-primary/30 bg-linear-to-br from-primary/20 via-surface/70 to-surface/70 p-4 shadow-2xl sm:p-5 shadow-black/30 backdrop-blur-xl lg:col-start-2 lg:row-start-1">
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+              <section className="relative overflow-hidden rounded-3xl border border-primary/30 bg-linear-to-br from-primary/20 via-surface/70 to-surface/70 p-4 shadow-2xl sm:p-5 shadow-black/30 backdrop-blur-xl lg:col-start-1 lg:row-start-1">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-xs font-semibold text-primary-soft">
                     Уровень {levelIndex + 1} из {levels.length}
@@ -389,7 +297,7 @@ export default function Profile() {
                 </div>
               </section>
 
-              <section className="hidden flex-col rounded-3xl border border-white/10 bg-surface/70 p-4 shadow-2xl shadow-black/30 backdrop-blur-xl lg:flex lg:col-start-2 lg:row-span-2 lg:row-start-2 lg:h-0 lg:min-h-full">
+              <section className="hidden flex-col rounded-3xl border border-white/10 bg-surface/70 p-4 shadow-2xl shadow-black/30 backdrop-blur-xl lg:flex lg:col-start-2 lg:row-span-3 lg:row-start-1 lg:h-0 lg:min-h-full">
                 <div className="mb-3 flex items-center justify-between lg:shrink-0">
                   <h2 className="text-base font-semibold">Мои привычки</h2>
                   <span className="rounded-lg bg-white/5 px-2 py-0.5 text-xs font-semibold tabular-nums text-slate-300">
@@ -481,7 +389,7 @@ export default function Profile() {
             </div>
           ) : (
             <div aria-hidden="true" className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-              <div className="h-36 animate-pulse rounded-3xl bg-white/5" />
+              <div className="h-14 animate-pulse rounded-2xl bg-white/5 lg:col-span-2" />
               <div className="h-36 animate-pulse rounded-3xl bg-white/5" />
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:gap-2.5">
                 {[0, 1, 2, 3, 4, 5].map((tile) => (
@@ -494,6 +402,8 @@ export default function Profile() {
           )
         )}
       </div>
+
+      {settingsOpen && <SettingsSheet onClose={() => setSettingsOpen(false)} />}
 
       {celebration && (
         <Celebration
