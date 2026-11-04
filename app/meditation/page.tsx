@@ -10,6 +10,7 @@ import {
 } from "./data";
 import { addMeditation, getMeditationToday } from "@/app/lib/local";
 import { sound } from "@/app/lib/sound";
+import useWakeLock from "./useWakeLock";
 
 export default function Meditation() {
   const [techniqueIndex, setTechniqueIndex] = useState(0);
@@ -17,6 +18,8 @@ export default function Meditation() {
   const [elapsed, setElapsed] = useState(0);
   const [running, setRunning] = useState(false);
   const [today, setToday] = useState({ sessions: 0, minutes: 0 });
+
+  useWakeLock(running);
 
   const phases = techniques[techniqueIndex].phases;
   const cycle = phases.reduce((sum, item) => sum + item.seconds, 0);

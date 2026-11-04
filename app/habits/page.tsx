@@ -5,11 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Habit } from "./types";
 import HabitSheet from "./HabitSheet";
+import GoalFields from "./GoalFields";
+import useKeyboardHeight from "./useKeyboardHeight";
 import {
   catalog,
   categories,
   formCategories,
-  goalOptions,
   pickerIcons,
   icons,
   DAY,
@@ -54,6 +55,8 @@ export default function Habits() {
   const [newCategory, setNewCategory] = useState("Здоровье");
   const [newIcon, setNewIcon] = useState("ban");
   const [newGoal, setNewGoal] = useState(30);
+  const [newHeld, setNewHeld] = useState(0);
+  const keyboardHeight = useKeyboardHeight();
   const [saved, setSaved] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [trackedCount, setTrackedCount] = useState(0);
@@ -300,10 +303,12 @@ export default function Habits() {
     ]);
     setSelected((prev) => [id, ...prev]);
     setGoals((prev) => ({ ...prev, [id]: newGoal }));
+    if (newHeld > 0) setHeldEdits((prev) => ({ ...prev, [id]: newHeld }));
     setName("");
     setNewCategory("Здоровье");
     setNewIcon("ban");
     setNewGoal(30);
+    setNewHeld(0);
     setSaved(false);
     setModalOpen(false);
   };
@@ -606,6 +611,7 @@ export default function Habits() {
       {modalOpen && (
         <div
           onClick={() => setModalOpen(false)}
+          style={keyboardHeight > 0 ? { paddingBottom: keyboardHeight } : undefined}
           className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-0 backdrop-blur-sm sm:items-center sm:p-6"
         >
           <div
@@ -613,7 +619,7 @@ export default function Habits() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="new-habit-title"
-            className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-surface shadow-2xl shadow-black/50 sm:rounded-3xl"
+            className="flex max-h-[min(92vh,100%)] w-full max-w-lg flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-surface shadow-2xl shadow-black/50 sm:rounded-3xl"
           >
             <div className="px-6 pb-4 pt-3 sm:pt-6">
               <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/15 sm:hidden" />
@@ -741,36 +747,13 @@ export default function Habits() {
                 </div>
               </div>
 
-              <div>
-                <p className="mb-2 text-sm font-medium text-slate-300">Цель</p>
-                <div className="grid grid-cols-5 gap-2">
-                  {goalOptions.map((days) => (
-                    <button
-                      key={days}
-                      onClick={() => setNewGoal(days)}
-                      aria-pressed={newGoal === days}
-                      className={`rounded-xl border py-2.5 text-center transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 ${
-                        newGoal === days
-                          ? "border-primary bg-primary text-white"
-                          : "border-white/10 bg-white/5 text-slate-400 hover:border-white/20 hover:text-slate-200"
-                      }`}
-                    >
-                      <span
-                        className={` block text-lg font-semibold leading-none`}
-                      >
-                        {days}
-                      </span>
-                      <span
-                        className={`mt-1 block text-[11px] ${
-                          newGoal === days ? "text-white/70" : "text-slate-500"
-                        }`}
-                      >
-                        дней
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <GoalFields
+                goal={newGoal}
+                onGoal={setNewGoal}
+                held={newHeld}
+                onHeld={setNewHeld}
+                labelClassName="mb-2 block text-sm font-medium text-slate-300"
+              />
             </div>
 
             <div className="flex gap-3 border-t border-white/10 bg-surface p-4 sm:px-6">
