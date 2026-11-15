@@ -33,7 +33,7 @@ export default function TabBar() {
       <div aria-hidden="true" className="h-20 md:hidden" />
       <nav
         aria-label="Разделы приложения"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-white/8 bg-ink/55 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-ink/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
       >
         <ul className="relative mx-auto flex h-16 max-w-lg items-stretch">
           {activeIndex >= 0 && (

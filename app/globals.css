@@ -13,12 +13,10 @@
   --color-accent-pale: #C4B5FD;
   --color-ink: #0B0F1A;
   --color-surface: #111827;
-  --color-bar: #131428;
 }
 
 html {
   font-family: var(--font-sans);
-  scroll-padding-top: 5.5rem;
 }
 
 @keyframes page-in {
