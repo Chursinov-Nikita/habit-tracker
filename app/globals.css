@@ -17,6 +17,7 @@
 
 html {
   font-family: var(--font-sans);
+  scroll-padding-top: 5.5rem;
 }
 
 @keyframes page-in {

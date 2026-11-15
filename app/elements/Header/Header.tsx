@@ -65,8 +65,8 @@ export default function Header() {
   }
 
   return (
-    <header className="absolute inset-x-0 top-0 z-20 mx-auto max-w-7xl px-6 pt-5 sm:pt-8">
-      <div className="flex items-center justify-between gap-4">
+    <header className="fixed inset-x-0 top-0 z-30 bg-ink">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 pb-3 pt-5 sm:pb-4 sm:pt-8">
         <Link
           href={isHome ? "/" : "/progress"}
           className="group flex items-center gap-2 transition-opacity hover:opacity-90"

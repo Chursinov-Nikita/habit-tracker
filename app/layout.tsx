@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   title: "Трекер",
   description:
     "Удобный трекер, который поможет контролировать прогресс, оставаться мотивированным и избавляться от вредных привычек.",
-  appleWebApp: { capable: true, title: "Трекер", statusBarStyle: "black-translucent" },
+  appleWebApp: { capable: true, title: "Трекер", statusBarStyle: "black" },
 };
 
 export const viewport: Viewport = {
