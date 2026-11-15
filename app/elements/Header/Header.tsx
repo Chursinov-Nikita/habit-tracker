@@ -65,7 +65,7 @@ export default function Header() {
   }
 
   return (
-    <header className="fixed inset-x-0 top-0 z-30 border-b border-white/8 bg-ink/55 backdrop-blur-xl">
+    <header className="fixed inset-x-0 top-0 z-30 border-b border-white/8 bg-linear-to-b from-bar from-25% to-ink/55 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 pb-3 pt-5 sm:pb-4 sm:pt-8">
         <Link
           href={isHome ? "/" : "/progress"}
